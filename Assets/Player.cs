@@ -1,20 +1,30 @@
+using System.ComponentModel;
 using System.Linq;
+using NUnit.Framework;
 using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class Player : NetworkBehaviour
 {
     public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
-    public bool IsComputerPlayer = false;
-    public bool IsLocal = false;
+
+    private bool IsComputerPlayer = false;
+    public float speed = 5f;
+    private CharacterController charController;
+    private Camera computerPlayerCamera;
 
     void Start()
     {
+        computerPlayerCamera = transform.Find("ComputerPlayerCamera").GetComponent<Camera>();
+        charController = GetComponent<CharacterController>();
         var tags = CurrentPlayer.ReadOnlyTags();
         bool isThisComputer = tags.Contains("ComputerPlayer") && IsOwner;
         bool isRemoteComputer = tags.Contains("PhonePlayer") && !IsOwner;
         IsComputerPlayer = isThisComputer || isRemoteComputer;
+
+        if (IsComputerPlayer)
 
         if (isThisComputer) 
         {
@@ -24,14 +34,6 @@ public class Player : NetworkBehaviour
         {
             gameObject.name = "ComputerPlayerNetworked";
         } 
-        else if (IsOwner) 
-        {
-            gameObject.name = "PhonePlayerLocal";
-        }
-        else 
-        {
-            gameObject.name = "PhonePlayerNetwork";
-        }
     }
 
     public override void OnNetworkSpawn()
@@ -63,6 +65,14 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        transform.position = Position.Value;
+        if (IsComputerPlayer && IsOwner)
+        {
+            // transform.position = Position.Value;
+            float moveX = Input.GetAxis("Horizontal");
+            float moveZ = Input.GetAxis("Vertical");
+
+            Vector3 move = transform.right * moveX + transform.forward * moveZ;
+            charController.Move(move * speed * Time.deltaTime);
+        }
     }
 }

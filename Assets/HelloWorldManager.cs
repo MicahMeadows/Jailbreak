@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class HelloWorldManager : MonoBehaviour
 {
-    private NetworkManager m_NetworkManager;
+    private NetworkManager networkManager;
 
     void Awake()
     {
-        m_NetworkManager = GetComponent<NetworkManager>();
+        networkManager = GetComponent<NetworkManager>();
     }
 
     void OnGUI()
     {
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
-        if (!m_NetworkManager.IsClient && !m_NetworkManager.IsServer)
+        if (!networkManager.IsClient && !networkManager.IsServer)
         {
             StartButtons();
         }
@@ -29,33 +29,33 @@ public class HelloWorldManager : MonoBehaviour
 
     void StartButtons()
     {
-        if (GUILayout.Button("Host")) m_NetworkManager.StartHost();
-        if (GUILayout.Button("Client")) m_NetworkManager.StartClient();
-        if (GUILayout.Button("Server")) m_NetworkManager.StartServer();
+        if (GUILayout.Button("Host")) networkManager.StartHost();
+        if (GUILayout.Button("Client")) networkManager.StartClient();
+        if (GUILayout.Button("Server")) networkManager.StartServer();
     }
 
     void StatusLabels()
     {
-        var mode = m_NetworkManager.IsHost ?
-            "Host" : m_NetworkManager.IsServer ? "Server" : "Client";
+        var mode = networkManager.IsHost ?
+            "Host" : networkManager.IsServer ? "Server" : "Client";
 
         GUILayout.Label("Transport: " +
-            m_NetworkManager.NetworkConfig.NetworkTransport.GetType().Name);
+            networkManager.NetworkConfig.NetworkTransport.GetType().Name);
         GUILayout.Label("Mode: " + mode);
     }
 
     void SubmitNewPosition()
     {
-        if (GUILayout.Button(m_NetworkManager.IsServer ? "Move" : "Request Position Change"))
+        if (GUILayout.Button(networkManager.IsServer ? "Move" : "Request Position Change"))
         {
-            if (m_NetworkManager.IsServer && !m_NetworkManager.IsClient )
+            if (networkManager.IsServer && !networkManager.IsClient )
             {
-                foreach (ulong uid in m_NetworkManager.ConnectedClientsIds)
-                    m_NetworkManager.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<Player>().Move();
+                foreach (ulong uid in networkManager.ConnectedClientsIds)
+                    networkManager.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<Player>().Move();
             }
             else
             {
-                var playerObject = m_NetworkManager.SpawnManager.GetLocalPlayerObject();
+                var playerObject = networkManager.SpawnManager.GetLocalPlayerObject();
                 var player = playerObject.GetComponent<Player>();
                 player.Move();
             }
