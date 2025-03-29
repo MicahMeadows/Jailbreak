@@ -26,6 +26,7 @@ public class PlayerSpawner : NetworkBehaviour
         if (IsServer && clientId != OwnerClientId)
         {
             InstantiatePlayer(phonePlayerPrefab, clientId);
+            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId);
         }
     }
 

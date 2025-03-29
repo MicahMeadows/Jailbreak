@@ -356,6 +356,7 @@ MonoBehaviour:
   Position:
     m_InternalValue: {x: 0, y: 0, z: 0}
   speed: 5
+  computerPlayerCam: {fileID: 7168083831101664303}
 --- !u!114 &3975358820341156081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,7 +408,7 @@ GameObject:
   - component: {fileID: 869150623737528504}
   - component: {fileID: 7815317290198829901}
   m_Layer: 0
-  m_Name: ComputerPlayerCamera
+  m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
