@@ -7,6 +7,7 @@ public class PlayerSpawner : NetworkBehaviour
 {
     public NetworkObject computerPlayerPrefab;
     public NetworkObject phonePlayerPrefab;
+    public NetworkObject dronePrefab;
 
     public override void OnNetworkSpawn()
     {
