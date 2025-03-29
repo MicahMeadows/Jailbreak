@@ -10,6 +10,7 @@ public class PlayerSpawner : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
         if (IsServer)
         {
             InstantiatePlayer(computerPlayerPrefab, OwnerClientId);

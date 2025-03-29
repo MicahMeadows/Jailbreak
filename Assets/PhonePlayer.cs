@@ -7,10 +7,15 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject computerPlayer = null;
     private GameObject cube;
 
-    public NetworkVariable<bool> isVisible = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public NetworkVariable<bool> isVisible = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+        if (!IsServer)
+        {
+            isVisible.Value = true;
+        }
         isVisible.OnValueChanged += OnIsVisibleChanged;
     }
 
@@ -37,7 +42,7 @@ public class PhonePlayer : NetworkBehaviour
             transform.parent = computerPlayer.transform;
         }
 
-        if (IsClient)
+        if (!IsServer)
         {
             if (Input.GetKeyDown(KeyCode.Space)) 
             {
