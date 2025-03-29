@@ -10,31 +10,29 @@ public class PlayerSpawner : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
-
-        // Debug.Log($"On network spawn. IsOwner: {IsOwner}");
-        var tags = CurrentPlayer.ReadOnlyTags();
-        bool isThisComputer = tags.Contains("ComputerPlayer") && IsOwner;
-        bool isRemoteComputer = tags.Contains("PhonePlayer") && !IsOwner;
-
-        if (isThisComputer || isRemoteComputer)
+        if (IsServer)
         {
-            InstantiatePlayer(computerPlayerPrefab);
-        }
-        else
-        {
-            InstantiatePlayer(phonePlayerPrefab);
+            InstantiatePlayer(computerPlayerPrefab, OwnerClientId);
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }
     }
 
-    private void InstantiatePlayer(NetworkObject playerPrefab)
+    private void OnClientConnected(ulong clientId)
+    {
+        Debug.Log($"Client {clientId} connected.");
+        print($"Client {clientId} connected.");
+        if (IsServer && clientId != OwnerClientId)
+        {
+            InstantiatePlayer(phonePlayerPrefab, clientId);
+        }
+    }
+
+    private void InstantiatePlayer(NetworkObject playerPrefab, ulong clientId)
     {
         Debug.Log("Should be spawning player...");
         if (playerPrefab != null)
         {
-            // var instance = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-            // instance.Spawn();
-            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(playerPrefab, OwnerClientId, false, true);
+            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(playerPrefab, clientId, false, true);
         }
     }
 }
