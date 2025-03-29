@@ -1,10 +1,5 @@
-using System.ComponentModel;
-using System.Linq;
-using NUnit.Framework;
-using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class Player : NetworkBehaviour
 {
@@ -18,6 +13,12 @@ public class Player : NetworkBehaviour
     {
         computerPlayerCamera = transform.Find("ComputerPlayerCamera").GetComponent<Camera>();
         charController = GetComponent<CharacterController>();
+
+        if (!IsServer)
+        {
+            computerPlayerCamera.enabled = false;
+            charController.enabled = false;
+        }
     }
 
     public override void OnNetworkSpawn()
