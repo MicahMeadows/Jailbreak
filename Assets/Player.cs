@@ -8,22 +8,22 @@ public class Player : NetworkBehaviour
     public float speed = 5f;
     private CharacterController charController;
     private Camera computerPlayerCamera;
+    private GameObject canvas;
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
+        canvas = GetComponentInChildren<Canvas>().gameObject;
         computerPlayerCamera = transform.Find("ComputerPlayerCamera").GetComponent<Camera>();
         charController = GetComponent<CharacterController>();
 
         if (!IsServer)
         {
+            canvas.SetActive(false);
             computerPlayerCamera.enabled = false;
             charController.enabled = false;
         }
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
     }
 
     void Update()
