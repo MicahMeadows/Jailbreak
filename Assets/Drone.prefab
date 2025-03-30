@@ -495,6 +495,7 @@ GameObject:
   - component: {fileID: 8739095724429666649}
   - component: {fileID: 4172463643745910772}
   - component: {fileID: 5801274881030212914}
+  - component: {fileID: 8957204341803269841}
   m_Layer: 0
   m_Name: Drone
   m_TagString: Drone
@@ -646,6 +647,23 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8957204341803269841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8808256353923641733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkRigidbodyBaseExpanded: 0
+  UseRigidBodyForMotion: 0
+  AutoUpdateKinematicState: 1
+  AutoSetKinematicOnDespawn: 1
 --- !u!1 &9207233634373366521
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,6 +7,8 @@ public class DroneControl : NetworkBehaviour
         NONE,
         FORWARD,
         BACKWARD,
+        LEFT,
+        RIGHT,
     }
 
     enum CurRotation {
@@ -15,20 +17,28 @@ public class DroneControl : NetworkBehaviour
         RIGHT,
     }
 
+    enum CurElevation {
+        NONE,
+        UP,
+        DOWN,
+    }
+
     [SerializeField] private GameObject droneCam;
 
     private CurRotation curRotation = CurRotation.NONE;
     private CurDirection curDirection = CurDirection.NONE;
+    private CurElevation curElevation = CurElevation.NONE;
     private Rigidbody rb;
 
-    private float moveSpeed = 5f;
-    private float rotateSpeed = 100f;
+    private float moveSpeed = 3f;
+    private float rotateSpeed = 150f;
 
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
     }
+
 
     public void OnForward()
     {
@@ -56,12 +66,38 @@ public class DroneControl : NetworkBehaviour
         }
     }
 
+    public void OnRight()
+    {
+        curDirection = CurDirection.RIGHT;
+    }
+
+    public void OffRight()
+    {
+        if (curDirection == CurDirection.RIGHT)
+        {
+            curDirection = CurDirection.NONE;
+        }
+    }
+
     public void OnLeft()
+    {
+        curDirection = CurDirection.LEFT;
+    }
+
+    public void OffLeft()
+    {
+        if (curDirection == CurDirection.LEFT)
+        {
+            curDirection = CurDirection.NONE;
+        }
+    }
+
+    public void OnRotateLeft()
     {
         curRotation = CurRotation.LEFT;
     }
 
-    public void OffLeft()
+    public void OffRotateLeft()
     {
         if (curRotation == CurRotation.LEFT)
         {
@@ -69,16 +105,42 @@ public class DroneControl : NetworkBehaviour
         }
     }
 
-    public void OnRight()
+    public void OnRotateRight()
     {
         curRotation = CurRotation.RIGHT;
     }
 
-    public void OffRight()
+    public void OffRotateRight()
     {
         if (curRotation == CurRotation.RIGHT)
         {
             curRotation = CurRotation.NONE;
+        }
+    }
+
+    public void OnUp()
+    {
+        curElevation = CurElevation.UP;
+    }
+
+    public void OffUp()
+    {
+        if (curElevation == CurElevation.UP)
+        {
+            curElevation = CurElevation.NONE;
+        }
+    }
+
+    public void OnDown()
+    {
+        curElevation = CurElevation.DOWN;
+    }
+
+    public void OffDown()
+    {
+        if (curElevation == CurElevation.DOWN)
+        {
+            curElevation = CurElevation.NONE;
         }
     }
 
@@ -98,31 +160,47 @@ public class DroneControl : NetworkBehaviour
 
     void FixedUpdate()
     {
-        if (IsServer) // The client should control the drone
+        if (IsServer) // Only the client should control the drone
         {
             return;
         }
 
         Vector3 moveDirection = Vector3.zero;
 
+        // Forward & Backward movement
         if (curDirection == CurDirection.FORWARD)
         {
-            moveDirection = transform.forward;
+            moveDirection += transform.forward;
         }
         else if (curDirection == CurDirection.BACKWARD)
         {
-            moveDirection = -transform.forward;
+            moveDirection -= transform.forward;
         }
 
-        if (moveDirection != Vector3.zero)
+        // Left & Right strafing
+        if (curDirection == CurDirection.LEFT)
         {
-            rb.linearVelocity = moveDirection * moveSpeed;
+            moveDirection -= transform.right;
         }
-        else
+        else if (curDirection == CurDirection.RIGHT)
         {
-            rb.linearVelocity = Vector3.zero; // Stop when no input
+            moveDirection += transform.right;
         }
 
+        // Elevation Up & Down
+        if (curElevation == CurElevation.UP)
+        {
+            moveDirection += transform.up;
+        }
+        else if (curElevation == CurElevation.DOWN)
+        {
+            moveDirection -= transform.up;
+        }
+
+        // Apply movement
+        rb.linearVelocity = moveDirection.normalized * moveSpeed;
+
+        // Apply rotation
         if (curRotation == CurRotation.LEFT)
         {
             rb.angularVelocity = Vector3.up * -rotateSpeed * Mathf.Deg2Rad;
@@ -133,9 +211,10 @@ public class DroneControl : NetworkBehaviour
         }
         else
         {
-            rb.angularVelocity = Vector3.zero; // Stop rotation when no input
+            rb.angularVelocity = Vector3.zero;
         }
     }
+
 
     void Update()
     {

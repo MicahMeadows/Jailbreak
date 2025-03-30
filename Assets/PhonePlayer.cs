@@ -8,12 +8,12 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject cube;
     private GameObject canvas;
 
-
-    public NetworkVariable<bool> isVisible = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-
     public void ToggleFlashlight()
     {
-        isVisible.Value = !isVisible.Value;
+        if (!IsServer)
+        {
+            computerPlayer.GetComponent<Player>().ToggleFlashlight_ServerRPC();
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -25,21 +25,6 @@ public class PhonePlayer : NetworkBehaviour
         {
             canvas.SetActive(false);
         }
-        if (!IsServer)
-        {
-            isVisible.Value = true;
-        }
-        isVisible.OnValueChanged += OnIsVisibleChanged;
-    }
-
-    private void OnIsVisibleChanged(bool prev, bool cur)
-    {
-        SetVisibility();
-    }
-
-    private void SetVisibility()
-    {
-        cube.SetActive(isVisible.Value);
     }
 
     void Update()
@@ -54,8 +39,7 @@ public class PhonePlayer : NetworkBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space)) 
             {
-                isVisible.Value = !isVisible.Value;
-                Debug.Log($"Got key and set isVisible to {isVisible.Value}");
+                ToggleFlashlight();
             }
         }
     }
