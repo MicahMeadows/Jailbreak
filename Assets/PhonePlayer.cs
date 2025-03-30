@@ -2,11 +2,24 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+public struct DroneControllerAppState
+{
+    public bool isActive;
+}
+
+public struct PhoneState
+{
+    public DroneControllerAppState droneControllerAppState;
+}
+
+
 public class PhonePlayer : NetworkBehaviour
 {
     private GameObject computerPlayer = null;
     private GameObject cube;
     private GameObject canvas;
+
+    private PhoneState phoneState;
 
     public void ToggleFlashlight()
     {

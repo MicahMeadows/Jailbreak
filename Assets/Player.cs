@@ -3,17 +3,14 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-    public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
-
     public float speed = 5f;
     public float mouseSensitivity = 100f;
-    private CharacterController charController;
+    private Rigidbody rb; // Replacing CharacterController with Rigidbody
     [SerializeField] private GameObject computerPlayerCam;
     [SerializeField] private GameObject fpsHolder;
     private GameObject canvas;
     [SerializeField] private MeshRenderer playerMesh;
     private float xRotation = 0f;
-
     [SerializeField] private GameObject flashlight;
 
     public NetworkVariable<bool> flashlightOn = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
@@ -31,22 +28,21 @@ public class Player : NetworkBehaviour
     
     public override void OnNetworkSpawn()
     {
-        base.OnNetworkSpawn();
-
         flashlightOn.OnValueChanged += OnFlashlightValueChanged;
 
         canvas = GetComponentInChildren<Canvas>().gameObject;
-        charController = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();  // Get the Rigidbody component
 
         if (!IsOwner)
         {
             canvas.SetActive(false);
             computerPlayerCam.SetActive(false);
-            charController.enabled = false;
+            rb.isKinematic = true; // Prevents physics simulation on non-owner players
         }
         else
         {
             Cursor.lockState = CursorLockMode.Locked;
+            rb.freezeRotation = true; // Prevents unwanted rotation
         }
 
         if (IsServer)
@@ -59,8 +55,14 @@ public class Player : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        HandleMovement();
         HandleLook();
+    }
+
+    void FixedUpdate() // Physics-based movement should be in FixedUpdate
+    {
+        if (!IsOwner) return;
+
+        HandleMovement();
     }
 
     void HandleMovement()
@@ -68,8 +70,8 @@ public class Player : NetworkBehaviour
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
 
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        charController.Move(move * speed * Time.deltaTime);
+        Vector3 moveDirection = (transform.right * moveX + transform.forward * moveZ).normalized;
+        rb.linearVelocity = new Vector3(moveDirection.x * speed, rb.linearVelocity.y, moveDirection.z * speed);
     }
 
     void HandleLook()
