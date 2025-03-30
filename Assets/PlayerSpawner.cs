@@ -8,6 +8,7 @@ public class PlayerSpawner : NetworkBehaviour
     public NetworkObject computerPlayerPrefab;
     public NetworkObject phonePlayerPrefab;
     public NetworkObject dronePrefab;
+    public Transform droneSpawnPoint;
 
     public override void OnNetworkSpawn()
     {
@@ -26,7 +27,7 @@ public class PlayerSpawner : NetworkBehaviour
         if (IsServer && clientId != OwnerClientId)
         {
             InstantiatePlayer(phonePlayerPrefab, clientId);
-            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId);
+            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId, false, false, false, droneSpawnPoint.position);
         }
     }
 

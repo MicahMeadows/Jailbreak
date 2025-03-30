@@ -16,14 +16,19 @@ public class DroneControl : NetworkBehaviour
     }
 
     [SerializeField] private GameObject droneCam;
-    private CharacterController charController;
 
     private CurRotation curRotation = CurRotation.NONE;
     private CurDirection curDirection = CurDirection.NONE;
+    private Rigidbody rb;
 
     private float moveSpeed = 5f;
     private float rotateSpeed = 100f;
 
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     public void OnForward()
     {
@@ -80,7 +85,7 @@ public class DroneControl : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        charController = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();
         if (!IsServer) // Is Phone Client
         {
             droneCam.SetActive(true);
@@ -88,25 +93,15 @@ public class DroneControl : NetworkBehaviour
         else // Is Computer Client
         {
             droneCam.SetActive(false);
-            charController.enabled = false;
         }
     }
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void FixedUpdate()
     {
-        
-    }
-
-    void Update()
-    {
-        if (IsServer) // Should control drone from client
+        if (IsServer) // The client should control the drone
         {
             return;
         }
-
-        Debug.Log($"Cur Dir: {curDirection}, Cur Rot: {curRotation}");
 
         Vector3 moveDirection = Vector3.zero;
 
@@ -121,16 +116,29 @@ public class DroneControl : NetworkBehaviour
 
         if (moveDirection != Vector3.zero)
         {
-            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+            rb.linearVelocity = moveDirection * moveSpeed;
+        }
+        else
+        {
+            rb.linearVelocity = Vector3.zero; // Stop when no input
         }
 
         if (curRotation == CurRotation.LEFT)
         {
-            transform.Rotate(Vector3.up, -rotateSpeed * Time.deltaTime);
+            rb.angularVelocity = Vector3.up * -rotateSpeed * Mathf.Deg2Rad;
         }
         else if (curRotation == CurRotation.RIGHT)
         {
-            transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+            rb.angularVelocity = Vector3.up * rotateSpeed * Mathf.Deg2Rad;
         }
+        else
+        {
+            rb.angularVelocity = Vector3.zero; // Stop rotation when no input
+        }
+    }
+
+    void Update()
+    {
+        
     }
 }
