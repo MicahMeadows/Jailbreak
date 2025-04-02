@@ -29,7 +29,7 @@ public class PlayerSpawner : NetworkBehaviour
             if (clientId == OwnerClientId)
             {
                 // InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint);
-                NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, playerSpawnPoint.position);
+                NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, playerSpawnPoint.position, playerSpawnPoint.rotation);
             }
             else
             {

@@ -148,14 +148,12 @@ public class DroneControl : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody>();
-        if (!IsServer) // Is Phone Client
-        {
-            droneCam.SetActive(true);
-        }
-        else // Is Computer Client
-        {
-            droneCam.SetActive(false);
-        }
+        droneCam.SetActive(false);
+    }
+
+    public void SetDroneCamActive(bool value)
+    {
+        droneCam.SetActive(value);
     }
 
     void FixedUpdate()

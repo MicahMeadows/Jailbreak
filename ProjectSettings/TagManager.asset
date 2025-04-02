@@ -7,6 +7,7 @@ TagManager:
   - ComputerPlayer
   - PhonePlayer
   - Drone
+  - SecurityCam
   layers:
   - Default
   - TransparentFX
