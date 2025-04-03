@@ -1078,12 +1078,16 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
+      propertyPath: sweepingPoints.Array.data[0].pauseTime
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[0].sweepTime
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[1].pauseTime
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[1].sweepTime
@@ -1091,7 +1095,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[2].pauseTime
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[2].sweepTime
@@ -1099,7 +1103,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[3].pauseTime
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[3].sweepTime
@@ -1191,6 +1195,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3191228391733275705, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5449181252505387072, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
+      propertyPath: SyncRotAngleZ
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6709864481894571399, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
