@@ -158,7 +158,7 @@ MonoBehaviour:
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 2119a7df710c5436aba92961c2ad28fc, type: 2}
-    TickRate: 30
+    TickRate: 60
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
     ConnectionData: 
@@ -210,7 +210,7 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_UseWebSockets: 0
   m_UseEncryption: 0
-  m_MaxPacketQueueSize: 128
+  m_MaxPacketQueueSize: 256
   m_MaxPayloadSize: 6144
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
@@ -1083,7 +1083,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[1].pauseTime
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[1].sweepTime
@@ -1091,7 +1091,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[2].pauseTime
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[2].sweepTime
@@ -1099,7 +1099,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[3].pauseTime
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1920218403529868886, guid: cfccea0f8fbc647d88fc96f6655a0d1a, type: 3}
       propertyPath: sweepingPoints.Array.data[3].sweepTime

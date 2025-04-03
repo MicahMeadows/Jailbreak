@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3191228391733275705}
-  - component: {fileID: 1920218403529868886}
   - component: {fileID: 6709864481894571399}
+  - component: {fileID: 1920218403529868886}
   - component: {fileID: 5449181252505387072}
   m_Layer: 0
   m_Name: SecurityCam
@@ -36,21 +36,6 @@ Transform:
   - {fileID: 8557575451065281953}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1920218403529868886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 967475099912308523}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12ab351373db24221bdf02b8bb47eb5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cam: {fileID: 7274133557936115903}
-  camName: cam1
-  sweepingPoints: []
 --- !u!114 &6709864481894571399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,6 +61,22 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &1920218403529868886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967475099912308523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12ab351373db24221bdf02b8bb47eb5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  cam: {fileID: 7274133557936115903}
+  camName: cam1
+  sweepingPoints: []
 --- !u!114 &5449181252505387072
 MonoBehaviour:
   m_ObjectHideFlags: 0

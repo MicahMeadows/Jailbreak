@@ -48,6 +48,11 @@ public class SecurityCamera : NetworkBehaviour
             while (elapsedTime < targetPoint.sweepTime)
             {
                 transform.rotation = Quaternion.Slerp(startRotation, endRotation, elapsedTime / targetPoint.sweepTime);
+                transform.rotation = Quaternion.Euler(
+                    transform.rotation.eulerAngles.x,
+                    transform.rotation.eulerAngles.y,
+                    0
+                ); // Ensure local rotation is applied
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }

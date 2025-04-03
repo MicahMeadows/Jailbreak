@@ -10,19 +10,22 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject computerPlayer = null;
     private GameObject cube;
     private GameObject canvas;
+    [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private TextMeshProUGUI camNameText;
     [SerializeField] private GameObject phonePlayerCam;
     [SerializeField] private Button flashlightAppButton;
     [SerializeField] private Button droneControlAppButton;
     [SerializeField] private Button closeDroneControlAppButton;
-    [SerializeField] private Button homescreenAppButton;
-    [SerializeField] private Button camViewAppButton;
-    [SerializeField] private Button closeCamViewAppButton;
+    [SerializeField] private Button phoneCamViewAppButton;
+    [SerializeField] private Button securityCamViewAppButton;
+    [SerializeField] private Button closeSecurityCamViewAppButton;
+    [SerializeField] private Button closePhoneCamViewAppButton;
 
     [SerializeField] private GameObject droneControlAppGroup;
     [SerializeField] private GameObject flashlightAppGroup;
     [SerializeField] private GameObject homescreenAppGroup;
-    [SerializeField] private GameObject camViewAppGroup;
+    [SerializeField] private GameObject securityCamViewAppGroup;
+    [SerializeField] private GameObject phoneCamViewAppGroup;
     List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     int selectedCam = 0;
 
@@ -30,8 +33,18 @@ public class PhonePlayer : NetworkBehaviour
     {
         droneControlAppButton.onClick.AddListener(OnDroneControlAppButtonClicked);
         closeDroneControlAppButton.onClick.AddListener(OnCloseDroneControlAppButtonClicked);
-        camViewAppButton.onClick.AddListener(OnCamViewAppButtonClicked);
-        closeCamViewAppButton.onClick.AddListener(OnCloseCamViewAppButtonClicked);
+        securityCamViewAppButton.onClick.AddListener(OnCamViewAppButtonClicked);
+        closeSecurityCamViewAppButton.onClick.AddListener(OnCloseSecurityCamViewAppButtonClicked);
+        closePhoneCamViewAppButton.onClick.AddListener(OnClosePhoneCamViewAppButtonClicked);
+        phoneCamViewAppButton.onClick.AddListener(OnPhoneCamViewAppButtonClicked);
+    }
+
+    void OnPhoneCamViewAppButtonClicked()
+    {
+        phonePlayerCam.SetActive(false);
+        homescreenAppGroup.SetActive(false);
+        phoneCamViewAppGroup.SetActive(true);
+        phoneCameraController.SetEnabled(true);
     }
 
     void OnCloseDroneControlAppButtonClicked()
@@ -52,11 +65,19 @@ public class PhonePlayer : NetworkBehaviour
         drone.SetDroneCamActive(true);
     }
 
-    void OnCloseCamViewAppButtonClicked()
+    void OnClosePhoneCamViewAppButtonClicked()
     {
         phonePlayerCam.SetActive(true);
         homescreenAppGroup.SetActive(true);
-        camViewAppGroup.SetActive(false);
+        phoneCamViewAppGroup.SetActive(false);
+        phoneCameraController.SetEnabled(false);
+    }
+
+    void OnCloseSecurityCamViewAppButtonClicked()
+    {
+        phonePlayerCam.SetActive(true);
+        homescreenAppGroup.SetActive(true);
+        securityCamViewAppGroup.SetActive(false);
         DisableAllSecurityCams();
     }
 
@@ -64,7 +85,7 @@ public class PhonePlayer : NetworkBehaviour
     {
         phonePlayerCam.SetActive(false);
         homescreenAppGroup.SetActive(false);
-        camViewAppGroup.SetActive(true);
+        securityCamViewAppGroup.SetActive(true);
         SetSecurityCam();
     }
 
@@ -119,24 +140,27 @@ public class PhonePlayer : NetworkBehaviour
         cube = transform.Find("Cube").gameObject;
         canvas = GetComponentInChildren<Canvas>().gameObject;
         securityCameras = GameObject.FindGameObjectsWithTag("SecurityCam").ToList().Select(cam => cam.GetComponent<SecurityCamera>()).ToList();
+
+        computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer");
+        var playerComponent = computerPlayer.GetComponent<Player>();
+        transform.parent = playerComponent.phonePlayerParent.transform;
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
+
         base.OnNetworkSpawn();
         if (IsServer)
         {
-            phonePlayerCam.SetActive(false);
             canvas.SetActive(false);
+            phonePlayerCam.SetActive(false);
+            phoneCameraController.SetEnabled(false);
         } else {
             phonePlayerCam.SetActive(true);
-        }    
+            phoneCameraController.SetEnabled(false);
+        }
     }
 
     void Update()
     {
-        if (computerPlayer == null) {
-            computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer");
-        } else {
-            transform.parent = computerPlayer.transform;
-        }
-
         if (!IsServer)
         {
             if (Input.GetKeyDown(KeyCode.Space)) 

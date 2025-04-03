@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
+    public GameObject phonePlayerParent;
     public float speed = 5f;
     public float mouseSensitivity = 100f;
     private Rigidbody rb; // Replacing CharacterController with Rigidbody
