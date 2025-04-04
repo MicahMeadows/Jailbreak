@@ -22,6 +22,11 @@ public class Player : NetworkBehaviour
         flashlightOn.Value = !flashlightOn.Value;
     }
 
+    public void OnHitByLaser()
+    {
+        Debug.Log("hit by laser!");
+    }
+
     private void OnFlashlightValueChanged(bool prev, bool cur)
     {
         flashlight.SetActive(cur);
