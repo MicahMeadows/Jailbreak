@@ -22,7 +22,6 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private Button closePhoneCamViewAppButton;
 
     [SerializeField] private GameObject droneControlAppGroup;
-    [SerializeField] private GameObject flashlightAppGroup;
     [SerializeField] private GameObject homescreenAppGroup;
     [SerializeField] private GameObject securityCamViewAppGroup;
     [SerializeField] private GameObject phoneCamViewAppGroup;
@@ -37,6 +36,12 @@ public class PhonePlayer : NetworkBehaviour
         closeSecurityCamViewAppButton.onClick.AddListener(OnCloseSecurityCamViewAppButtonClicked);
         closePhoneCamViewAppButton.onClick.AddListener(OnClosePhoneCamViewAppButtonClicked);
         phoneCamViewAppButton.onClick.AddListener(OnPhoneCamViewAppButtonClicked);
+        flashlightAppButton.onClick.AddListener(OnFlashlightAppButtonClicked);
+    }
+
+    void OnFlashlightAppButtonClicked()
+    {
+        ToggleFlashlight();
     }
 
     void OnPhoneCamViewAppButtonClicked()
