@@ -14,14 +14,13 @@ public class Laser : MonoBehaviour
     void Update()
     {
         lr.SetPosition(0, transform.position);
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, -transform.right, out hit))
+        if (Physics.Raycast(transform.position, -transform.right, out RaycastHit hit))
         {
             if (hit.collider)
             {
                 lr.SetPosition(1, hit.point);
             }
-            if (hit.transform.tag == "ComputerPlayer")
+            if (hit.transform.CompareTag("ComputerPlayer"))
             {
                 Player player = hit.transform.GetComponent<Player>();
                 player.OnHitByLaser();
