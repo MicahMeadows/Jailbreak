@@ -11,6 +11,9 @@ public class PlayerSpawner : NetworkBehaviour
     public Transform droneSpawnPoint;
     public Transform playerSpawnPoint;
 
+    private NetworkObject computerPlayer;
+    private NetworkObject phonePlayer;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -29,23 +32,31 @@ public class PlayerSpawner : NetworkBehaviour
             if (clientId == OwnerClientId)
             {
                 // InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint);
-                NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, playerSpawnPoint.position, playerSpawnPoint.rotation);
+                computerPlayer = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, playerSpawnPoint.position, playerSpawnPoint.rotation);
             }
             else
             {
-                InstantiatePlayer(phonePlayerPrefab, clientId);
+                if (phonePlayer == null)
+                {
+                    phonePlayer = InstantiatePlayer(phonePlayerPrefab, clientId);
+                }
+                else
+                {
+                    phonePlayer.ChangeOwnership(clientId);
+                }
                 NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId, false, false, false, droneSpawnPoint.position);
             }
         }
     }
 
-    private void InstantiatePlayer(NetworkObject playerPrefab, ulong clientId)
+    private NetworkObject InstantiatePlayer(NetworkObject playerPrefab, ulong clientId)
     {
         Debug.Log("Should be spawning player...");
         if (playerPrefab != null)
         {
             Debug.Log("Spawn point is null, spawning at default location.");
-            NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(playerPrefab, clientId, false, true);
+            return NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(playerPrefab, clientId, false, true);
         }
+        return null;
     }
 }
