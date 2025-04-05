@@ -1,13 +1,31 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HelloWorldManager : MonoBehaviour
 {
     private NetworkManager networkManager;
+    public bool loadScene2;
 
     void Awake()
     {
         networkManager = GetComponent<NetworkManager>();
+    }
+
+    void Update()
+    {
+        if (loadScene2)
+        {
+            loadScene2 = false;
+            if (networkManager.IsHost || networkManager.IsServer)
+            {
+                networkManager.SceneManager.LoadScene("Scene2", LoadSceneMode.Single);
+            }
+            else
+            {
+                networkManager.SceneManager.LoadScene("Scene1", LoadSceneMode.Single);
+            }
+        }
     }
 
     void OnGUI()
