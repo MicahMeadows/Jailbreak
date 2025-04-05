@@ -58,7 +58,7 @@ public class PhonePlayer : NetworkBehaviour
     {
         homescreenAppGroup.SetActive(true);
         droneControlAppGroup.SetActive(false);
-        SetDroneState(true);
+        SetDroneState(false);
     }
 
     void OnDroneControlAppButtonClicked()
@@ -104,20 +104,21 @@ public class PhonePlayer : NetworkBehaviour
     {
         camNameText.text = securityCameras[selectedCam].GetCamName();
         securityCamViewImage.texture = securityCameras[selectedCam].GetCamTexture();
-        securityCameras[selectedCam].SetActive(true);
+
+        // Disable all cams except selected.
+        for (int i = 0; i < securityCameras.Count; i++)
+        {
+            securityCameras[i].SetActive(selectedCam == i);
+        }
     }
 
     void SetDroneState(bool value)
     {
         var drone = GameObject.FindGameObjectWithTag("Drone").GetComponent<DroneControl>();
+        drone.SetDroneCamActive(value);
         if (value == true)
         {
-            drone.SetDroneCamActive(true);
             droneCamViewImage.texture = drone.GetDroneRenderTexture();
-        }
-        else
-        {
-            drone.SetDroneCamActive(false);
         }
     }
 

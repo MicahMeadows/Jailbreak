@@ -158,15 +158,9 @@ public class DroneControl : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkSpawn()
-    {
-        rb = GetComponent<Rigidbody>();
-        droneCam.SetActive(false);
-    }
-
     public void SetDroneCamActive(bool value)
     {
-        droneCam.SetActive(value);
+        droneCam.GetComponent<Camera>().enabled = value;
     }
 
     void FixedUpdate()

@@ -19,13 +19,18 @@ public class SecurityCamera : NetworkBehaviour
     [SerializeField] private List<SweepingPoint> sweepingPoints;
 
     private int currentSweepPoint = 0;
-    private Camera camComponent;
+    [SerializeField] private Camera camComponent;
+    [SerializeField] private Camera backupCamComponent;
     private RenderTexture renderTexture;
-    public MeshRenderer screen;
+    private RenderTexture smallRenderTexture;
+    // public MeshRenderer screen;
 
     void Start()
     {
-        camComponent = cam.GetComponent<Camera>();
+        var cameras = GetComponentsInChildren<Camera>();
+        camComponent = cameras[0];
+        backupCamComponent = cameras[1];
+
         if (camComponent == null)
         {
             Debug.LogError("No Camera component found on cam GameObject!");
@@ -44,32 +49,28 @@ public class SecurityCamera : NetworkBehaviour
             {
                 StartCoroutine(SweepRoutine());
             }
-
-            // Make lower res on pc where multiple are in play
-            if (screen != null)
-            {
-                cam.SetActive(true);
-                renderTexture = new RenderTexture(240, 135, 16);
-                renderTexture.name = $"{camName}_RenderTexture";
-                camComponent.targetTexture = renderTexture;
-                screen.material.mainTexture = renderTexture;
-                screen.material.SetColor("_EmissiveColor", Color.white);
-                screen.material.EnableKeyword("_Emission");
-            }
-            
         }
-        else 
+
+        // If phone client create a high res texture for viewing in phone app
+        if (!IsServer)
         {
             renderTexture = new RenderTexture(1280, 720, 16);
             renderTexture.name = $"{camName}_RenderTexture";
             camComponent.targetTexture = renderTexture;
         }
-        
+
+        // Create fallback texture for displaying on smaller screen where several cameras might be on
+        // smallRenderTexture = new RenderTexture(240, 135, 16);
+        smallRenderTexture = new RenderTexture(240, 135, 16);
+        smallRenderTexture.name = $"{camName}_Small_RenderTexture";
+        backupCamComponent.targetTexture = smallRenderTexture;
+        backupCamComponent.enabled = true;
     }
 
     public void SetActive(bool value)
     {
-        cam.SetActive(value);
+        // cam.SetActive(value);
+        camComponent.enabled = value;
     }
 
     private IEnumerator SweepRoutine()
@@ -105,9 +106,13 @@ public class SecurityCamera : NetworkBehaviour
         return camName;
     }
 
-    // ✅ Get the camera's RenderTexture
     public RenderTexture GetCamTexture()
     {
         return renderTexture;
+    }
+
+    public RenderTexture GetBackupCamTexture()
+    {
+        return smallRenderTexture;
     }
 }

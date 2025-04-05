@@ -2,16 +2,20 @@ using UnityEngine;
 
 public class CameraScreen : MonoBehaviour
 {
-    public Camera cameraToView;
+    public SecurityCamera cameraToView;
+    private MeshRenderer meshRenderer;
 
     void Start()
     {
-        
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (meshRenderer && cameraToView)
+        {
+            // meshRenderer.material.mainTexture = cameraToView.GetCamTexture();
+            meshRenderer.material.mainTexture = cameraToView.GetBackupCamTexture();
+        }
     }
 }
