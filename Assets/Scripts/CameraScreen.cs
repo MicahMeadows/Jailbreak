@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class CameraScreen : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public Camera cameraToView;
+
     void Start()
     {
         

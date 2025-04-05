@@ -14,7 +14,7 @@ public class Player : NetworkBehaviour
     private float xRotation = 0f;
     [SerializeField] private GameObject flashlight;
 
-    public NetworkVariable<bool> flashlightOn = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public NetworkVariable<bool> flashlightOn = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     [ServerRpc(RequireOwnership=false)]
     public void ToggleFlashlight_ServerRPC(ServerRpcParams rpcParams = default)

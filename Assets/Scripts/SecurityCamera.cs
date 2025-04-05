@@ -10,7 +10,6 @@ public struct SweepingPoint
     public Vector3 endRotation;
     public float sweepTime;
     public float pauseTime;
-
 }
 
 public class SecurityCamera : NetworkBehaviour
@@ -18,11 +17,23 @@ public class SecurityCamera : NetworkBehaviour
     [SerializeField] private GameObject cam;
     [SerializeField] private string camName;
     [SerializeField] private List<SweepingPoint> sweepingPoints;
+
     private int currentSweepPoint = 0;
+    private Camera camComponent;
+    private RenderTexture renderTexture;
+    public MeshRenderer screen;
 
     void Start()
     {
-        cam.SetActive(false);
+        camComponent = cam.GetComponent<Camera>();
+        if (camComponent == null)
+        {
+            Debug.LogError("No Camera component found on cam GameObject!");
+            return;
+        }
+
+        // Create and assign a dynamic RenderTexture
+        
     }
 
     public override void OnNetworkSpawn()
@@ -33,7 +44,32 @@ public class SecurityCamera : NetworkBehaviour
             {
                 StartCoroutine(SweepRoutine());
             }
+
+            // Make lower res on pc where multiple are in play
+            if (screen != null)
+            {
+                cam.SetActive(true);
+                renderTexture = new RenderTexture(240, 135, 16);
+                renderTexture.name = $"{camName}_RenderTexture";
+                camComponent.targetTexture = renderTexture;
+                screen.material.mainTexture = renderTexture;
+                screen.material.SetColor("_EmissiveColor", Color.white);
+                screen.material.EnableKeyword("_Emission");
+            }
+            
         }
+        else 
+        {
+            renderTexture = new RenderTexture(1280, 720, 16);
+            renderTexture.name = $"{camName}_RenderTexture";
+            camComponent.targetTexture = renderTexture;
+        }
+        
+    }
+
+    public void SetActive(bool value)
+    {
+        cam.SetActive(value);
     }
 
     private IEnumerator SweepRoutine()
@@ -52,12 +88,12 @@ public class SecurityCamera : NetworkBehaviour
                     transform.rotation.eulerAngles.x,
                     transform.rotation.eulerAngles.y,
                     0
-                ); // Ensure local rotation is applied
+                ); // Lock Z-axis rotation
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
-            transform.rotation = endRotation; // Ensure exact final position
+            transform.rotation = endRotation;
             yield return new WaitForSeconds(targetPoint.pauseTime);
 
             currentSweepPoint = (currentSweepPoint + 1) % sweepingPoints.Count;
@@ -69,8 +105,9 @@ public class SecurityCamera : NetworkBehaviour
         return camName;
     }
 
-    public void EnableCamera(bool value)
+    // ✅ Get the camera's RenderTexture
+    public RenderTexture GetCamTexture()
     {
-        cam.SetActive(value);
+        return renderTexture;
     }
 }

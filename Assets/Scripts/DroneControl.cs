@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class DroneControl : NetworkBehaviour
 {
-    enum CurDirection {
+    enum CurDirection
+    {
         NONE,
         FORWARD,
         BACKWARD,
@@ -11,19 +12,23 @@ public class DroneControl : NetworkBehaviour
         RIGHT,
     }
 
-    enum CurRotation {
+    enum CurRotation
+    {
         NONE,
         LEFT,
         RIGHT,
     }
 
-    enum CurElevation {
+    enum CurElevation
+    {
         NONE,
         UP,
         DOWN,
     }
 
     [SerializeField] private GameObject droneCam;
+    private Camera droneCamera;  // Reference to the drone's camera
+    private RenderTexture droneRenderTexture;  // RenderTexture to capture the camera view
 
     private CurRotation curRotation = CurRotation.NONE;
     private CurDirection curDirection = CurDirection.NONE;
@@ -33,12 +38,21 @@ public class DroneControl : NetworkBehaviour
     private float moveSpeed = 3f;
     private float rotateSpeed = 150f;
 
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        droneCamera = droneCam.GetComponent<Camera>();
+
+        // Create a RenderTexture and assign it to the drone camera
+        droneRenderTexture = new RenderTexture(1280, 720, 24); // Set resolution and depth buffer
+        droneCamera.targetTexture = droneRenderTexture;  // Assign the RenderTexture to the camera
     }
 
+    // Expose the RenderTexture to be accessed elsewhere
+    public RenderTexture GetDroneRenderTexture()
+    {
+        return droneRenderTexture;
+    }
 
     public void OnForward()
     {
@@ -144,7 +158,6 @@ public class DroneControl : NetworkBehaviour
         }
     }
 
-
     public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody>();
@@ -211,11 +224,5 @@ public class DroneControl : NetworkBehaviour
         {
             rb.angularVelocity = Vector3.zero;
         }
-    }
-
-
-    void Update()
-    {
-        
     }
 }

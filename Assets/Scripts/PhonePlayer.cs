@@ -12,7 +12,7 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject canvas;
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private TextMeshProUGUI camNameText;
-    [SerializeField] private GameObject phonePlayerCam;
+    // [SerializeField] private GameObject phonePlayerCam;
     [SerializeField] private Button flashlightAppButton;
     [SerializeField] private Button droneControlAppButton;
     [SerializeField] private Button closeDroneControlAppButton;
@@ -25,6 +25,8 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private GameObject homescreenAppGroup;
     [SerializeField] private GameObject securityCamViewAppGroup;
     [SerializeField] private GameObject phoneCamViewAppGroup;
+    [SerializeField] private RawImage securityCamViewImage;
+    [SerializeField] private RawImage droneCamViewImage;
     List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     int selectedCam = 0;
 
@@ -32,7 +34,7 @@ public class PhonePlayer : NetworkBehaviour
     {
         droneControlAppButton.onClick.AddListener(OnDroneControlAppButtonClicked);
         closeDroneControlAppButton.onClick.AddListener(OnCloseDroneControlAppButtonClicked);
-        securityCamViewAppButton.onClick.AddListener(OnCamViewAppButtonClicked);
+        securityCamViewAppButton.onClick.AddListener(OnSecurityCamViewAppButtonClicked);
         closeSecurityCamViewAppButton.onClick.AddListener(OnCloseSecurityCamViewAppButtonClicked);
         closePhoneCamViewAppButton.onClick.AddListener(OnClosePhoneCamViewAppButtonClicked);
         phoneCamViewAppButton.onClick.AddListener(OnPhoneCamViewAppButtonClicked);
@@ -46,7 +48,7 @@ public class PhonePlayer : NetworkBehaviour
 
     void OnPhoneCamViewAppButtonClicked()
     {
-        phonePlayerCam.SetActive(false);
+        // phonePlayerCam.SetActive(false);
         homescreenAppGroup.SetActive(false);
         phoneCamViewAppGroup.SetActive(true);
         phoneCameraController.SetEnabled(true);
@@ -54,25 +56,21 @@ public class PhonePlayer : NetworkBehaviour
 
     void OnCloseDroneControlAppButtonClicked()
     {
-        var drone = GameObject.FindGameObjectWithTag("Drone").GetComponent<DroneControl>();
-        phonePlayerCam.SetActive(true);
-        drone.SetDroneCamActive(false);
         homescreenAppGroup.SetActive(true);
         droneControlAppGroup.SetActive(false);
+        SetDroneState(true);
     }
 
     void OnDroneControlAppButtonClicked()
     {
         homescreenAppGroup.SetActive(false);
         droneControlAppGroup.SetActive(true);
-        var drone = GameObject.FindGameObjectWithTag("Drone").GetComponent<DroneControl>();
-        phonePlayerCam.SetActive(false);
-        drone.SetDroneCamActive(true);
+        SetDroneState(true);
     }
 
     void OnClosePhoneCamViewAppButtonClicked()
     {
-        phonePlayerCam.SetActive(true);
+        // phonePlayerCam.SetActive(true);
         homescreenAppGroup.SetActive(true);
         phoneCamViewAppGroup.SetActive(false);
         phoneCameraController.SetEnabled(false);
@@ -80,15 +78,15 @@ public class PhonePlayer : NetworkBehaviour
 
     void OnCloseSecurityCamViewAppButtonClicked()
     {
-        phonePlayerCam.SetActive(true);
+        // phonePlayerCam.SetActive(true);
         homescreenAppGroup.SetActive(true);
         securityCamViewAppGroup.SetActive(false);
         DisableAllSecurityCams();
     }
 
-    void OnCamViewAppButtonClicked()
+    void OnSecurityCamViewAppButtonClicked()
     {
-        phonePlayerCam.SetActive(false);
+        // phonePlayerCam.SetActive(false);
         homescreenAppGroup.SetActive(false);
         securityCamViewAppGroup.SetActive(true);
         SetSecurityCam();
@@ -98,17 +96,28 @@ public class PhonePlayer : NetworkBehaviour
     {
         for (int i = 0; i < securityCameras.Count; i++)
         {
-            securityCameras[i].EnableCamera(false);
+            securityCameras[i].SetActive(false);
         }
     }
 
     void SetSecurityCam()
     {
-        phonePlayerCam.SetActive(false);
         camNameText.text = securityCameras[selectedCam].GetCamName();
-        for (int i = 0; i < securityCameras.Count; i++)
+        securityCamViewImage.texture = securityCameras[selectedCam].GetCamTexture();
+        securityCameras[selectedCam].SetActive(true);
+    }
+
+    void SetDroneState(bool value)
+    {
+        var drone = GameObject.FindGameObjectWithTag("Drone").GetComponent<DroneControl>();
+        if (value == true)
         {
-            securityCameras[i].EnableCamera(i == selectedCam);
+            drone.SetDroneCamActive(true);
+            droneCamViewImage.texture = drone.GetDroneRenderTexture();
+        }
+        else
+        {
+            drone.SetDroneCamActive(false);
         }
     }
 
@@ -156,10 +165,10 @@ public class PhonePlayer : NetworkBehaviour
         if (IsServer)
         {
             canvas.SetActive(false);
-            phonePlayerCam.SetActive(false);
+            // phonePlayerCam.SetActive(false);
             phoneCameraController.SetEnabled(false);
         } else {
-            phonePlayerCam.SetActive(true);
+            // phonePlayerCam.SetActive(true);
             phoneCameraController.SetEnabled(false);
         }
     }
