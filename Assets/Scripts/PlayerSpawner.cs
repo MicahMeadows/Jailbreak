@@ -33,6 +33,7 @@ public class PlayerSpawner : NetworkBehaviour
             {
                 // InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint);
                 computerPlayer = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, playerSpawnPoint.position, playerSpawnPoint.rotation);
+                phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
             }
             else
             {
