@@ -40,6 +40,8 @@ public class PhonePlayer : NetworkBehaviour
 
     public void Start()
     {
+        NetworkManager.SceneManager.OnSceneEvent += HandleSceneEvent;
+
         droneControlAppButton.onClick.AddListener(OnDroneControlAppButtonClicked);
         closeDroneControlAppButton.onClick.AddListener(OnCloseDroneControlAppButtonClicked);
         securityCamViewAppButton.onClick.AddListener(OnSecurityCamViewAppButtonClicked);
@@ -183,6 +185,20 @@ public class PhonePlayer : NetworkBehaviour
         {
             Debug.Log("ToggleFlashlight called on client");
             computerPlayer.GetComponent<Player>().ToggleFlashlight_ServerRPC();
+        }
+    }
+
+    private void HandleSceneEvent(SceneEvent sceneEvent)
+    {
+        if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
+        {
+            if (!IsServer)
+            {
+                securityCameras = GameObject.FindGameObjectsWithTag("SecurityCam").ToList().Select(cam => cam.GetComponent<SecurityCamera>()).ToList();
+                selectedCam = 0;
+                SetSecurityCam();
+            }
+            Debug.Log("Loaded into scene.");
         }
     }
 
