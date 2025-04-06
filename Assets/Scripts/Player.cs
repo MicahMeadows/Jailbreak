@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,6 +15,14 @@ public class Player : NetworkBehaviour
     [SerializeField] private MeshRenderer playerMesh;
     private float xRotation = 0f;
     [SerializeField] private GameObject flashlight;
+    [SerializeField] private Transform sphere1;
+    [SerializeField] private Transform sphere2;
+    [SerializeField] private Transform sphere3;
+
+    public List<Transform> GetSpheres()
+    {
+        return new List<Transform> { sphere1, sphere2, sphere3 };
+    }
 
     public NetworkVariable<bool> flashlightOn = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
