@@ -19,7 +19,9 @@ public class Player : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     public void ToggleFlashlight_ServerRPC(ServerRpcParams rpcParams = default)
     {
+        Debug.Log($"Toggle RPC Hit on server. Should go to: {!flashlightOn.Value}");
         flashlightOn.Value = !flashlightOn.Value;
+        Debug.Log($"Value after swap: {flashlightOn.Value}");
     }
 
     public void OnHitByLaser()
@@ -34,6 +36,10 @@ public class Player : NetworkBehaviour
     
     public override void OnNetworkSpawn()
     {
+        if (IsServer)
+        {
+            flashlightOn.Value = false;
+        }
 
         flashlightOn.OnValueChanged += OnFlashlightValueChanged;
 

@@ -146,6 +146,7 @@ public class PhonePlayer : NetworkBehaviour
     {
         if (!IsServer)
         {
+            Debug.Log("ToggleFlashlight called on client");
             computerPlayer.GetComponent<Player>().ToggleFlashlight_ServerRPC();
         }
     }
