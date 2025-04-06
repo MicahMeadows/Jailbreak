@@ -14,35 +14,22 @@ public struct SweepingPoint
 
 public class SecurityCamera : NetworkBehaviour
 {
-    [SerializeField] private GameObject cam;
     [SerializeField] private string camName;
     [SerializeField] private List<SweepingPoint> sweepingPoints;
 
+    public Vector2 cameraScreenRes = new Vector2(240, 135);
+
     private int currentSweepPoint = 0;
-    [SerializeField] private Camera camComponent;
-    [SerializeField] private Camera backupCamComponent;
+    private Camera camComponent;
+    private Camera backupCamComponent;
     private RenderTexture renderTexture;
     private RenderTexture smallRenderTexture;
-    // public MeshRenderer screen;
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
         var cameras = GetComponentsInChildren<Camera>();
         camComponent = cameras[0];
         backupCamComponent = cameras[1];
-
-        if (camComponent == null)
-        {
-            Debug.LogError("No Camera component found on cam GameObject!");
-            return;
-        }
-
-        // Create and assign a dynamic RenderTexture
-        
-    }
-
-    public override void OnNetworkSpawn()
-    {
         if (IsServer)
         {
             if (sweepingPoints.Count > 0)
@@ -60,8 +47,7 @@ public class SecurityCamera : NetworkBehaviour
         }
 
         // Create fallback texture for displaying on smaller screen where several cameras might be on
-        // smallRenderTexture = new RenderTexture(240, 135, 16);
-        smallRenderTexture = new RenderTexture(240, 135, 16);
+        smallRenderTexture = new RenderTexture((int)cameraScreenRes.x, (int)cameraScreenRes.y, 16);
         smallRenderTexture.name = $"{camName}_Small_RenderTexture";
         backupCamComponent.targetTexture = smallRenderTexture;
         backupCamComponent.enabled = true;

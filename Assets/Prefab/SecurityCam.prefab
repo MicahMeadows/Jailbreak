@@ -75,11 +75,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  cam: {fileID: 7274133557936115903}
   camName: cam1
   sweepingPoints: []
-  camComponent: {fileID: 0}
-  backupCamComponent: {fileID: 0}
+  cameraScreenRes: {x: 240, y: 135}
 --- !u!114 &5449181252505387072
 MonoBehaviour:
   m_ObjectHideFlags: 0
