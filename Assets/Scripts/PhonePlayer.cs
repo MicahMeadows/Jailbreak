@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
+using Unity.XR.OpenVR;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PhonePlayer : NetworkBehaviour
@@ -13,20 +15,26 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private TextMeshProUGUI camNameText;
     // [SerializeField] private GameObject phonePlayerCam;
+
     [SerializeField] private Button flashlightAppButton;
     [SerializeField] private Button droneControlAppButton;
     [SerializeField] private Button closeDroneControlAppButton;
-    [SerializeField] private Button phoneCamViewAppButton;
     [SerializeField] private Button securityCamViewAppButton;
     [SerializeField] private Button closeSecurityCamViewAppButton;
+    [SerializeField] private Button phoneCamViewAppButton;
     [SerializeField] private Button closePhoneCamViewAppButton;
+    [SerializeField] private Button levelAppButton;
+    [SerializeField] private Button closeLevelAppButton;
 
     [SerializeField] private GameObject droneControlAppGroup;
     [SerializeField] private GameObject homescreenAppGroup;
     [SerializeField] private GameObject securityCamViewAppGroup;
     [SerializeField] private GameObject phoneCamViewAppGroup;
+    [SerializeField] private GameObject levelAppGroup;
     [SerializeField] private RawImage securityCamViewImage;
     [SerializeField] private RawImage droneCamViewImage;
+
+    [SerializeField] private Button lvl1Btn;
     List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     int selectedCam = 0;
 
@@ -39,6 +47,33 @@ public class PhonePlayer : NetworkBehaviour
         closePhoneCamViewAppButton.onClick.AddListener(OnClosePhoneCamViewAppButtonClicked);
         phoneCamViewAppButton.onClick.AddListener(OnPhoneCamViewAppButtonClicked);
         flashlightAppButton.onClick.AddListener(OnFlashlightAppButtonClicked);
+        levelAppButton.onClick.AddListener(OnLevelAppButtonClicked);
+        closeLevelAppButton.onClick.AddListener(OnCloseLevelAppButtonClicked);
+
+        lvl1Btn.onClick.AddListener(OnPressLevel1Btn);
+    }
+
+    [ServerRpc(RequireOwnership=false)]
+    public void ChangeLevel_ServerRPC(string scene, ServerRpcParams rpcParams = default)
+    {
+        NetworkManager.SceneManager.LoadScene(scene, LoadSceneMode.Single);
+    }
+
+    void OnPressLevel1Btn()
+    {
+        ChangeLevel_ServerRPC("Scene2");
+    }
+
+    void OnLevelAppButtonClicked()
+    {
+        homescreenAppGroup.SetActive(false);
+        levelAppGroup.SetActive(true);
+    }
+
+    void OnCloseLevelAppButtonClicked()
+    {
+        homescreenAppGroup.SetActive(true);
+        levelAppGroup.SetActive(false);
     }
 
     void OnFlashlightAppButtonClicked()
@@ -153,6 +188,7 @@ public class PhonePlayer : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Debug.Log("Network spawn called!");
         cube = transform.Find("Cube").gameObject;
         canvas = GetComponentInChildren<Canvas>().gameObject;
         securityCameras = GameObject.FindGameObjectsWithTag("SecurityCam").ToList().Select(cam => cam.GetComponent<SecurityCamera>()).ToList();
