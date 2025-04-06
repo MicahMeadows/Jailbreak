@@ -21,9 +21,6 @@ public class PlayerSpawner : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
-            Debug.Log($"Should spawn at: {playerSpawnPoint.position}");
-            // computerPlayer = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, spawnPos, playerSpawnPoint.rotation);
-
             computerPlayer = Instantiate(computerPlayerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
             computerPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(OwnerClientId);
 
@@ -57,7 +54,9 @@ public class PlayerSpawner : NetworkBehaviour
         if (playerPrefab != null)
         {
             Debug.Log("Spawn point is null, spawning at default location.");
-            return NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(playerPrefab, clientId, false, true);
+            var newPlayer = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+            newPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+            return newPlayer;
         }
         return null;
     }
