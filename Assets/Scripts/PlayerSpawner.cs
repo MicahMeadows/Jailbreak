@@ -21,8 +21,7 @@ public class PlayerSpawner : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
-            computerPlayer = Instantiate(computerPlayerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
-            computerPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(OwnerClientId);
+            computerPlayer = InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint.position, playerSpawnPoint.rotation);
 
             phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
         }
@@ -44,17 +43,19 @@ public class PlayerSpawner : NetworkBehaviour
                 {
                     phonePlayer.ChangeOwnership(clientId);
                 }
+
+                // TODO: implement actual way of spawning drone on demand
                 // NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId, false, false, false, droneSpawnPoint.position);
             }
         }
     }
 
-    private NetworkObject InstantiatePlayer(NetworkObject playerPrefab, ulong clientId)
+    private NetworkObject InstantiatePlayer(NetworkObject playerPrefab, ulong clientId, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion))
     {
         if (playerPrefab != null)
         {
             Debug.Log("Spawn point is null, spawning at default location.");
-            var newPlayer = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+            var newPlayer = Instantiate(playerPrefab, position, rotation);
             newPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
             return newPlayer;
         }
