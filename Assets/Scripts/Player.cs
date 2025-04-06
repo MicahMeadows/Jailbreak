@@ -34,6 +34,7 @@ public class Player : NetworkBehaviour
     
     public override void OnNetworkSpawn()
     {
+
         flashlightOn.OnValueChanged += OnFlashlightValueChanged;
 
         canvas = GetComponentInChildren<Canvas>().gameObject;
@@ -51,10 +52,10 @@ public class Player : NetworkBehaviour
             rb.freezeRotation = true; // Prevents unwanted rotation
         }
 
-        if (IsServer)
-        {
-            playerMesh.enabled = false;
-        }
+        // if (IsServer)
+        // {
+        //     playerMesh.enabled = false;
+        // }
     }
 
     void Update()

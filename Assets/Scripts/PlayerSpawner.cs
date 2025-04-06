@@ -20,6 +20,14 @@ public class PlayerSpawner : NetworkBehaviour
         if (IsServer)
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+
+            Debug.Log($"Should spawn at: {playerSpawnPoint.position}");
+            // computerPlayer = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, spawnPos, playerSpawnPoint.rotation);
+
+            computerPlayer = Instantiate(computerPlayerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+            computerPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(OwnerClientId);
+
+            phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
         }
     }
 
@@ -29,13 +37,7 @@ public class PlayerSpawner : NetworkBehaviour
         print($"Client {clientId} connected.");
         if (IsServer)
         {
-            if (clientId == OwnerClientId)
-            {
-                // InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint);
-                computerPlayer = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(computerPlayerPrefab, clientId, false, false, false, playerSpawnPoint.position, playerSpawnPoint.rotation);
-                phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
-            }
-            else
+            if (clientId != OwnerClientId)
             {
                 if (phonePlayer == null)
                 {
@@ -45,14 +47,13 @@ public class PlayerSpawner : NetworkBehaviour
                 {
                     phonePlayer.ChangeOwnership(clientId);
                 }
-                NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId, false, false, false, droneSpawnPoint.position);
+                // NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId, false, false, false, droneSpawnPoint.position);
             }
         }
     }
 
     private NetworkObject InstantiatePlayer(NetworkObject playerPrefab, ulong clientId)
     {
-        Debug.Log("Should be spawning player...");
         if (playerPrefab != null)
         {
             Debug.Log("Spawn point is null, spawning at default location.");
