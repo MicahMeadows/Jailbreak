@@ -24,8 +24,16 @@ public class SecurityCamera : NetworkBehaviour
     private Camera backupCamComponent;
     private RenderTexture renderTexture;
     private RenderTexture smallRenderTexture;
+    [SerializeField] private float maxCameraDetectDist = 99999;
+
+    private bool playerDetected = false;
 
     private Player player;
+
+    public bool IsPlayerDetected()
+    {
+        return playerDetected;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -107,7 +115,11 @@ public class SecurityCamera : NetworkBehaviour
     {
         if (player == null)
         {
-            player = GameObject.FindGameObjectWithTag("ComputerPlayer").GetComponent<Player>();
+            var playerGo = GameObject.FindGameObjectWithTag("ComputerPlayer");
+            if (playerGo)
+            {
+                player = playerGo.GetComponent<Player>();
+            }
         }
 
         if (player != null)
@@ -116,8 +128,9 @@ public class SecurityCamera : NetworkBehaviour
             var mask = ~(1 << LayerMask.NameToLayer("PlayerHidden"));
 
             // Get the camera's frustum planes
-            Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camComponent);
+            Plane[] planes = GeometryUtility.CalculateFrustumPlanes(backupCamComponent);
 
+            var newPlayerDetected = false;
             for (int i = 0; i < spheres.Count; i++)
             {
                 Vector3 rayOrigin = transform.position; // Camera's position
@@ -130,24 +143,21 @@ public class SecurityCamera : NetworkBehaviour
 
                     // Raycast to check if there is an obstacle between the camera and the player
                     RaycastHit hit;
-                    if (Physics.Raycast(rayOrigin, rayDirection, out hit, 1000, mask))
+                    if (Physics.Raycast(rayOrigin, rayDirection, out hit, maxCameraDetectDist, mask))
                     {
                         if (hit.collider.CompareTag("PlayerCameraCheck"))
                         {
-                            // Player is visible and not blocked by anything
-                            Debug.Log($"{camName}: Player detected!");
+                            newPlayerDetected = true;
+                            Debug.DrawLine(rayOrigin, spheres[i].position, Color.red);
                         }
                         else
                         {
-                            // Player is within the FOV, but blocked by an obstacle
-                            Debug.Log($"{camName}: Player blocked by an obstacle.");
+                            Debug.DrawLine(rayOrigin, spheres[i].position, Color.green);
                         }
                     }
-
-                    // Debug line to visualize the raycast
-                    Debug.DrawLine(rayOrigin, spheres[i].position, Color.red);
                 }
             }
+            playerDetected = newPlayerDetected;
         }
     }
 }

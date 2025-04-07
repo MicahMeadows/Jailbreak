@@ -23,8 +23,11 @@ public class Interactor : MonoBehaviour
 
     void Update()
     {
+        var mask = ~( (1 << LayerMask.NameToLayer("PlayerHidden")) |
+              (1 << LayerMask.NameToLayer("SecurityCamCheck")));
+
         Ray r = new Ray(interactorTransform.position, interactorTransform.forward);
-        if (Physics.Raycast(r, out RaycastHit hit, interactorRange))
+        if (Physics.Raycast(r, out RaycastHit hit, interactorRange, mask))
         {
             if (hit.collider.gameObject.TryGetComponent(out IInteractable interactable))
             {
