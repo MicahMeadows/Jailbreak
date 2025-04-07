@@ -139,14 +139,23 @@ public class PhonePlayer : NetworkBehaviour
 
     void SetSecurityCam()
     {
-        camNameText.text = securityCameras[selectedCam].GetCamName();
-        securityCamViewImage.texture = securityCameras[selectedCam].GetCamTexture();
-
-        // Disable all cams except selected.
-        for (int i = 0; i < securityCameras.Count; i++)
+        if (securityCameras.Count == 0)
         {
-            securityCameras[i].SetActive(selectedCam == i);
+            camNameText.text = "No cameras available";
+            securityCamViewImage.texture = null;
         }
+        else
+        {
+            camNameText.text = securityCameras[selectedCam].GetCamName();
+            securityCamViewImage.texture = securityCameras[selectedCam].GetCamTexture();
+
+            for (int i = 0; i < securityCameras.Count; i++)
+            {
+                securityCameras[i].SetActive(selectedCam == i);
+            }
+        }
+
+        
     }
 
     void SetDroneState(bool value)
