@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -18,6 +19,25 @@ public class Player : NetworkBehaviour
     [SerializeField] private Transform sphere1;
     [SerializeField] private Transform sphere2;
     [SerializeField] private Transform sphere3;
+    [SerializeField] private GameObject lossScreenGroup;
+    [SerializeField] private TextMeshProUGUI lossText;
+
+    private bool isActive = false;
+
+    public void SetLossScreen(string message)
+    {
+        lossText.text = message;
+        lossScreenGroup.SetActive(true);
+    }
+
+    public void SetPlayerActive(bool value)
+    {
+        isActive = value;
+        if (value == true)
+        {
+            lossScreenGroup.SetActive(false);
+        }
+    }
 
     public List<Transform> GetSpheres()
     {
@@ -62,6 +82,7 @@ public class Player : NetworkBehaviour
                     // TODO: set player pos!
                     transform.position = playerSpawn.transform.position;
                     transform.rotation = playerSpawn.transform.rotation;
+                    SetPlayerActive(true);
                 }
                 else
                 {
@@ -100,14 +121,20 @@ public class Player : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        HandleLook();
+        if (isActive)
+        {
+            HandleLook();
+        }
     }
 
     void FixedUpdate() // Physics-based movement should be in FixedUpdate
     {
         if (!IsOwner) return;
 
-        HandleMovement();
+        if (isActive)
+        {
+            HandleMovement();
+        }
     }
 
     void HandleMovement()

@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class TestLevelManager : NetworkBehaviour
 {
-    public NetworkObject computerPlayerPrefab;
-    public NetworkObject phonePlayerPrefab;
+    public NetworkObject computerPlayer;
+    public NetworkObject phonePlayer;
 
     private List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     private List<FoodShelf> foodShelves = new List<FoodShelf>();
@@ -18,8 +18,19 @@ public class TestLevelManager : NetworkBehaviour
         Debug.Log("You were seen stealing food. you lose!");
         if (IsServer)
         {
-            NetworkManager.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
+            var player = computerPlayer.GetComponent<Player>();
+            if (player)
+            {
+                player.SetLossScreen("You were seen stealing food by a camera...");
+                player.SetPlayerActive(false);
+            }
+            Invoke("GoBackToHomeBase", 3f);
         }
+    }
+
+    private void GoBackToHomeBase()
+    {
+        NetworkManager.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
     }
 
     void OnExitDoor()
@@ -47,8 +58,8 @@ public class TestLevelManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        computerPlayerPrefab = GameObject.FindGameObjectWithTag("ComputerPlayer").GetComponent<NetworkObject>();
-        phonePlayerPrefab = GameObject.FindGameObjectWithTag("PhonePlayer").GetComponent<NetworkObject>();
+        computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer").GetComponent<NetworkObject>();
+        phonePlayer = GameObject.FindGameObjectWithTag("PhonePlayer").GetComponent<NetworkObject>();
 
         securityCameras = FindObjectsByType<SecurityCamera>(FindObjectsSortMode.None).ToList();
         foodShelves = FindObjectsByType<FoodShelf>(FindObjectsSortMode.None).ToList();
