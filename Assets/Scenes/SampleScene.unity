@@ -1667,6 +1667,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9667ef6d80d7747a780fe8a13def23ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onStolen:
+    m_PersistentCalls:
+      m_Calls: []
+  emptyShelfMaterial: {fileID: 0}
 --- !u!1001 &1643856997
 PrefabInstance:
   m_ObjectHideFlags: 0

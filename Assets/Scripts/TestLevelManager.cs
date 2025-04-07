@@ -16,6 +16,10 @@ public class TestLevelManager : NetworkBehaviour
     void FailGame()
     {
         Debug.Log("You were seen stealing food. you lose!");
+        if (IsServer)
+        {
+            NetworkManager.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
+        }
     }
 
     void OnExitDoor()
