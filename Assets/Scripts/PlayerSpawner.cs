@@ -2,6 +2,7 @@ using System.Linq;
 using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerSpawner : NetworkBehaviour
 {
@@ -10,6 +11,7 @@ public class PlayerSpawner : NetworkBehaviour
     public NetworkObject dronePrefab;
     public Transform droneSpawnPoint;
     public Transform playerSpawnPoint;
+    public string initialScene;
 
     private NetworkObject computerPlayer;
     private NetworkObject phonePlayer;
@@ -24,6 +26,8 @@ public class PlayerSpawner : NetworkBehaviour
             computerPlayer = InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint.position, playerSpawnPoint.rotation);
 
             phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
+
+            NetworkManager.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
         }
     }
 
