@@ -115,6 +115,8 @@ public class Player : NetworkBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             rb.freezeRotation = true; // Prevents unwanted rotation
         }
+
+        SetPlayerActive(true);
     }
 
     void Update()
