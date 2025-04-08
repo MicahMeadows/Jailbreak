@@ -9,6 +9,9 @@ using UnityEngine.UI;
 
 public class PhonePlayer : NetworkBehaviour
 {
+    [SerializeField] private Slider batterySlider;
+    [SerializeField] private Image sliderFill;
+    [SerializeField] private Image chargingIcon;
     private GameObject computerPlayer = null;
     private GameObject cube;
     private GameObject canvas;
@@ -238,6 +241,32 @@ public class PhonePlayer : NetworkBehaviour
 
     void Update()
     {
+        if (batterySlider)
+        {
+            var batteryValue = SystemInfo.batteryLevel;
+            batterySlider.value = batteryValue;
+            var charging = SystemInfo.batteryStatus == BatteryStatus.Charging;
+            chargingIcon.gameObject.SetActive(charging);
+            if (charging)
+            {
+                sliderFill.color = Color.blue;
+            }
+            else
+            {
+                if (batteryValue > 60)
+                {
+                    sliderFill.color = Color.green;
+                }
+                else if (batteryValue > 20)
+                {
+                    sliderFill.color = Color.yellow;
+                }
+                else
+                {
+                    sliderFill.color = Color.red;
+                }
+            }
+        }
         if (!IsServer)
         {
             if (Input.GetKeyDown(KeyCode.Space)) 
