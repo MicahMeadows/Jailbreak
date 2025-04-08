@@ -15,6 +15,7 @@ public class PlayerSpawner : NetworkBehaviour
 
     private NetworkObject computerPlayer;
     private NetworkObject phonePlayer;
+    private NetworkObject drone;
 
     public override void OnNetworkSpawn()
     {
@@ -26,6 +27,8 @@ public class PlayerSpawner : NetworkBehaviour
             computerPlayer = InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint.position, playerSpawnPoint.rotation);
 
             phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
+
+            drone = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, 999999, false, false, false, droneSpawnPoint.position);
 
             NetworkManager.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
         }
@@ -47,9 +50,10 @@ public class PlayerSpawner : NetworkBehaviour
                 {
                     phonePlayer.ChangeOwnership(clientId);
                 }
-
-                // TODO: implement actual way of spawning drone on demand
-                // NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, clientId, false, false, false, droneSpawnPoint.position);
+                if (drone)
+                {
+                    drone.ChangeOwnership(clientId);
+                }
             }
         }
     }

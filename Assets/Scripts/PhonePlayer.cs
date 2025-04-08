@@ -66,7 +66,7 @@ public class PhonePlayer : NetworkBehaviour
 
     void OnPressLevel1Btn()
     {
-        ChangeLevel_ServerRPC("Scene2");
+        ChangeLevel_ServerRPC("GasStation");
     }
 
     void OnLevelAppButtonClicked()

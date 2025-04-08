@@ -18,7 +18,7 @@ public class FoodShelf : MonoBehaviour, IInteractable
             Renderer renderer = gameObject.GetComponent<Renderer>();
             Material[] mats = renderer.materials; // This is a copy
             mats[1] = emptyShelfMaterial;         // Modify the copy
-            renderer.materials = mats;    
+            renderer.materials = mats;
 
             onStolen.Invoke();
         }
