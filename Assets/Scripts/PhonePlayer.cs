@@ -253,11 +253,11 @@ public class PhonePlayer : NetworkBehaviour
             }
             else
             {
-                if (batteryValue > 60)
+                if (batteryValue > .6)
                 {
                     sliderFill.color = Color.green;
                 }
-                else if (batteryValue > 20)
+                else if (batteryValue > .2)
                 {
                     sliderFill.color = Color.yellow;
                 }

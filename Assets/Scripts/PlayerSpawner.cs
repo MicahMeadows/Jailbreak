@@ -28,7 +28,7 @@ public class PlayerSpawner : NetworkBehaviour
 
             phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
 
-            drone = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, 999999, false, false, false, droneSpawnPoint.position);
+            // drone = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, 999999, false, false, false, droneSpawnPoint.position);
 
             NetworkManager.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
         }
