@@ -37,7 +37,7 @@ public class FoodShelf : MonoBehaviour, IInteractable
         return new InteractResponse
         {
             maxRange = maxInteractDistance,
-            message = "You can interact with the food shelf."
+            message = "Steal"
         };
     }
 }
