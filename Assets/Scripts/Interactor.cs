@@ -38,7 +38,7 @@ public class Interactor : MonoBehaviour
                     {
                         interactText.text = response.message;
                     }
-                    if (Input.GetKeyDown(KeyCode.E))
+                    if (Input.GetKeyDown(KeyCode.F))
                     {
                         interactable.Interact();
                     }
