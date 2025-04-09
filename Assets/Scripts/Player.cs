@@ -80,9 +80,20 @@ public class Player : NetworkBehaviour
                 var playerSpawn = GameObject.Find("PlayerSpawn");
                 if (playerSpawn)
                 {
-                    // TODO: set player pos!
-                    transform.position = playerSpawn.transform.position;
-                    transform.rotation = playerSpawn.transform.rotation;
+                    if (rb == null) rb = GetComponent<Rigidbody>();
+
+                    // Reset velocity to avoid unwanted movement
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+
+                    // Set position and rotation using Rigidbody
+                    rb.position = playerSpawn.transform.position;
+                    rb.rotation = playerSpawn.transform.rotation;
+
+                    // If using MovePosition/MoveRotation instead, it must be inside FixedUpdate or coroutine
+                    // rb.MovePosition(playerSpawn.transform.position);
+                    // rb.MoveRotation(playerSpawn.transform.rotation);
+
                     SetPlayerActive(true);
                 }
                 else
@@ -92,6 +103,7 @@ public class Player : NetworkBehaviour
             }
         }
     }
+
 
     public override void OnNetworkSpawn()
     {

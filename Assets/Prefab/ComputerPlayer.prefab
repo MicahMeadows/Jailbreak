@@ -388,7 +388,7 @@ MonoBehaviour:
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
+  ActiveSceneSynchronization: 1
   SceneMigrationSynchronization: 1
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
@@ -456,6 +456,7 @@ MonoBehaviour:
   sphere3: {fileID: 1582855603123688706}
   lossScreenGroup: {fileID: 7706065966170175176}
   lossText: {fileID: 5249440611494387211}
+  keyRotationSpeed: 90
   flashlightOn:
     m_InternalValue: 1
 --- !u!54 &9178670953516074416
