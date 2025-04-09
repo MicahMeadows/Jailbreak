@@ -2,22 +2,37 @@ using UnityEngine;
 
 public class PhoneCameraController : MonoBehaviour
 {
-    [SerializeField] private GameObject phoneCamera; // Use Transform for local rotations
+    [SerializeField] private GameObject phoneCamera;
     public float rotationSpeed = 0.2f;
+
     private Vector3 lastPanPosition;
     private bool isPanning;
     private bool isActive = false;
 
     private float xRotation = 0f;
     private float yRotation = 0f;
-    private float minVerticalAngle = -60f; // Clamp for looking up/down
+    private float minVerticalAngle = -60f;
     private float maxVerticalAngle = 60f;
+
+    private bool useGyro = false;
+    private Quaternion gyroOffset = Quaternion.identity;
+
+    void Start()
+    {
+        // Check if the system supports gyroscope
+        if (SystemInfo.supportsGyroscope)
+        {
+            Input.gyro.enabled = true;
+            useGyro = true;
+        }
+    }
 
     public void SetEnabled(bool value)
     {
         isActive = value;
         phoneCamera.gameObject.SetActive(isActive);
-        if (value == false)
+
+        if (!value)
         {
             xRotation = 0f;
             yRotation = 0f;
@@ -25,53 +40,96 @@ public class PhoneCameraController : MonoBehaviour
         }
     }
 
+    // public void ResetGyroOffset()
+    // {
+    //     if (!useGyro) return;
+
+    //     Quaternion rawGyro = Input.gyro.attitude;
+    //     rawGyro = Quaternion.Euler(90f, 0f, 0f) * new Quaternion(-rawGyro.x, -rawGyro.y, rawGyro.z, rawGyro.w);
+    //     gyroOffset = Quaternion.Inverse(rawGyro);
+    // }
+
+    public void ResetGyroOffset()
+    {
+        if (!useGyro) return;
+
+        // Get raw gyro rotation in Unity coordinates
+        Quaternion rawGyro = Input.gyro.attitude;
+        rawGyro = Quaternion.Euler(90f, 0f, 0f) * new Quaternion(-rawGyro.x, -rawGyro.y, rawGyro.z, rawGyro.w);
+
+        // Extract only the yaw angle (around the Y-axis)
+        Vector3 euler = rawGyro.eulerAngles;
+        float yaw = euler.y;
+
+        // Create a "yaw only" rotation to zero out
+        Quaternion yawOnlyRotation = Quaternion.Euler(0f, yaw, 0f);
+
+        // Invert and store as offset
+        gyroOffset = Quaternion.Inverse(yawOnlyRotation);
+    }
+
+
+
     void Update()
     {
         if (!isActive) return;
 
-        Vector2 delta = Vector2.zero;
-
-        // Handle touch input (Mobile)
-        if (Input.touchCount == 1)
+        if (useGyro)
         {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
+            // Tap to reset orientation
+            if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                lastPanPosition = touch.position;
+                // Quaternion rawGyro = Input.gyro.attitude;
+                // rawGyro = Quaternion.Euler(90f, 0f, 0f) * new Quaternion(-rawGyro.x, -rawGyro.y, rawGyro.z, rawGyro.w);
+                // gyroOffset = Quaternion.Inverse(rawGyro);
+                ResetGyroOffset();
             }
-            else if (touch.phase == TouchPhase.Moved)
+
+            // Apply gyroscope rotation with offset
+            Quaternion deviceRotation = Input.gyro.attitude;
+            deviceRotation = Quaternion.Euler(90f, 0f, 0f) * new Quaternion(-deviceRotation.x, -deviceRotation.y, deviceRotation.z, deviceRotation.w);
+            phoneCamera.transform.localRotation = gyroOffset * deviceRotation;
+        }
+        else
+        {
+            Vector2 delta = Vector2.zero;
+
+            // Touch input
+            if (Input.touchCount == 1)
             {
-                delta = touch.position - (Vector2)lastPanPosition;
-                lastPanPosition = touch.position;
+                Touch touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Began)
+                    lastPanPosition = touch.position;
+                else if (touch.phase == TouchPhase.Moved)
+                {
+                    delta = touch.position - (Vector2)lastPanPosition;
+                    lastPanPosition = touch.position;
+                }
             }
-        }
-        // Handle mouse input (PC)
-        else if (Input.GetMouseButtonDown(0))
-        {
-            isPanning = true;
-            lastPanPosition = Input.mousePosition;
-        }
-        else if (Input.GetMouseButton(0) && isPanning)
-        {
-            delta = (Vector2)(Input.mousePosition - lastPanPosition);
-            lastPanPosition = Input.mousePosition;
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            isPanning = false;
-        }
+            // Mouse input
+            else if (Input.GetMouseButtonDown(0))
+            {
+                isPanning = true;
+                lastPanPosition = Input.mousePosition;
+            }
+            else if (Input.GetMouseButton(0) && isPanning)
+            {
+                delta = (Vector2)(Input.mousePosition - lastPanPosition);
+                lastPanPosition = Input.mousePosition;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                isPanning = false;
+            }
 
-        if (delta != Vector2.zero)
-        {
-            // Adjust rotations
-            yRotation += -delta.x * rotationSpeed; // Horizontal rotation
-            xRotation += delta.y * rotationSpeed;  // Vertical rotation
+            if (delta != Vector2.zero)
+            {
+                yRotation += -delta.x * rotationSpeed;
+                xRotation += delta.y * rotationSpeed;
+                xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
 
-            // Clamp vertical rotation
-            xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
-
-            // Apply local rotation
-            phoneCamera.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+                phoneCamera.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+            }
         }
     }
 }

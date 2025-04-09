@@ -92,6 +92,7 @@ public class PhonePlayer : NetworkBehaviour
         homescreenAppGroup.SetActive(false);
         phoneCamViewAppGroup.SetActive(true);
         phoneCameraController.SetEnabled(true);
+        // phoneCameraController.ResetGyroOffset();
     }
 
     void OnCloseDroneControlAppButtonClicked()

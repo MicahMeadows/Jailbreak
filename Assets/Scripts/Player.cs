@@ -21,6 +21,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private Transform sphere3;
     [SerializeField] private GameObject lossScreenGroup;
     [SerializeField] private TextMeshProUGUI lossText;
+    [SerializeField] private float keyRotationSpeed = 90f; // degrees per second
 
     private bool isActive = false;
 
@@ -153,21 +154,44 @@ public class Player : NetworkBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        // Calculate new X rotation (clamping the pitch)
+        // Optional: Replace mouseX with 0 if you want to disable mouse look
+        float keyInput = 0f;
+        if (Input.GetKey(KeyCode.Q)) keyInput -= 1f;
+        if (Input.GetKey(KeyCode.E)) keyInput += 1f;
+
+        float keyRotation = keyInput * keyRotationSpeed * Time.deltaTime;
+        float totalYRotation = mouseX + keyRotation;
+
+        // Pitch (up/down) from mouse only
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        // Apply the X rotation to the FPS holder (camera)
         fpsHolder.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // Rotate the player (y-axis)
-        // Instead of directly rotating, we will accumulate rotation in a variable
-        float targetRotationY = transform.eulerAngles.y + mouseX; // add rotation based on input
-        targetRotationY = NormalizeAngle(targetRotationY); // Ensure rotation stays within 0-360 degrees range
-
-        // Apply the calculated Y rotation to the player's body (ignoring pitch for body)
-        transform.rotation = Quaternion.Euler(0f, targetRotationY, 0f);
+        // Apply yaw (left/right)
+        transform.Rotate(Vector3.up * totalYRotation);
     }
+
+
+    // void HandleLook()
+    // {
+    //     float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+    //     float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+    //     // Calculate new X rotation (clamping the pitch)
+    //     xRotation -= mouseY;
+    //     xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+    //     // Apply the X rotation to the FPS holder (camera)
+    //     fpsHolder.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+    //     // Rotate the player (y-axis)
+    //     // Instead of directly rotating, we will accumulate rotation in a variable
+    //     float targetRotationY = transform.eulerAngles.y + mouseX; // add rotation based on input
+    //     targetRotationY = NormalizeAngle(targetRotationY); // Ensure rotation stays within 0-360 degrees range
+
+    //     // Apply the calculated Y rotation to the player's body (ignoring pitch for body)
+    //     transform.rotation = Quaternion.Euler(0f, targetRotationY, 0f);
+    // }
 
     // Normalize angle to the range 0-360 to avoid unexpected rotation behavior
     float NormalizeAngle(float angle)

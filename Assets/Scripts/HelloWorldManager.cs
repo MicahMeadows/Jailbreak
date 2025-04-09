@@ -1,4 +1,5 @@
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,9 +29,26 @@ public class HelloWorldManager : MonoBehaviour
 
     void StartButtons()
     {
-        if (GUILayout.Button("Host")) networkManager.StartHost();
-        if (GUILayout.Button("Client")) networkManager.StartClient();
-        if (GUILayout.Button("Server")) networkManager.StartServer();
+        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+        buttonStyle.fontSize = 40;
+        buttonStyle.padding = new RectOffset(20, 20, 20, 20);
+        buttonStyle.alignment = TextAnchor.MiddleCenter;
+
+        if (GUILayout.Button("Host", buttonStyle)) {
+            networkManager.StartHost();
+        }
+
+        if (GUILayout.Button("Client", buttonStyle)) {
+            var ip = "192.168.1.135";
+            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            transport.ConnectionData.Address = ip;
+            networkManager.StartClient();
+        }
+
+        if (GUILayout.Button("Server", buttonStyle)) {
+            networkManager.StartServer();
+        }
+
     }
 
     void StatusLabels()
