@@ -43,7 +43,6 @@ public class PhonePlayer : NetworkBehaviour
 
     public void Start()
     {
-        NetworkManager.SceneManager.OnSceneEvent += HandleSceneEvent;
 
         droneControlAppButton.onClick.AddListener(OnDroneControlAppButtonClicked);
         closeDroneControlAppButton.onClick.AddListener(OnCloseDroneControlAppButtonClicked);
@@ -61,11 +60,13 @@ public class PhonePlayer : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     public void ChangeLevel_ServerRPC(string scene, ServerRpcParams rpcParams = default)
     {
-        NetworkManager.SceneManager.LoadScene(scene, LoadSceneMode.Single);
+        Debug.Log("ChangeLevel_ServerRPC called");
+        NetworkManager.Singleton.SceneManager.LoadScene(scene, LoadSceneMode.Single);
     }
 
     void OnPressLevel1Btn()
     {
+        Debug.Log("Level 1 button pressed");
         ChangeLevel_ServerRPC("GasStation");
     }
 
@@ -210,13 +211,19 @@ public class PhonePlayer : NetworkBehaviour
                 securityCameras = GameObject.FindGameObjectsWithTag("SecurityCam").ToList().Select(cam => cam.GetComponent<SecurityCamera>()).ToList();
                 selectedCam = 0;
                 SetSecurityCam();
+                Debug.Log("Client PhonePlayer loaded into scene.");
             }
-            Debug.Log("Loaded into scene.");
+            else
+            {
+                Debug.Log("Server PhonePlayer loaded into scene.");
+            }
         }
     }
 
     public override void OnNetworkSpawn()
     {
+        NetworkManager.Singleton.SceneManager.OnSceneEvent += HandleSceneEvent;
+
         Debug.Log("Network spawn called!");
         cube = transform.Find("Cube").gameObject;
         canvas = GetComponentInChildren<Canvas>().gameObject;

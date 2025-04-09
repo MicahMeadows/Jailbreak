@@ -30,14 +30,14 @@ public class TestLevelManager : NetworkBehaviour
 
     private void GoBackToHomeBase()
     {
-        NetworkManager.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
     }
 
     void OnExitDoor()
     {
         if (IsServer)
         {
-            NetworkManager.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
         }
     }
 

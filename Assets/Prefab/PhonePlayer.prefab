@@ -4704,15 +4704,15 @@ RectTransform:
   m_GameObject: {fileID: 6031882497807721333}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6105283153844254052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -120, y: -0.07861328}
-  m_SizeDelta: {x: 5, y: 2531.843}
+  m_SizeDelta: {x: 5, y: -160.15698}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &798555107532906943
 CanvasRenderer:
@@ -6007,7 +6007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1741993007
-  InScenePlacedSourceGlobalObjectIdHash: 1741993007
+  InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -7149,6 +7149,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   phoneCamera: {fileID: 6055776263930120077}
   rotationSpeed: 0.2
+  gyroSmoothSpeed: 25
 --- !u!1 &8718599270899131657
 GameObject:
   m_ObjectHideFlags: 0
@@ -7990,6 +7991,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -176, y: -106}
+  m_AnchoredPosition: {x: -138, y: -115}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}

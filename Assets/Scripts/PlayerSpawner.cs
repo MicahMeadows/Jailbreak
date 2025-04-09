@@ -30,7 +30,9 @@ public class PlayerSpawner : NetworkBehaviour
 
             // drone = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, 999999, false, false, false, droneSpawnPoint.position);
 
-            NetworkManager.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.PostSynchronizationSceneUnloading = true;
+            NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
         }
     }
 

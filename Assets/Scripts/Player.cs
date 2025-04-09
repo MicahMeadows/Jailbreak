@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : NetworkBehaviour
 {
@@ -47,7 +49,7 @@ public class Player : NetworkBehaviour
 
     public NetworkVariable<bool> flashlightOn = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    [ServerRpc(RequireOwnership=false)]
+    [ServerRpc(RequireOwnership = false)]
     public void ToggleFlashlight_ServerRPC(ServerRpcParams rpcParams = default)
     {
         Debug.Log($"Toggle RPC Hit on server. Should go to: {!flashlightOn.Value}");
@@ -67,48 +69,68 @@ public class Player : NetworkBehaviour
 
     void Start()
     {
-        NetworkManager.SceneManager.OnSceneEvent += HandleSceneEvent;
     }
 
-    private void HandleSceneEvent(SceneEvent sceneEvent)
+    public void ResyncPosition()
     {
-        if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
+        if (IsServer)
         {
-            Debug.Log("Loaded into scene.");
-            if (IsServer)
-            {
-                var playerSpawn = GameObject.Find("PlayerSpawn");
-                if (playerSpawn)
-                {
-                    if (rb == null) rb = GetComponent<Rigidbody>();
-
-                    // Reset velocity to avoid unwanted movement
-                    rb.linearVelocity = Vector3.zero;
-                    rb.angularVelocity = Vector3.zero;
-
-                    // Set position and rotation using Rigidbody
-                    rb.position = playerSpawn.transform.position;
-                    rb.rotation = playerSpawn.transform.rotation;
-
-                    // If using MovePosition/MoveRotation instead, it must be inside FixedUpdate or coroutine
-                    // rb.MovePosition(playerSpawn.transform.position);
-                    // rb.MoveRotation(playerSpawn.transform.rotation);
-
-                    SetPlayerActive(true);
-                }
-                else
-                {
-                    Debug.Log("PlayerSpawn not found in scene.");
-                }
-            }
+            transform.SetPositionAndRotation(this.transform.position, this.transform.rotation);
         }
     }
+
+    // private void HandleSceneEvent(SceneEvent sceneEvent)
+    // {
+    //     if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
+    //     {
+    public void OnLoadCompleted(ulong clientId, string sceneName, LoadSceneMode mode) {
+
+
+        if (IsServer && clientId == OwnerClientId)
+        {
+            Debug.Log($"Player load completed: {sceneName} - {IsServer} - {clientId} - {OwnerClientId}");
+            var playerSpawn = GameObject.Find("PlayerSpawn");
+            if (playerSpawn)
+            {
+                if (rb == null) rb = GetComponent<Rigidbody>();
+
+                SetPlayerActive(true);
+
+                // Reset velocity to avoid unwanted movement
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+
+
+                // Set position and rotation using Rigidbody
+                // rb.position = playerSpawn.transform.position;
+                // rb.rotation = playerSpawn.transform.rotation;
+                Debug.Log($"Setting position and rotation to {playerSpawn.transform.position} - {playerSpawn.transform.rotation}");
+                GetComponent<NetworkTransform>().transform.SetPositionAndRotation(playerSpawn.transform.position, playerSpawn.transform.rotation);
+
+                // If using MovePosition/MoveRotation instead, it must be inside FixedUpdate or coroutine
+                // rb.MovePosition(playerSpawn.transform.position);
+                // rb.MoveRotation(playerSpawn.transform.rotation);
+
+            }
+            else
+            {
+                Debug.Log("PlayerSpawn not found in scene.");
+            }
+            
+        }
+
+        }
+        
+    // }
 
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
+        // NetworkManager.Singleton.SceneManager.OnSceneEvent += HandleSceneEvent;
+        // NetworkManager.Singleton.SceneManager.OnLoadCompleted += OnLoadCompleted;
+        if (IsServer && NetworkManager.Singleton.LocalClientId == OwnerClientId)
         {
+            NetworkManager.Singleton.SceneManager.OnLoadComplete += OnLoadCompleted;
             flashlightOn.Value = false;
         }
 
@@ -134,7 +156,7 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return;
+        if (!IsServer) return;
 
         if (isActive)
         {
@@ -212,7 +234,7 @@ public class Player : NetworkBehaviour
             angle += 360f;
         else if (angle >= 360f)
             angle -= 360f;
-        
+
         return angle;
     }
 }
