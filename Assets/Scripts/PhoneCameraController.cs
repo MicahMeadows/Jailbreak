@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PhoneCameraController : MonoBehaviour
 {
+    [SerializeField] private RawImage uiRenderImage;
     [SerializeField] private GameObject phoneCamera;
     public float rotationSpeed = 0.2f;
     public float gyroSmoothSpeed = 50f; // new: smoothing factor for gyro
@@ -15,8 +17,15 @@ public class PhoneCameraController : MonoBehaviour
     private float minVerticalAngle = -60f;
     private float maxVerticalAngle = 60f;
 
+    // [SerializeField] private int renderTextureWidth = 1080/2;
+    // [SerializeField] private int renderTextureHeight = 1920/2;
+    // private int renderTextureWidth = Screen.width;
+    // private int renderTextureHeight = Screen.height;
+
+
     private bool useGyro = false;
     private Quaternion gyroOffset = Quaternion.identity;
+    private RenderTexture renderTexture;
 
     void Start()
     {
@@ -25,6 +34,12 @@ public class PhoneCameraController : MonoBehaviour
             Input.gyro.enabled = true;
             useGyro = true;
         }
+
+        Camera cam = phoneCamera.GetComponent<Camera>();
+        renderTexture = new RenderTexture(Screen.width, Screen.height, 16);
+        renderTexture.Create();
+        cam.targetTexture = renderTexture;
+        uiRenderImage.texture = renderTexture;
     }
 
     public void SetEnabled(bool value)

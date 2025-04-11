@@ -2490,7 +2490,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 8400000, guid: 68f69655b5d3e4682b28e157bda839a4, type: 2}
+  m_Texture: {fileID: 0}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -4976,7 +4976,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 55
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: 68f69655b5d3e4682b28e157bda839a4, type: 2}
+  m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -7296,6 +7296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4cc3f6dd9d54542b79cb21beef14d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiRenderImage: {fileID: 306952805987565043}
   phoneCamera: {fileID: 6055776263930120077}
   rotationSpeed: 0.2
   gyroSmoothSpeed: 25
