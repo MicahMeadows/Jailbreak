@@ -1,3 +1,5 @@
+using System.Linq;
+using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -10,6 +12,19 @@ public class HelloWorldManager : MonoBehaviour
     void Awake()
     {
         networkManager = GetComponent<NetworkManager>();
+        
+    }
+
+    void Start()
+    {
+        if (CurrentPlayer.ReadOnlyTags().Contains("ComputerPlayer"))
+        {
+            networkManager.StartHost();
+        }
+        if (CurrentPlayer.ReadOnlyTags().Contains("PhonePlayer"))
+        {
+            networkManager.StartClient();
+        }
     }
 
     void OnGUI()
@@ -39,16 +54,12 @@ public class HelloWorldManager : MonoBehaviour
         }
 
         if (GUILayout.Button("Client", buttonStyle)) {
-            var ip = "192.168.1.135";
-            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            transport.ConnectionData.Address = ip;
+            // var ip = "192.168.1.135";
+            // var ip = "192.168.1.135";
+            // var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            // transport.ConnectionData.Address = ip;
             networkManager.StartClient();
         }
-
-        if (GUILayout.Button("Server", buttonStyle)) {
-            networkManager.StartServer();
-        }
-
     }
 
     void StatusLabels()
