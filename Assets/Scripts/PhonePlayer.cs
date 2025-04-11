@@ -22,6 +22,7 @@ public class PhonePlayer : NetworkBehaviour
 
     [SerializeField] private Button photosAppButton;
     [SerializeField] private Button closePhotosAppButton;
+    [SerializeField] private Button backPhotosAppButton;
     [SerializeField] private Button flashlightAppButton;
     [SerializeField] private Button droneControlAppButton;
     [SerializeField] private Button closeDroneControlAppButton;
@@ -33,6 +34,7 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private Button closeLevelAppButton;
 
     [SerializeField] private GameObject photosAppGroup;
+    
     [SerializeField] private GameObject droneControlAppGroup;
     [SerializeField] private GameObject homescreenAppGroup;
     [SerializeField] private GameObject securityCamViewAppGroup;
@@ -74,13 +76,14 @@ public class PhonePlayer : NetworkBehaviour
     {
         homescreenAppGroup.SetActive(false);
         photosAppGroup.SetActive(true);
-        photosAppController.SetPhotos(phoneCameraController.GetPhotos());
+        photosAppController.SetEnabled(true);
     }
 
     void OnClosePhotosAppButtonClicked()
     {
         photosAppGroup.SetActive(false);
         homescreenAppGroup.SetActive(true);
+        photosAppController.SetEnabled(false);
     }
 
     void OnPressLevel1Btn()

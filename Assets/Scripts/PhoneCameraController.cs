@@ -91,6 +91,7 @@ public class PhoneCameraController : MonoBehaviour
         return visibleTargets;
     }
 
+
     public static Texture2D RotateTexture90CounterClockwise(Texture2D original)
     {
         int width = original.width;
