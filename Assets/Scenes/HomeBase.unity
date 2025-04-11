@@ -132,8 +132,8 @@ GameObject:
   - component: {fileID: 126351059}
   - component: {fileID: 126351058}
   m_Layer: 0
-  m_Name: Cube (2)
-  m_TagString: Untagged
+  m_Name: RedCube
+  m_TagString: PhotoTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -361,8 +361,8 @@ GameObject:
   - component: {fileID: 495368581}
   - component: {fileID: 495368580}
   m_Layer: 0
-  m_Name: Cube
-  m_TagString: Untagged
+  m_Name: BlueCube
+  m_TagString: PhotoTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -500,8 +500,8 @@ GameObject:
   - component: {fileID: 1824656139}
   - component: {fileID: 1824656138}
   m_Layer: 0
-  m_Name: Cube (1)
-  m_TagString: Untagged
+  m_Name: GreenCube
+  m_TagString: PhotoTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -610,7 +610,7 @@ GameObject:
   - component: {fileID: 1886423300}
   - component: {fileID: 1886423299}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: FloorPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

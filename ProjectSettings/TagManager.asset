@@ -9,6 +9,7 @@ TagManager:
   - Drone
   - SecurityCam
   - PlayerCameraCheck
+  - PhotoTarget
   layers:
   - Default
   - TransparentFX

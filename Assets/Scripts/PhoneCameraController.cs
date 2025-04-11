@@ -51,6 +51,27 @@ public class PhoneCameraController : MonoBehaviour
         return photosTaken;
     }
 
+    void DetectVisibleObjects(Camera cam)
+    {
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
+
+        // Option 1: Using tags (simple)
+        GameObject[] potentialTargets = GameObject.FindGameObjectsWithTag("PhotoTarget");
+
+        // Option 2: You could also track a list of targets instead of relying on tags
+        foreach (GameObject target in potentialTargets)
+        {
+            Renderer renderer = target.GetComponent<Renderer>();
+            if (renderer == null) continue;
+
+            if (GeometryUtility.TestPlanesAABB(planes, renderer.bounds))
+            {
+                Debug.Log($"Object visible in photo: {target.name}");
+            }
+        }
+    }
+
+
     public static Texture2D RotateTexture90CounterClockwise(Texture2D original)
     {
         int width = original.width;
@@ -76,6 +97,7 @@ public class PhoneCameraController : MonoBehaviour
     public void TakePhoto()
     {
         bool isLandscape = IsDeviceSideways();
+        DetectVisibleObjects(phoneCamera.GetComponent<Camera>());
         Debug.Log("took photo in landscape?: " + isLandscape);
 
         RenderTexture currentRT = RenderTexture.active;
