@@ -63,8 +63,6 @@ public class PhoneCameraController : MonoBehaviour
         int playerHiddenLayer = LayerMask.NameToLayer("PlayerHidden");
         int layerMask = ~(1 << playerHiddenLayer); // Invert to ignore it
 
-        Debug.Log($"There are {allTargets.Count()} potential targets");
-
         foreach (var target in allTargets)
         {
             var colliderTransform = target.GetTargetColliderTransform();
@@ -77,28 +75,21 @@ public class PhoneCameraController : MonoBehaviour
             Vector3 rayDirection = (colliderTransform.position - rayOrigin).normalized;
             float distance = Vector3.Distance(rayOrigin, colliderTransform.position);
 
+            // 👇 Skip if beyond max view distance
+            if (distance > target.GetMaxDistance()) continue;
+
             if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, distance, layerMask))
             {
                 if (hit.transform == colliderTransform || hit.transform.IsChildOf(colliderTransform))
                 {
                     visibleTargets.Add(target);
                     Debug.Log($"✅ Visible Target: {target.GetName()}");
-                    Debug.DrawLine(rayOrigin, hit.point, Color.green, 2f);
-                }
-                else
-                {
-                    Debug.Log($"❌ Blocked Target: {target.GetName()} hit {hit.collider.name}");
-                    Debug.DrawLine(rayOrigin, hit.point, Color.red, 2f);
                 }
             }
         }
 
         return visibleTargets;
     }
-
-
-
-
 
     public static Texture2D RotateTexture90CounterClockwise(Texture2D original)
     {

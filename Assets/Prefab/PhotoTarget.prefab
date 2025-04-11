@@ -45,7 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69d633b1de0bd4fccabfcb4e3be0be1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: 
+  targetName: 
+  maxDistance: 500
   targetCollider: {fileID: 3028430904810911071}
 --- !u!65 &3028430904810911071
 BoxCollider:
@@ -62,7 +63,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
