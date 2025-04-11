@@ -29,26 +29,22 @@ public class PhotosAppController : MonoBehaviour
         SetPhotos(phoneCameraController.GetPhotos());
     }
 
-    public void PreviewPhoto(int idx)
+    public void PreviewPhoto(PhotoTaken photoToPreview)
     {
-        if (photos.Count > idx)
+        if (photoToPreview.isLandscape)
         {
-            var thePhoto = photos[idx];
-            if (thePhoto.isLandscape)
-            {
-                landscapeImagePreview.texture = thePhoto.photo;
-                landscapeImagePreview.gameObject.SetActive(true);
-                imagePreview.gameObject.SetActive(false);
-            }
-            else
-            {
-                imagePreview.texture = thePhoto.photo;
-                imagePreview.gameObject.SetActive(true);
-                landscapeImagePreview.gameObject.SetActive(false);
-            }
-            galleryGroup.SetActive(false);
-            previewGroup.SetActive(true);
+            landscapeImagePreview.texture = photoToPreview.photo;
+            landscapeImagePreview.gameObject.SetActive(true);
+            imagePreview.gameObject.SetActive(false);
         }
+        else
+        {
+            imagePreview.texture = photoToPreview.photo;
+            imagePreview.gameObject.SetActive(true);
+            landscapeImagePreview.gameObject.SetActive(false);
+        }
+        galleryGroup.SetActive(false);
+        previewGroup.SetActive(true);
     }
 
     void SetPhotos(List<PhotoTaken> photos)
@@ -59,13 +55,13 @@ public class PhotosAppController : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        for (int i = 0; i < photos.Count; i++)
+        foreach (var curPhoto in photos)
         {
             var thumbnail = Instantiate(thumnbnailPrefab, thumbnailParent.transform);
-            var image = thumbnail.GetComponent<RawImage>();
-            image.texture = photos[i].photo;
-            int index = i;
-            thumbnail.GetComponent<Button>().onClick.AddListener(() => PreviewPhoto(index));
+            var image = thumbnail.GetComponentInChildren<RawImage>();
+            var aspectRatio = thumbnail.GetComponentInChildren<AspectRatioFitter>().aspectRatio = curPhoto.isLandscape ? 16f/10f : 10f/16f;
+            image.texture = curPhoto.photo;
+            thumbnail.GetComponent<Button>().onClick.AddListener(() => PreviewPhoto(curPhoto));
         }
     }
 }
