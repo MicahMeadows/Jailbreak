@@ -35,11 +35,7 @@ public class PhoneCameraController : MonoBehaviour
             useGyro = true;
         }
 
-        Camera cam = phoneCamera.GetComponent<Camera>();
-        renderTexture = new RenderTexture(Screen.width, Screen.height, 16);
-        renderTexture.Create();
-        cam.targetTexture = renderTexture;
-        uiRenderImage.texture = renderTexture;
+        
     }
 
     public void SetEnabled(bool value)
@@ -47,7 +43,16 @@ public class PhoneCameraController : MonoBehaviour
         isActive = value;
         phoneCamera.GetComponent<Camera>().enabled = isActive;
 
-        if (!value)
+        if (isActive)
+        {
+            Camera cam = phoneCamera.GetComponent<Camera>();
+            renderTexture = new RenderTexture(Screen.width, Screen.height, 16);
+            renderTexture.Create();
+            cam.targetTexture = renderTexture;
+            uiRenderImage.texture = renderTexture;
+        }
+
+        if (!isActive)
         {
             xRotation = 0f;
             yRotation = 0f;
