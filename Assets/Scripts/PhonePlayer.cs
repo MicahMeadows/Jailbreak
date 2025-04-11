@@ -16,9 +16,12 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject cube;
     private GameObject canvas;
     [SerializeField] private PhoneCameraController phoneCameraController;
+    [SerializeField] private PhotosAppController photosAppController;
     [SerializeField] private TextMeshProUGUI camNameText;
     // [SerializeField] private GameObject phonePlayerCam;
 
+    [SerializeField] private Button photosAppButton;
+    [SerializeField] private Button closePhotosAppButton;
     [SerializeField] private Button flashlightAppButton;
     [SerializeField] private Button droneControlAppButton;
     [SerializeField] private Button closeDroneControlAppButton;
@@ -29,6 +32,7 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private Button levelAppButton;
     [SerializeField] private Button closeLevelAppButton;
 
+    [SerializeField] private GameObject photosAppGroup;
     [SerializeField] private GameObject droneControlAppGroup;
     [SerializeField] private GameObject homescreenAppGroup;
     [SerializeField] private GameObject securityCamViewAppGroup;
@@ -44,6 +48,8 @@ public class PhonePlayer : NetworkBehaviour
     public void Start()
     {
 
+        photosAppButton.onClick.AddListener(OnPhotosAppButtonClicked);
+        closePhotosAppButton.onClick.AddListener(OnClosePhotosAppButtonClicked);
         droneControlAppButton.onClick.AddListener(OnDroneControlAppButtonClicked);
         closeDroneControlAppButton.onClick.AddListener(OnCloseDroneControlAppButtonClicked);
         securityCamViewAppButton.onClick.AddListener(OnSecurityCamViewAppButtonClicked);
@@ -62,6 +68,19 @@ public class PhonePlayer : NetworkBehaviour
     {
         Debug.Log("ChangeLevel_ServerRPC called");
         NetworkManager.Singleton.SceneManager.LoadScene(scene, LoadSceneMode.Single);
+    }
+
+    void OnPhotosAppButtonClicked()
+    {
+        homescreenAppGroup.SetActive(false);
+        photosAppGroup.SetActive(true);
+        photosAppController.SetPhotos(phoneCameraController.GetPhotos());
+    }
+
+    void OnClosePhotosAppButtonClicked()
+    {
+        photosAppGroup.SetActive(false);
+        homescreenAppGroup.SetActive(true);
     }
 
     void OnPressLevel1Btn()

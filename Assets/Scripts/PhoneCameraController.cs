@@ -1,5 +1,12 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+public struct PhotoTaken {
+    public Texture2D photo;
+    public bool isLandscape;
+}
 
 public class PhoneCameraController : MonoBehaviour
 {
@@ -7,6 +14,7 @@ public class PhoneCameraController : MonoBehaviour
     [SerializeField] private RawImage uiRenderImage;
     [SerializeField] private RawImage photoPreview;
     [SerializeField] private GameObject phoneCamera;
+    private List<PhotoTaken> photosTaken = new List<PhotoTaken>();
     public float rotationSpeed = 0.2f;
     public float gyroSmoothSpeed = 50f;
 
@@ -38,6 +46,11 @@ public class PhoneCameraController : MonoBehaviour
         return Mathf.Abs(gravity.x) > Mathf.Abs(gravity.y);
     }
 
+    public List<PhotoTaken> GetPhotos()
+    {
+        return photosTaken;
+    }
+
     public void TakePhoto()
     {
         bool isLandscape = IsDeviceSideways();
@@ -54,6 +67,14 @@ public class PhoneCameraController : MonoBehaviour
 
         photoPreview.texture = photo;
         photoPreview.enabled = true;
+
+        var newPhotoTaken = new PhotoTaken
+        {
+            photo = photo,
+            isLandscape = isLandscape,
+        };
+        photosTaken.Add(newPhotoTaken);
+
     }
 
     public void SetEnabled(bool value)
@@ -72,11 +93,19 @@ public class PhoneCameraController : MonoBehaviour
         if (isActive)
         {
             Camera cam = phoneCamera.GetComponent<Camera>();
-            renderTexture = new RenderTexture(Screen.width, Screen.height, 16);
+
+            float aspect = 9f/16f;
+            // int width = Screen.width;
+            // int height = Mathf.RoundToInt(Screen.height * aspect);
+
+            // renderTexture = new RenderTexture(width, height, 16);
+            renderTexture = new RenderTexture(1080, 1920, 16);
             renderTexture.Create();
+
             cam.targetTexture = renderTexture;
             uiRenderImage.texture = renderTexture;
         }
+
 
         if (!isActive)
         {
