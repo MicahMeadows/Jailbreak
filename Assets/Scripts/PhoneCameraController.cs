@@ -3,7 +3,9 @@ using UnityEngine.UI;
 
 public class PhoneCameraController : MonoBehaviour
 {
+    [SerializeField] private Button takePhotoButton;
     [SerializeField] private RawImage uiRenderImage;
+    [SerializeField] private RawImage photoPreview;
     [SerializeField] private GameObject phoneCamera;
     public float rotationSpeed = 0.2f;
     public float gyroSmoothSpeed = 50f; // new: smoothing factor for gyro
@@ -17,29 +19,61 @@ public class PhoneCameraController : MonoBehaviour
     private float minVerticalAngle = -60f;
     private float maxVerticalAngle = 60f;
 
-    // [SerializeField] private int renderTextureWidth = 1080/2;
-    // [SerializeField] private int renderTextureHeight = 1920/2;
-    // private int renderTextureWidth = Screen.width;
-    // private int renderTextureHeight = Screen.height;
-
-
     private bool useGyro = false;
     private Quaternion gyroOffset = Quaternion.identity;
     private RenderTexture renderTexture;
 
     void Start()
     {
+        
+        takePhotoButton.onClick.AddListener(TakePhoto);
+    }
+
+
+    private bool IsDeviceSideways()
+    {
+        Vector3 gravity = Input.gyro.gravity;
+
+        // Check if the device is tilted ~90 degrees on its side
+        // If |x| > |y| then the device is likely in landscape orientation
+        return Mathf.Abs(gravity.x) > Mathf.Abs(gravity.y);
+    }
+
+    public void TakePhoto()
+    {
+        bool isLandscape = IsDeviceSideways();
+        Debug.Log("took photo in landscape?: " + isLandscape);
+
+        // Save the current active RenderTexture
+        RenderTexture currentRT = RenderTexture.active;
+
+        // Set the camera's render texture as the active one
+        RenderTexture.active = renderTexture;
+
+        // Create a new Texture2D to hold the screenshot
+        Texture2D photo = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
+
+        // Read pixels from the active (now renderTexture) buffer
+        photo.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+        photo.Apply();
+
+        // Restore the previously active RenderTexture
+        RenderTexture.active = currentRT;
+
+        // Display the photo in a UI element
+        photoPreview.texture = photo;
+        photoPreview.enabled = true;
+    }
+
+
+    public void SetEnabled(bool value)
+    {
+        photoPreview.enabled = false;
         if (SystemInfo.supportsGyroscope)
         {
             Input.gyro.enabled = true;
             useGyro = true;
         }
-
-        
-    }
-
-    public void SetEnabled(bool value)
-    {
         isActive = value;
         phoneCamera.GetComponent<Camera>().enabled = isActive;
 
@@ -89,6 +123,7 @@ public class PhoneCameraController : MonoBehaviour
 
     void Update()
     {
+        
         if (!isActive) return;
 
         if (useGyro)
