@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -51,25 +52,52 @@ public class PhoneCameraController : MonoBehaviour
         return photosTaken;
     }
 
-    void DetectVisibleObjects(Camera cam)
+    List<PhotoTarget> DetectVisibleObjects(Camera cam)
     {
+        var visibleTargets = new List<PhotoTarget>();
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
+        var allTargets = FindObjectsByType<PhotoTarget>(FindObjectsSortMode.None);
+        Vector3 rayOrigin = cam.transform.position;
 
-        // Option 1: Using tags (simple)
-        GameObject[] potentialTargets = GameObject.FindGameObjectsWithTag("PhotoTarget");
+        // Create a mask that excludes the "PlayerHidden" layer
+        int playerHiddenLayer = LayerMask.NameToLayer("PlayerHidden");
+        int layerMask = ~(1 << playerHiddenLayer); // Invert to ignore it
 
-        // Option 2: You could also track a list of targets instead of relying on tags
-        foreach (GameObject target in potentialTargets)
+        Debug.Log($"There are {allTargets.Count()} potential targets");
+
+        foreach (var target in allTargets)
         {
-            Renderer renderer = target.GetComponent<Renderer>();
-            if (renderer == null) continue;
+            var colliderTransform = target.GetTargetColliderTransform();
+            if (colliderTransform == null) continue;
 
-            if (GeometryUtility.TestPlanesAABB(planes, renderer.bounds))
+            if (!target.TryGetComponent<Collider>(out var col)) continue;
+
+            if (!GeometryUtility.TestPlanesAABB(planes, col.bounds)) continue;
+
+            Vector3 rayDirection = (colliderTransform.position - rayOrigin).normalized;
+            float distance = Vector3.Distance(rayOrigin, colliderTransform.position);
+
+            if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, distance, layerMask))
             {
-                Debug.Log($"Object visible in photo: {target.name}");
+                if (hit.transform == colliderTransform || hit.transform.IsChildOf(colliderTransform))
+                {
+                    visibleTargets.Add(target);
+                    Debug.Log($"✅ Visible Target: {target.GetName()}");
+                    Debug.DrawLine(rayOrigin, hit.point, Color.green, 2f);
+                }
+                else
+                {
+                    Debug.Log($"❌ Blocked Target: {target.GetName()} hit {hit.collider.name}");
+                    Debug.DrawLine(rayOrigin, hit.point, Color.red, 2f);
+                }
             }
         }
+
+        return visibleTargets;
     }
+
+
+
 
 
     public static Texture2D RotateTexture90CounterClockwise(Texture2D original)
@@ -97,8 +125,12 @@ public class PhoneCameraController : MonoBehaviour
     public void TakePhoto()
     {
         bool isLandscape = IsDeviceSideways();
-        DetectVisibleObjects(phoneCamera.GetComponent<Camera>());
-        Debug.Log("took photo in landscape?: " + isLandscape);
+
+        var camObjects = DetectVisibleObjects(phoneCamera.GetComponent<Camera>());
+        foreach (var cam in camObjects)
+        {
+            Debug.Log($"Found {cam.gameObject.name} in camera view");
+        }
 
         RenderTexture currentRT = RenderTexture.active;
         RenderTexture.active = renderTexture;

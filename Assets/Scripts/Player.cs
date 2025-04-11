@@ -24,6 +24,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject lossScreenGroup;
     [SerializeField] private TextMeshProUGUI lossText;
     [SerializeField] private float keyRotationSpeed = 90f; // degrees per second
+    [SerializeField] private List<GameObject> secCamCheckSpheres;
 
     private bool isActive = false;
 
@@ -132,6 +133,15 @@ public class Player : NetworkBehaviour
         {
             NetworkManager.Singleton.SceneManager.OnLoadComplete += OnLoadCompleted;
             flashlightOn.Value = false;
+            
+        }
+
+        if (!IsServer)
+        {
+            foreach (var sphere in secCamCheckSpheres)
+            {
+                sphere.SetActive(false);
+            }
         }
 
         flashlightOn.OnValueChanged += OnFlashlightValueChanged;
