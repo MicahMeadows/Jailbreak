@@ -51,6 +51,28 @@ public class PhoneCameraController : MonoBehaviour
         return photosTaken;
     }
 
+    public static Texture2D RotateTexture90CounterClockwise(Texture2D original)
+    {
+        int width = original.width;
+        int height = original.height;
+
+        Texture2D rotated = new Texture2D(height, width, original.format, false);
+        Color[] originalPixels = original.GetPixels();
+        Color[] rotatedPixels = new Color[originalPixels.Length];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                rotatedPixels[(height - 1 - y) + x * height] = originalPixels[x + y * width];
+            }
+        }
+
+        rotated.SetPixels(rotatedPixels);
+        rotated.Apply();
+        return rotated;
+    }
+
     public void TakePhoto()
     {
         bool isLandscape = IsDeviceSideways();
@@ -68,14 +90,19 @@ public class PhoneCameraController : MonoBehaviour
         photoPreview.texture = photo;
         photoPreview.enabled = true;
 
+        if (isLandscape)
+        {
+            photo = RotateTexture90CounterClockwise(photo); // rotate it to actually be landscape
+        }
+
         var newPhotoTaken = new PhotoTaken
         {
             photo = photo,
             isLandscape = isLandscape,
         };
         photosTaken.Add(newPhotoTaken);
-
     }
+
 
     public void SetEnabled(bool value)
     {
@@ -94,12 +121,7 @@ public class PhoneCameraController : MonoBehaviour
         {
             Camera cam = phoneCamera.GetComponent<Camera>();
 
-            float aspect = 9f/16f;
-            // int width = Screen.width;
-            // int height = Mathf.RoundToInt(Screen.height * aspect);
-
-            // renderTexture = new RenderTexture(width, height, 16);
-            renderTexture = new RenderTexture(1080, 1920, 16);
+            renderTexture = new RenderTexture(1000, 1600, 16);
             renderTexture.Create();
 
             cam.targetTexture = renderTexture;
