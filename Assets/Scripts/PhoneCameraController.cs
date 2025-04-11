@@ -27,24 +27,10 @@ public class PhoneCameraController : MonoBehaviour
         }
     }
 
-    // public void SetEnabled(bool value)
-    // {
-    //     isActive = value;
-    //     phoneCamera.gameObject.SetActive(isActive);
-
-    //     if (!value)
-    //     {
-    //         xRotation = 0f;
-    //         yRotation = 0f;
-    //         phoneCamera.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
-    //     }
-
-    //     ResetGyroOffset();
-    // }
     public void SetEnabled(bool value)
     {
         isActive = value;
-        phoneCamera.gameObject.SetActive(isActive);
+        phoneCamera.GetComponent<Camera>().enabled = isActive;
 
         if (!value)
         {
