@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -18,6 +19,12 @@ public class PhoneCallAppController : NetworkBehaviour
     [SerializeField] private Button incomingCallPickupButton;
     [SerializeField] private RawImage incomingCallContactImage;
 
+    private string incomingCallSequenceName = "";
+    private string incomingCallCallerId = "";
+
+    private float callStartTime;
+    private Coroutine callTimerCoroutine;
+
     void Start()
     {
         incomingCallPickupButton.onClick.AddListener(OnIncomingCallPickup);
@@ -25,36 +32,48 @@ public class PhoneCallAppController : NetworkBehaviour
 
     void OnIncomingCallPickup()
     {
+        PickupCall_ServerRPC(incomingCallSequenceName);
         incomingCallGroup.SetActive(false);
-        StopPhoneRing_ServerRPC();
+        callAppGroup.SetActive(true);
+        callerIdText.text = incomingCallCallerId;
+
+        // Start call timer
+        callStartTime = Time.time;
+        if (callTimerCoroutine != null)
+            StopCoroutine(callTimerCoroutine);
+        callTimerCoroutine = StartCoroutine(UpdateCallLengthTimer());
+
+        incomingCallCallerId = "";
+        incomingCallSequenceName = "";
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void StartPhoneRing_ServerRPC()
+    private IEnumerator UpdateCallLengthTimer()
     {
-        phonePlayer.StartPhoneRing();
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void StopPhoneRing_ServerRPC()
-    {
-        phonePlayer.StopPhoneRing();
-    }
-
-    [ClientRpc(RequireOwnership = false)]
-    public void CreateIncomingCall_ClientRPC(string clientId)
-    {
-        if (!IsServer)
+        while (true)
         {
-            CreateIncomingCall(clientId);
-            StartPhoneRing_ServerRPC();
+            float elapsed = Time.time - callStartTime;
+            int minutes = Mathf.FloorToInt(elapsed / 60f);
+            int seconds = Mathf.FloorToInt(elapsed % 60f);
+            callLength.text = $"{minutes:D2}:{seconds:D2}";
+            yield return new WaitForSeconds(1f);
         }
     }
 
-    public void CreateIncomingCall(string callerId)
+    [ServerRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
+    public void PickupCall_ServerRPC(string sequenceName)
     {
-        incomingCallGroup.SetActive(true);
-        incomingCallerIdText.text = callerId;
+        phonePlayer.PickupIncomingCall(sequenceName);
     }
 
+    [ClientRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
+    public void ShowCallPopup_ClientRPC(string callerId, string sequenceName)
+    {
+        if (!IsServer)
+        {
+            incomingCallGroup.SetActive(true);
+            incomingCallerIdText.text = callerId;
+            incomingCallSequenceName = sequenceName;
+            incomingCallCallerId = callerId;
+        }
+    }
 }

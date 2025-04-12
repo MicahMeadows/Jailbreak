@@ -9,7 +9,6 @@ using UnityEngine.UI;
 
 public class PhonePlayer : NetworkBehaviour
 {
-    [SerializeField] private AudioClip phoneRingSound;
     [SerializeField] private Slider batterySlider;
     [SerializeField] private Image sliderFill;
     [SerializeField] private Image chargingIcon;
@@ -19,6 +18,7 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private PhotosAppController photosAppController;
     public PhoneCallAppController phoneCallController;
+    public PhoneAudioManager phoneAudioManager;
     [SerializeField] private TextMeshProUGUI camNameText;
     // [SerializeField] private GameObject phonePlayerCam;
 
@@ -68,37 +68,29 @@ public class PhonePlayer : NetworkBehaviour
     }
 
 
-    public void StartPhoneRing()
+    public void CreateIncomingCall(string name, string sequenceName)
     {
-        var phoneAudio = GameObject.FindGameObjectWithTag("PhoneAudio");
-        if (phoneAudio)
+        phoneCallController.ShowCallPopup_ClientRPC(name, sequenceName);
+        phoneAudioManager.PlayAudio("IncomingRing", true);
+    }
+
+    public void PickupIncomingCall(string sequenceName)
+    {
+        phoneAudioManager.StopAudio("IncomingRing");
+        HandleIncomingCallPickupSequence(sequenceName);
+    }
+
+    private void HandleIncomingCallPickupSequence(string sequenceName)
+    {
+        switch (sequenceName)
         {
-            var audioSource = phoneAudio.GetComponent<AudioSource>();
-            if (audioSource)
-            {
-                audioSource.clip = phoneRingSound;
-                audioSource.loop = true;
-                audioSource.Play();
-            }
+            case "hello":
+                phoneAudioManager.PlayAudio("Hello");
+                break;
         }
     }
 
-    public void StopPhoneRing()
-    {
-        var phoneAudio = GameObject.FindGameObjectWithTag("PhoneAudio");
-        if (phoneAudio)
-        {
-            var audioSource = phoneAudio.GetComponent<AudioSource>();
-            if (audioSource)
-            {
-                audioSource.clip = null;
-                audioSource.loop = false;
-                audioSource.Stop();
-            }
-        }
-    }
-
-    [ServerRpc(RequireOwnership=false)]
+    [ServerRpc(RequireOwnership=false, Delivery = RpcDelivery.Reliable)]
     public void ChangeLevel_ServerRPC(string scene, ServerRpcParams rpcParams = default)
     {
         Debug.Log("ChangeLevel_ServerRPC called");
@@ -285,6 +277,7 @@ public class PhonePlayer : NetworkBehaviour
         securityCameras = GameObject.FindGameObjectsWithTag("SecurityCam").ToList().Select(cam => cam.GetComponent<SecurityCamera>()).ToList();
 
         computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer");
+        phoneAudioManager = computerPlayer.GetComponent<Player>().phoneAudioManager;
         var playerComponent = computerPlayer.GetComponent<Player>();
         transform.parent = playerComponent.phonePlayerParent.transform;
         transform.localPosition = Vector3.zero;

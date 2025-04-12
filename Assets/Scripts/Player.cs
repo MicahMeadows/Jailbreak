@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class Player : NetworkBehaviour
 {
+    public PhoneAudioManager phoneAudioManager;
     public GameObject phonePlayerParent;
     public float speed = 5f;
     public float mouseSensitivity = 100f;

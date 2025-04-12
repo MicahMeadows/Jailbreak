@@ -97,6 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8934435641381600143}
   - component: {fileID: 3446493642353423868}
+  - component: {fileID: 3701191660970790392}
   m_Layer: 0
   m_Name: PhoneAudio
   m_TagString: PhoneAudio
@@ -216,6 +217,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3701191660970790392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398867598491702437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aa141a1f0f9b4d7980c898d16eceea8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioClips:
+  - name: IncomingRing
+    clip: {fileID: 8300000, guid: 00fd86980234948c4ac94df75415084c, type: 3}
+  - name: Hello
+    clip: {fileID: 8300000, guid: 3885cfb07801e49f9bbf195c57bcad97, type: 3}
 --- !u!1 &590049856128492463
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,6 +556,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  phoneAudioManager: {fileID: 3701191660970790392}
   phonePlayerParent: {fileID: 8559255853196741609}
   speed: 5
   mouseSensitivity: 300
