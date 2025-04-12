@@ -48,12 +48,22 @@ public class TestLevelManager : NetworkBehaviour
             if (cam.IsPlayerDetected())
             {
                 FailGame();
+                return;
             }
         }
+
+        TestPhoneCall();
+
         foreach (var exit in exitDoors)
         {
             exit.SetCanExit(true);
         }
+    }
+
+    void TestPhoneCall()
+    {
+        Debug.Log("Should play test phone call.");
+        phonePlayer.GetComponent<PhonePlayer>().phoneCallController.CreateIncomingCall_ClientRpc("Computer Player");
     }
 
     public override void OnNetworkSpawn()

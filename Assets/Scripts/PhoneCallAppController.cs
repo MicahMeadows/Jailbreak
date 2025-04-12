@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,13 @@ public class PhoneCallAppController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI incomingCallerIdText;
     [SerializeField] private Button incomingCallPickupButton;
     [SerializeField] private RawImage incomingCallContactImage;
+
+    [ClientRpc]
+    public void CreateIncomingCall_ClientRpc(string callerId, ClientRpcParams clientRpcParams = default)
+    {
+        Debug.Log("client rpc received!");
+        CreateIncomingCall(callerId);
+    }
 
     // with callback for on pickup
     public void CreateIncomingCall(string callerId)

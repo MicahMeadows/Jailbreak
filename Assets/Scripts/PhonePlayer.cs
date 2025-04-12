@@ -17,7 +17,7 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject canvas;
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private PhotosAppController photosAppController;
-    [SerializeField] private PhoneCallAppController phoneCallController;
+    public PhoneCallAppController phoneCallController;
     [SerializeField] private TextMeshProUGUI camNameText;
     // [SerializeField] private GameObject phonePlayerCam;
 
