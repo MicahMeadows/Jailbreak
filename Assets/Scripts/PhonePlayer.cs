@@ -18,6 +18,7 @@ public class PhonePlayer : NetworkBehaviour
     private GameObject canvas;
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private PhotosAppController photosAppController;
+    [SerializeField] private PhoneMessagesAppController phoneMessageAppController;
     public PhoneCallAppController phoneCallController;
     public PhoneAudioManager phoneAudioManager;
     [SerializeField] private TextMeshProUGUI camNameText;
@@ -128,6 +129,23 @@ public class PhonePlayer : NetworkBehaviour
     {
         homescreenAppGroup.SetActive(false);
         levelAppGroup.SetActive(true);
+        phoneMessageAppController.SetMessageGroups(new List<MessageGroup>(){
+            new MessageGroup() { ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?" },
+            new MessageGroup() { ContactName = "Jane Smith", LastMessage = "Don't forget to bring the snacks!" },
+            new MessageGroup() { ContactName = "Bob Johnson", LastMessage = "Can you pick me up at 7?" },
+            new MessageGroup() { ContactName = "Alice Brown", LastMessage = "Let's meet at the park." },
+            new MessageGroup() { ContactName = "Charlie Davis", LastMessage = "I have a surprise for you!" },
+            new MessageGroup() { ContactName = "Eve Wilson", LastMessage = "Are you free this weekend?" },
+            new MessageGroup() { ContactName = "Frank Miller", LastMessage = "I need your help with something." },
+            new MessageGroup() { ContactName = "Grace Lee", LastMessage = "Did you finish the project?" },
+            new MessageGroup() { ContactName = "Hank Taylor", LastMessage = "Let's grab lunch tomorrow." },
+            new MessageGroup() { ContactName = "Ivy Anderson", LastMessage = "Can you send me the report?" },
+            new MessageGroup() { ContactName = "Jack Thomas", LastMessage = "I found your keys!" },
+            new MessageGroup() { ContactName = "Kathy Martinez", LastMessage = "Are you coming to the game?" },
+            new MessageGroup() { ContactName = "Leo Garcia", LastMessage = "I have a new phone number." },
+            new MessageGroup() { ContactName = "Mia Rodriguez", LastMessage = "Let's go shopping!" },
+        });
+
     }
 
     void OnCloseLevelAppButtonClicked()
