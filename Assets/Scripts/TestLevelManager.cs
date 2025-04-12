@@ -63,7 +63,7 @@ public class TestLevelManager : NetworkBehaviour
     void TestPhoneCall()
     {
         Debug.Log("Should play test phone call.");
-        phonePlayer.GetComponent<PhonePlayer>().phoneCallController.CreateIncomingCall_ClientRpc("Computer Player");
+        phonePlayer.GetComponent<PhonePlayer>().phoneCallController.CreateIncomingCall_ClientRPC("Test Caller");
     }
 
     public override void OnNetworkSpawn()

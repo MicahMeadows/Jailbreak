@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 public class PhonePlayer : NetworkBehaviour
 {
+    [SerializeField] private AudioClip phoneRingSound;
     [SerializeField] private Slider batterySlider;
     [SerializeField] private Image sliderFill;
     [SerializeField] private Image chargingIcon;
@@ -64,6 +65,37 @@ public class PhonePlayer : NetworkBehaviour
         closeLevelAppButton.onClick.AddListener(OnCloseLevelAppButtonClicked);
 
         lvl1Btn.onClick.AddListener(OnPressLevel1Btn);
+    }
+
+
+    public void StartPhoneRing()
+    {
+        var phoneAudio = GameObject.FindGameObjectWithTag("PhoneAudio");
+        if (phoneAudio)
+        {
+            var audioSource = phoneAudio.GetComponent<AudioSource>();
+            if (audioSource)
+            {
+                audioSource.clip = phoneRingSound;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
+        }
+    }
+
+    public void StopPhoneRing()
+    {
+        var phoneAudio = GameObject.FindGameObjectWithTag("PhoneAudio");
+        if (phoneAudio)
+        {
+            var audioSource = phoneAudio.GetComponent<AudioSource>();
+            if (audioSource)
+            {
+                audioSource.clip = null;
+                audioSource.loop = false;
+                audioSource.Stop();
+            }
+        }
     }
 
     [ServerRpc(RequireOwnership=false)]

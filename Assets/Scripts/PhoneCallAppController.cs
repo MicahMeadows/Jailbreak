@@ -3,8 +3,9 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PhoneCallAppController : MonoBehaviour
+public class PhoneCallAppController : NetworkBehaviour
 {
+    [SerializeField] private PhonePlayer phonePlayer;
     [SerializeField] private GameObject callAppGroup;
     [SerializeField] private TextMeshProUGUI callerIdText;
     [SerializeField] private TextMeshProUGUI callLength;
@@ -17,17 +18,43 @@ public class PhoneCallAppController : MonoBehaviour
     [SerializeField] private Button incomingCallPickupButton;
     [SerializeField] private RawImage incomingCallContactImage;
 
-    [ClientRpc]
-    public void CreateIncomingCall_ClientRpc(string callerId, ClientRpcParams clientRpcParams = default)
+    void Start()
     {
-        Debug.Log("client rpc received!");
-        CreateIncomingCall(callerId);
+        incomingCallPickupButton.onClick.AddListener(OnIncomingCallPickup);
     }
 
-    // with callback for on pickup
+    void OnIncomingCallPickup()
+    {
+        incomingCallGroup.SetActive(false);
+        StopPhoneRing_ServerRPC();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void StartPhoneRing_ServerRPC()
+    {
+        phonePlayer.StartPhoneRing();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void StopPhoneRing_ServerRPC()
+    {
+        phonePlayer.StopPhoneRing();
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    public void CreateIncomingCall_ClientRPC(string clientId)
+    {
+        if (!IsServer)
+        {
+            CreateIncomingCall(clientId);
+            StartPhoneRing_ServerRPC();
+        }
+    }
+
     public void CreateIncomingCall(string callerId)
     {
         incomingCallGroup.SetActive(true);
         incomingCallerIdText.text = callerId;
     }
+
 }

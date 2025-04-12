@@ -4744,59 +4744,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &3831671243661968318
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2239161897242065970}
-  - component: {fileID: 2005589040688371975}
-  m_Layer: 0
-  m_Name: PhoneCallAppController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2239161897242065970
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3831671243661968318}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3333696736096330873}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2005589040688371975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3831671243661968318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4397ff5b19dc549499a5e9bbb753e507, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  callAppGroup: {fileID: 5861866055499066435}
-  callerIdText: {fileID: 2242047300145329236}
-  callLength: {fileID: 2885843055192598381}
-  hangupButton: {fileID: 811924946283429741}
-  contactImage: {fileID: 244356205800291046}
-  incomingCallGroup: {fileID: 5407593696056376671}
-  incomingCallerIdText: {fileID: 5868759050873755765}
-  incomingCallPickupButton: {fileID: 1074791409116810118}
-  incomingCallContactImage: {fileID: 8812025568158790735}
 --- !u!1 &3894647906685562028
 GameObject:
   m_ObjectHideFlags: 0
@@ -9218,6 +9165,7 @@ GameObject:
   - component: {fileID: 3333696736096330873}
   - component: {fileID: 7728063004047136406}
   - component: {fileID: 1485383602315869272}
+  - component: {fileID: 3337147010875166101}
   m_Layer: 0
   m_Name: PhonePlayer
   m_TagString: PhonePlayer
@@ -9243,7 +9191,6 @@ Transform:
   - {fileID: 4950531039543686914}
   - {fileID: 5985045233993576307}
   - {fileID: 7346837999669187049}
-  - {fileID: 2239161897242065970}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7728063004047136406
@@ -9284,12 +9231,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  phoneRingSound: {fileID: 8300000, guid: 00fd86980234948c4ac94df75415084c, type: 3}
   batterySlider: {fileID: 5030994200724321583}
   sliderFill: {fileID: 975309316181864628}
   chargingIcon: {fileID: 3672568022431587670}
   phoneCameraController: {fileID: 1793727936539439930}
   photosAppController: {fileID: 8849470045256680395}
-  phoneCallController: {fileID: 2005589040688371975}
+  phoneCallController: {fileID: 3337147010875166101}
   camNameText: {fileID: 8864038267355266987}
   photosAppButton: {fileID: 1609358098124973041}
   closePhotosAppButton: {fileID: 1184147641980830952}
@@ -9312,6 +9260,29 @@ MonoBehaviour:
   securityCamViewImage: {fileID: 562566827675448737}
   droneCamViewImage: {fileID: 3676799167528594319}
   lvl1Btn: {fileID: 6016878054858958101}
+--- !u!114 &3337147010875166101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7391276732185521027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4397ff5b19dc549499a5e9bbb753e507, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  phonePlayer: {fileID: 1485383602315869272}
+  callAppGroup: {fileID: 5861866055499066435}
+  callerIdText: {fileID: 2242047300145329236}
+  callLength: {fileID: 2885843055192598381}
+  hangupButton: {fileID: 811924946283429741}
+  contactImage: {fileID: 244356205800291046}
+  incomingCallGroup: {fileID: 5407593696056376671}
+  incomingCallerIdText: {fileID: 5868759050873755765}
+  incomingCallPickupButton: {fileID: 1074791409116810118}
+  incomingCallContactImage: {fileID: 8812025568158790735}
 --- !u!1 &7492146228709795028
 GameObject:
   m_ObjectHideFlags: 0

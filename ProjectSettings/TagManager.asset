@@ -10,6 +10,7 @@ TagManager:
   - SecurityCam
   - PlayerCameraCheck
   - PhotoTarget
+  - PhoneAudio
   layers:
   - Default
   - TransparentFX
