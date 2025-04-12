@@ -76,4 +76,14 @@ public class PhoneCallAppController : NetworkBehaviour
             incomingCallCallerId = callerId;
         }
     }
+
+    [ClientRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
+    public void HangupCall_ClientRPC()
+    {
+        if (!IsServer)
+        {
+            StopCoroutine(callTimerCoroutine);
+            callAppGroup.SetActive(false);
+        }
+    }
 }

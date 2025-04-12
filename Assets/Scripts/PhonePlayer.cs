@@ -80,6 +80,12 @@ public class PhonePlayer : NetworkBehaviour
         phoneAudioManager.PlayAudio("IncomingRing", true);
     }
 
+    public void HangupCall()
+    {
+        Debug.Log("PhonePlayerController: HangupCall");
+        phoneCallController.HangupCall_ClientRPC();
+    }
+
     public void PickupIncomingCall(string sequenceId)
     {
         phoneAudioManager.StopAudio("IncomingRing");
