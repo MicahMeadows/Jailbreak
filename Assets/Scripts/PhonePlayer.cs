@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -49,6 +50,8 @@ public class PhonePlayer : NetworkBehaviour
     List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     int selectedCam = 0;
 
+    private Dictionary<string, Action> rpcCallbacks = new Dictionary<string, Action>();
+
     public void Start()
     {
 
@@ -68,25 +71,23 @@ public class PhonePlayer : NetworkBehaviour
     }
 
 
-    public void CreateIncomingCall(string name, string sequenceName)
+    public void CreateIncomingCall(string name, Action onPickup)
     {
-        phoneCallController.ShowCallPopup_ClientRPC(name, sequenceName);
+        string sequenceId = Guid.NewGuid().ToString();
+        rpcCallbacks[sequenceId] = onPickup;
+
+        phoneCallController.ShowCallPopup_ClientRPC(name, sequenceId);
         phoneAudioManager.PlayAudio("IncomingRing", true);
     }
 
-    public void PickupIncomingCall(string sequenceName)
+    public void PickupIncomingCall(string sequenceId)
     {
         phoneAudioManager.StopAudio("IncomingRing");
-        HandleIncomingCallPickupSequence(sequenceName);
-    }
 
-    private void HandleIncomingCallPickupSequence(string sequenceName)
-    {
-        switch (sequenceName)
+        if (rpcCallbacks.TryGetValue(sequenceId, out var callback))
         {
-            case "hello":
-                phoneAudioManager.PlayAudio("Hello");
-                break;
+            callback?.Invoke();
+            rpcCallbacks.Remove(sequenceId);
         }
     }
 

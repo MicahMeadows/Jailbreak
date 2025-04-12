@@ -62,7 +62,18 @@ public class TestLevelManager : NetworkBehaviour
 
     void TestPhoneCall()
     {
-        phonePlayer.GetComponent<PhonePlayer>().CreateIncomingCall("Test Caller", "hello");
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        if (phonePlayerController)
+        {
+            phonePlayerController.CreateIncomingCall("Test Caller", () => {
+                phonePlayerController.phoneAudioManager.PlayAudio("hello", onComplete: () => {
+                    phonePlayerController.phoneAudioManager.PlayAudio("funny-words", onComplete: () => {
+                        Debug.Log("Call over. Do hangup now!");
+                    });
+                });
+            });
+        }
+        
     }
 
     public override void OnNetworkSpawn()

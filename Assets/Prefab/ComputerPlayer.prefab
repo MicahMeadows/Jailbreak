@@ -234,6 +234,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 00fd86980234948c4ac94df75415084c, type: 3}
   - name: Hello
     clip: {fileID: 8300000, guid: 3885cfb07801e49f9bbf195c57bcad97, type: 3}
+  - name: funny-words
+    clip: {fileID: 8300000, guid: 7a4718839c9bb4227a977e0dec6c403a, type: 3}
 --- !u!1 &590049856128492463
 GameObject:
   m_ObjectHideFlags: 0

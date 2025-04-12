@@ -19,7 +19,7 @@ public class PhoneCallAppController : NetworkBehaviour
     [SerializeField] private Button incomingCallPickupButton;
     [SerializeField] private RawImage incomingCallContactImage;
 
-    private string incomingCallSequenceName = "";
+    private string incomingCallSequenceId = "";
     private string incomingCallCallerId = "";
 
     private float callStartTime;
@@ -32,7 +32,7 @@ public class PhoneCallAppController : NetworkBehaviour
 
     void OnIncomingCallPickup()
     {
-        PickupCall_ServerRPC(incomingCallSequenceName);
+        PickupCall_ServerRPC(incomingCallSequenceId);
         incomingCallGroup.SetActive(false);
         callAppGroup.SetActive(true);
         callerIdText.text = incomingCallCallerId;
@@ -44,7 +44,7 @@ public class PhoneCallAppController : NetworkBehaviour
         callTimerCoroutine = StartCoroutine(UpdateCallLengthTimer());
 
         incomingCallCallerId = "";
-        incomingCallSequenceName = "";
+        incomingCallSequenceId = "";
     }
 
     private IEnumerator UpdateCallLengthTimer()
@@ -60,19 +60,19 @@ public class PhoneCallAppController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
-    public void PickupCall_ServerRPC(string sequenceName)
+    public void PickupCall_ServerRPC(string sequenceId)
     {
-        phonePlayer.PickupIncomingCall(sequenceName);
+        phonePlayer.PickupIncomingCall(sequenceId);
     }
 
     [ClientRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
-    public void ShowCallPopup_ClientRPC(string callerId, string sequenceName)
+    public void ShowCallPopup_ClientRPC(string callerId, string sequenceId)
     {
         if (!IsServer)
         {
             incomingCallGroup.SetActive(true);
             incomingCallerIdText.text = callerId;
-            incomingCallSequenceName = sequenceName;
+            incomingCallSequenceId = sequenceId;
             incomingCallCallerId = callerId;
         }
     }
