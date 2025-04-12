@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,7 +39,14 @@ public class PhoneCameraController : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("new message");
         takePhotoButton.onClick.AddListener(TakePhoto);
+        Debug.Log("Supports Gyro: " + SystemInfo.supportsGyroscope);
+        if (SystemInfo.supportsGyroscope)
+        {
+            Input.gyro.enabled = true;
+            useGyro = true;
+        }
     }
 
     private bool IsDeviceSideways()
@@ -90,7 +98,6 @@ public class PhoneCameraController : MonoBehaviour
 
         return visibleTargets;
     }
-
 
     public static Texture2D RotateTexture90CounterClockwise(Texture2D original)
     {
@@ -152,14 +159,13 @@ public class PhoneCameraController : MonoBehaviour
 
     public void SetEnabled(bool value)
     {
-        photoPreview.enabled = false;
-
         if (SystemInfo.supportsGyroscope)
         {
             Input.gyro.enabled = true;
             useGyro = true;
         }
 
+        photoPreview.enabled = false;
         isActive = value;
         phoneCamera.GetComponent<Camera>().enabled = isActive;
 
@@ -172,17 +178,7 @@ public class PhoneCameraController : MonoBehaviour
 
             cam.targetTexture = renderTexture;
             uiRenderImage.texture = renderTexture;
-        }
 
-
-        if (!isActive)
-        {
-            xRotation = 0f;
-            yRotation = 0f;
-            phoneCamera.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
-        }
-        else if (useGyro)
-        {
             ResetGyroOffset();
 
             Quaternion deviceRotation = Input.gyro.attitude;
@@ -191,6 +187,12 @@ public class PhoneCameraController : MonoBehaviour
 
             Quaternion targetRotation = gyroOffset * deviceRotation;
             phoneCamera.transform.localRotation = targetRotation;
+        }
+        else 
+        {
+            xRotation = 0f;
+            yRotation = 0f;
+            phoneCamera.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
         }
     }
 
@@ -206,10 +208,12 @@ public class PhoneCameraController : MonoBehaviour
 
         Quaternion yawOnlyRotation = Quaternion.Euler(0f, yaw, 0f);
         gyroOffset = Quaternion.Inverse(yawOnlyRotation);
+        Debug.Log("Gyro offset was reset!");
     }
 
     void Update()
     {
+
         if (!isActive) return;
 
         if (useGyro)
