@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4115238957192903207}
   - component: {fileID: 960916099910215864}
   - component: {fileID: 5173416671873869955}
+  - component: {fileID: 8987839216559494670}
   m_Layer: 5
   m_Name: Message
   m_TagString: Untagged
@@ -35,8 +36,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 249.5, y: -247.795}
-  m_SizeDelta: {x: 499, y: 495.59}
+  m_AnchoredPosition: {x: 134.28, y: -40.11}
+  m_SizeDelta: {x: 286.56, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4115238957192903207
 CanvasRenderer:
@@ -66,11 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ' test message  test message  test message  test message  test message 
-    test message  test message  test = test message  test message  test message 
-    test message  test message  test message  test message  test = test message 
-    test message  test message  test message  test message  test message  test message 
-    test ='
+  m_text: some message
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -135,7 +132,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 20, y: 20, z: 20, w: 20}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -153,8 +150,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
+  m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!114 &8987839216559494670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4118393919312052540}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 700
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &5395464995112517613
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,6 +183,9 @@ GameObject:
   - component: {fileID: 1703131619128034849}
   - component: {fileID: 2977151881687036621}
   - component: {fileID: 3401793249184966623}
+  - component: {fileID: 3535161843074234616}
+  - component: {fileID: 5223526543961317219}
+  - component: {fileID: 6436990668261371546}
   m_Layer: 5
   m_Name: Bubble
   m_TagString: Untagged
@@ -190,8 +210,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 249.5, y: -247.795}
-  m_SizeDelta: {x: 499, y: 495.59}
+  m_AnchoredPosition: {x: 148.28, y: -40.11}
+  m_SizeDelta: {x: 268.56, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2977151881687036621
 MonoBehaviour:
@@ -233,6 +253,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!222 &3535161843074234616
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395464995112517613}
+  m_CullTransparentMesh: 1
+--- !u!114 &5223526543961317219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395464995112517613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0.69433475, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+--- !u!114 &6436990668261371546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395464995112517613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb30198aa32dd140b5750692dd48104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 36
+  image: {fileID: 5223526543961317219}
 --- !u!1 &8901206886079278426
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,7 +316,7 @@ GameObject:
   - component: {fileID: 5775647464581027916}
   - component: {fileID: 2431466321493147388}
   m_Layer: 5
-  m_Name: BubbleExtent
+  m_Name: TextBubble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -271,7 +340,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 249.5, y: -247.795}
-  m_SizeDelta: {x: 499, y: 495.59}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3346244060092629449
 MonoBehaviour:
@@ -290,7 +359,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 1
   m_Spacing: 0
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -311,9 +380,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39dae51ad371b4f6b971e39bcceaea4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  extentRectTrans: {fileID: 0}
-  backgroundRectTrans: {fileID: 0}
-  isOutgoing: 1
+  isOutgoing: 0
+  message: ahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh
+    aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh aahhhhhhh
+    aahhhhhhh aahhhhhhh aahhhhhhh a
+  vlg: {fileID: 3346244060092629449}
+  messageText: {fileID: 960916099910215864}
+  bubble: {fileID: 5223526543961317219}
+  messageRect: {fileID: 4811747390159023587}
+  messageLayoutElement: {fileID: 8987839216559494670}
 --- !u!222 &5775647464581027916
 CanvasRenderer:
   m_ObjectHideFlags: 0

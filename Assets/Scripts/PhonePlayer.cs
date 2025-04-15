@@ -34,8 +34,8 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private Button closeSecurityCamViewAppButton;
     [SerializeField] private Button phoneCamViewAppButton;
     [SerializeField] private Button closePhoneCamViewAppButton;
-    [SerializeField] private Button levelAppButton;
-    [SerializeField] private Button closeLevelAppButton;
+    [SerializeField] private Button messagesAppButton;
+    [SerializeField] private Button closeMessagesAppButton;
 
     [SerializeField] private GameObject photosAppGroup;
     
@@ -43,7 +43,7 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private GameObject homescreenAppGroup;
     [SerializeField] private GameObject securityCamViewAppGroup;
     [SerializeField] private GameObject phoneCamViewAppGroup;
-    [SerializeField] private GameObject levelAppGroup;
+    [SerializeField] private GameObject messagesAppGroup;
     [SerializeField] private RawImage securityCamViewImage;
     [SerializeField] private RawImage droneCamViewImage;
 
@@ -65,8 +65,8 @@ public class PhonePlayer : NetworkBehaviour
         closePhoneCamViewAppButton.onClick.AddListener(OnClosePhoneCamViewAppButtonClicked);
         phoneCamViewAppButton.onClick.AddListener(OnPhoneCamViewAppButtonClicked);
         flashlightAppButton.onClick.AddListener(OnFlashlightAppButtonClicked);
-        levelAppButton.onClick.AddListener(OnLevelAppButtonClicked);
-        closeLevelAppButton.onClick.AddListener(OnCloseLevelAppButtonClicked);
+        messagesAppButton.onClick.AddListener(OnMessagesAppButtonClicked);
+        closeMessagesAppButton.onClick.AddListener(OnCloseMessagesAppButtonClicked);
 
         lvl1Btn.onClick.AddListener(OnPressLevel1Btn);
     }
@@ -125,12 +125,22 @@ public class PhonePlayer : NetworkBehaviour
         ChangeLevel_ServerRPC("GasStation");
     }
 
-    void OnLevelAppButtonClicked()
+    void OnMessagesAppButtonClicked()
     {
-        homescreenAppGroup.SetActive(false);
-        levelAppGroup.SetActive(true);
+        Debug.Log("Messages app button clicked");
+        
         phoneMessageAppController.SetMessageGroups(new List<MessageGroup>(){
-            new MessageGroup() { ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?" },
+            new MessageGroup() { 
+                ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
+                Texts = new List<Message>()
+                {
+                    new Message() { MessageText = "Hey, are you coming to the party?", IsOutgoing = true },
+                    new Message() { MessageText = "No. Staying in", IsOutgoing = false },
+                    new Message() { MessageText = "Ok", IsOutgoing = true },
+                    new Message() { MessageText = "fuck you", IsOutgoing = false },
+                    new Message() { MessageText = "long message test long message test long message test long message test long message test long message testlong message test long message test long message test ", IsOutgoing = false },
+                }
+            },
             new MessageGroup() { ContactName = "Jane Smith", LastMessage = "Don't forget to bring the snacks!" },
             new MessageGroup() { ContactName = "Bob Johnson", LastMessage = "Can you pick me up at 7?" },
             new MessageGroup() { ContactName = "Alice Brown", LastMessage = "Let's meet at the park." },
@@ -146,12 +156,15 @@ public class PhonePlayer : NetworkBehaviour
             new MessageGroup() { ContactName = "Mia Rodriguez", LastMessage = "Let's go shopping!" },
         });
 
+        messagesAppGroup.SetActive(true);
+        homescreenAppGroup.SetActive(false);
+
     }
 
-    void OnCloseLevelAppButtonClicked()
+    void OnCloseMessagesAppButtonClicked()
     {
         homescreenAppGroup.SetActive(true);
-        levelAppGroup.SetActive(false);
+        messagesAppGroup.SetActive(false);
     }
 
     void OnFlashlightAppButtonClicked()
