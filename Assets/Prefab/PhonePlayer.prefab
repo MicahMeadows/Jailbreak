@@ -6940,7 +6940,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df7bfe67417b04bca8bb7bc7c4baec89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  phonePlayer: {fileID: 1485383602315869272}
+  phoneMessagesAppController: {fileID: 4267142238258291494}
   phoneCameraController: {fileID: 1793727936539439930}
   imagePreview: {fileID: 5644665972058917170}
   landscapeImagePreview: {fileID: 4612931219212608486}
@@ -10956,6 +10956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90018d512b5e84369bdd597a8db267d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   messageGroupPrefab: {fileID: 5332026650446947033, guid: a0710baf9c09f4230af3b8b644452e04, type: 3}
   messageGroupParent: {fileID: 5506006070412555211}
   textBubblePrefab: {fileID: 8901206886079278426, guid: d273b4c3855054449bdfae4bc1dbf3eb, type: 3}
@@ -10965,6 +10966,7 @@ MonoBehaviour:
   textsViewGroup: {fileID: 6503125173825538300}
   uploadImageButton: {fileID: 1057297835006633236}
   photosAppController: {fileID: 8849470045256680395}
+  phoneCameraController: {fileID: 1793727936539439930}
   photosAppGroup: {fileID: 7868994989550547042}
 --- !u!1 &7492146228709795028
 GameObject:

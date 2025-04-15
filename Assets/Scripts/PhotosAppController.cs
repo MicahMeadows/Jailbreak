@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class PhotosAppController : MonoBehaviour
 {
-    [SerializeField] private PhonePlayer phonePlayer;
+    // [SerializeField] private PhonePlayer phonePlayer;
+    [SerializeField] PhoneMessagesAppController phoneMessagesAppController;
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private RawImage imagePreview;
     [SerializeField] private RawImage landscapeImagePreview;
@@ -42,7 +43,8 @@ public class PhotosAppController : MonoBehaviour
     {
         if (activePreview != null)
         {
-            phonePlayer.TextImageFromGallary(activePreview.Value, contactToText);
+            // phonePlayer.SendTextImage(activePreview.Value, contactToText);
+            phoneMessagesAppController.SendTextImage(activePreview.Value, contactToText);
         }
     }
 
