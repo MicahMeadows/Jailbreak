@@ -21,7 +21,7 @@ public class MessageBubble : MonoBehaviour
     Color OUTGOING_COLOR = new Color(0, 131f/255f, 255f/255f);
     Color INCOMING_COLOR = new Color(140f/255f, 140f/255f, 140f/255f);
 
-    static int MAX_WIDTH = 700;
+    static int MAX_WIDTH = 800;
 
     public void SetMessage(string message, bool outgoing)
     {
@@ -63,6 +63,8 @@ public class MessageBubble : MonoBehaviour
     {
         yield return null;
         UpdateMargins();
+        yield return null;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.GetComponent<RectTransform>());
     }
 
     private void UpdateMargins()
@@ -81,7 +83,23 @@ public class MessageBubble : MonoBehaviour
 
         var messageScrollContent = transform.parent.GetComponent<RectTransform>();
         LayoutRebuilder.ForceRebuildLayoutImmediate(messageScrollContent);
+
+        StartCoroutine(LatRenderBubble());
     }
+
+    private IEnumerator LatRenderBubble()
+    {
+        yield return null;
+        // LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.transform.parent.GetComponent<RectTransform>());
+        // var mat = bubble.material;
+        // bubble.material = null;
+        // bubble.material = mat;
+        bubble.enabled = false;
+        yield return null;
+        bubble.enabled = true;
+    }
+
+
     void Start()
     {
         // UpdateMessageBubble();
