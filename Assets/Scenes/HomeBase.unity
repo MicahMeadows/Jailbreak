@@ -1096,6 +1096,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1125789883510633054, guid: 9f80b35c1b28240418ade3db4f409d73, type: 3}
+      propertyPath: targetName
+      value: Red Cube
+      objectReference: {fileID: 0}
     - target: {fileID: 1232187268921959209, guid: 9f80b35c1b28240418ade3db4f409d73, type: 3}
       propertyPath: m_Name
       value: PhotoTarget

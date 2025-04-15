@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public struct PhotoTaken {
     public Texture2D photo;
+    public List<string> photoTargets;
     public bool isLandscape;
 }
 
@@ -152,6 +153,7 @@ public class PhoneCameraController : MonoBehaviour
         {
             photo = photo,
             isLandscape = isLandscape,
+            photoTargets = camObjects.Select(x => x.GetName()).ToList(),
         };
         photosTaken.Add(newPhotoTaken);
     }

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -168,11 +166,18 @@ public class PhonePlayer : NetworkBehaviour
         if (index != -1)
         {
             var conv = conversations[index];
-            conv.Texts.Add(new Message {
+            var newMessage = new Message {
                 MessageText = "",
                 Image = photo.photo,
                 IsOutgoing = true,
-            });
+                data = "",
+            };
+            if (photo.photoTargets.Count() > 0)
+            {
+                // all target names comma sep
+                newMessage.data = string.Join(", ", photo.photoTargets.Select(t => t));
+            }
+            conv.Texts.Add(newMessage);
             conversations[index] = conv;
         }
 

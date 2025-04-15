@@ -10,6 +10,7 @@ public struct Message
     public bool IsOutgoing;
     public string MessageText;
     public Texture2D Image;
+    public string data;
 }
 
 public struct MessageGroup
@@ -79,6 +80,10 @@ public class PhoneMessagesAppController : MonoBehaviour
 
         foreach (var message in messages)
         {
+            if (message.data != "")
+            {
+                Debug.Log("message data: " + message.data);
+            }
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
             newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image);
         }
