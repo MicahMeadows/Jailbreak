@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,28 +18,44 @@ public class MessageBubble : MonoBehaviour
     [SerializeField] private RawImage bubble;
     [SerializeField] private RectTransform messageRect;
     [SerializeField] private LayoutElement messageLayoutElement;
+    [SerializeField] private GameObject messageImageObject;
+    [SerializeField] private GameObject messageTextObject;
+    private Texture2D image;
 
     Color OUTGOING_COLOR = new Color(0, 131f/255f, 255f/255f);
     Color INCOMING_COLOR = new Color(140f/255f, 140f/255f, 140f/255f);
 
     static int MAX_WIDTH = 800;
 
-    public void SetMessage(string message, bool outgoing)
+    public void SetMessage(string message, bool outgoing, Texture2D image)
     {
         isOutgoing = outgoing;
         this.message = message;
+        this.image = image;
 
         UpdateMessageBubble();
     }
 
     private void UpdateMessageBubble()
     {
-        messageText.text = message;
-        bubble.color = isOutgoing ? OUTGOING_COLOR : INCOMING_COLOR;
+        if (image == null)
+        {
+            messageTextObject.SetActive(true);
+            messageImageObject.SetActive(false);
+            messageText.text = message;
+            bubble.color = isOutgoing ? OUTGOING_COLOR : INCOMING_COLOR;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.GetComponent<RectTransform>());
+            StartCoroutine(CheckAndApplyLayout());
+        }
+        else
+        {
+            messageTextObject.SetActive(false);
+            messageImageObject.SetActive(true);
+            messageImageObject.GetComponent<RawImage>().texture = image;
+            StartCoroutine(CheckAndApplyLayout());
+        }
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.GetComponent<RectTransform>());
-
-        StartCoroutine(CheckAndApplyLayout());
+        
     }
 
     private IEnumerator CheckAndApplyLayout()
@@ -48,12 +65,11 @@ public class MessageBubble : MonoBehaviour
         var messagesScrollContent = transform.parent.GetComponent<RectTransform>();
         float currentWidth = messageRect.rect.width;
 
-        Debug.Log("Current width: " + currentWidth);
-        if (currentWidth > MAX_WIDTH)
+        if (currentWidth > MAX_WIDTH && this.image == null)
         {
             messageLayoutElement.enabled = true;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(messagesScrollContent);
         }
+        LayoutRebuilder.ForceRebuildLayoutImmediate(messagesScrollContent);
 
         StartCoroutine(LateUpdateMrgins());
 
@@ -69,11 +85,10 @@ public class MessageBubble : MonoBehaviour
 
     private void UpdateMargins()
     {
-        float currentWidth = messageRect.rect.width;
+        float currentWidth = image == null ? messageRect.rect.width : messageImageObject.GetComponent<RectTransform>().rect.width;
 
         float screenWidth = Screen.width;
         int margin = Mathf.RoundToInt(screenWidth - currentWidth) - PADDING;
-        Debug.Log($"WID: {screenWidth} - {currentWidth} = {margin}");
 
         int leftPadding = isOutgoing ? margin : 0;
         int rightPadding = isOutgoing ? 0 : margin;
@@ -90,13 +105,14 @@ public class MessageBubble : MonoBehaviour
     private IEnumerator LatRenderBubble()
     {
         yield return null;
-        // LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.transform.parent.GetComponent<RectTransform>());
-        // var mat = bubble.material;
-        // bubble.material = null;
-        // bubble.material = mat;
+
         bubble.enabled = false;
         yield return null;
-        bubble.enabled = true;
+
+        if (this.image == null) // only re-enable the bubble if there is no image basically only for text
+        {
+            bubble.enabled = true;
+        }
     }
 
 

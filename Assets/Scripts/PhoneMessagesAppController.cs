@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +9,7 @@ public struct Message
 {
     public bool IsOutgoing;
     public string MessageText;
+    public Texture2D Image;
 }
 
 public struct MessageGroup
@@ -27,11 +30,25 @@ public class PhoneMessagesAppController : MonoBehaviour
     [SerializeField] private Button backToMessagesListButton;
     [SerializeField] private GameObject messagesListViewGroup;
     [SerializeField] private GameObject textsViewGroup;
+    [SerializeField] private Button uploadImageButton;
+    [SerializeField] private PhotosAppController photosAppController;
+    [SerializeField] private GameObject photosAppGroup;
     public List<MessageGroup> messageGroups = new List<MessageGroup>();
+    private MessageGroup? activeMessageGroup = null;
 
     void Start()
     {
         backToMessagesListButton.onClick.AddListener(OnBackToMessagesListClicked);
+        uploadImageButton.onClick.AddListener(OnUploadImageClicked);
+    }
+
+    private void OnUploadImageClicked()
+    {
+        if (activeMessageGroup != null)
+        {
+            photosAppController.SetEnabled(true, activeMessageGroup.Value.ContactName);
+        }
+        photosAppGroup.SetActive(true);
     }
 
     private void OnBackToMessagesListClicked()
@@ -42,6 +59,7 @@ public class PhoneMessagesAppController : MonoBehaviour
 
     private void OnMessageGroupClicked(MessageGroup messageGroup)
     {
+        activeMessageGroup = messageGroup;
         Debug.Log("Clicked message group: " + messageGroup.ContactName);
         foreach (var message in messageGroup.Texts)
         {
@@ -62,12 +80,13 @@ public class PhoneMessagesAppController : MonoBehaviour
         foreach (var message in messages)
         {
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
-            newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing);
+            newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image);
         }
     }
 
     public void SetMessageGroups(List<MessageGroup> messageGroups)
     {
+        Debug.Log("message groups being update...");
         this.messageGroups = messageGroups;
 
         foreach (Transform child in messageGroupParent.transform)
@@ -80,6 +99,12 @@ public class PhoneMessagesAppController : MonoBehaviour
             var newMessageGroup = Instantiate(messageGroupPrefab, messageGroupParent.transform);
             newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, messageGroup.LastMessage);
             newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OnMessageGroupClicked(messageGroup));
+        }
+
+        if (activeMessageGroup != null)
+        {
+            var texts = activeMessageGroup.Value.Texts;
+            SetTextMessages(texts);
         }
     }
     

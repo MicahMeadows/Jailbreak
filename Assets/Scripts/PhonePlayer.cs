@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -50,6 +51,40 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private Button lvl1Btn;
     List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     int selectedCam = 0;
+    List<MessageGroup> conversations = new List<MessageGroup>();
+
+    void SetupInitialConversations()
+    {
+        var lastImage = phoneCameraController.GetPhotos().LastOrDefault();
+        conversations = new List<MessageGroup>(){
+            new MessageGroup() { 
+                ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
+                Texts = new List<Message>()
+                {
+                    new Message() { MessageText = "Hey, are you coming to the party?", IsOutgoing = true },
+                    new Message() { MessageText = "No. Staying in", IsOutgoing = false },
+                    new Message() { MessageText = "Ok", IsOutgoing = true },
+                    new Message() { MessageText = "fuck you", IsOutgoing = false },
+                    new Message() { MessageText = "long message test long message test long message test long message test long message test long message testlong message test long message test long message test ", IsOutgoing = false },
+                    new Message() { MessageText = "image", IsOutgoing = true, Image=lastImage.photo},
+                }
+            },
+            new MessageGroup() { ContactName = "Jane Smith", LastMessage = "Don't forget to bring the snacks!" },
+            new MessageGroup() { ContactName = "Bob Johnson", LastMessage = "Can you pick me up at 7?" },
+            new MessageGroup() { ContactName = "Alice Brown", LastMessage = "Let's meet at the park." },
+            new MessageGroup() { ContactName = "Charlie Davis", LastMessage = "I have a surprise for you!" },
+            new MessageGroup() { ContactName = "Eve Wilson", LastMessage = "Are you free this weekend?" },
+            new MessageGroup() { ContactName = "Frank Miller", LastMessage = "I need your help with something." },
+            new MessageGroup() { ContactName = "Grace Lee", LastMessage = "Did you finish the project?" },
+            new MessageGroup() { ContactName = "Hank Taylor", LastMessage = "Let's grab lunch tomorrow." },
+            new MessageGroup() { ContactName = "Ivy Anderson", LastMessage = "Can you send me the report?" },
+            new MessageGroup() { ContactName = "Jack Thomas", LastMessage = "I found your keys!" },
+            new MessageGroup() { ContactName = "Kathy Martinez", LastMessage = "Are you coming to the game?" },
+            new MessageGroup() { ContactName = "Leo Garcia", LastMessage = "I have a new phone number." },
+            new MessageGroup() { ContactName = "Mia Rodriguez", LastMessage = "Let's go shopping!" },
+        };
+    }
+    
 
     private Dictionary<string, Action> rpcCallbacks = new Dictionary<string, Action>();
 
@@ -69,6 +104,8 @@ public class PhonePlayer : NetworkBehaviour
         closeMessagesAppButton.onClick.AddListener(OnCloseMessagesAppButtonClicked);
 
         lvl1Btn.onClick.AddListener(OnPressLevel1Btn);
+
+        SetupInitialConversations();
     }
 
 
@@ -125,36 +162,28 @@ public class PhonePlayer : NetworkBehaviour
         ChangeLevel_ServerRPC("GasStation");
     }
 
+    public void TextImageFromGallary(PhotoTaken photo, string contactName)
+    {
+        int index = conversations.FindIndex((conv) => conv.ContactName == contactName);
+        if (index != -1)
+        {
+            var conv = conversations[index];
+            conv.Texts.Add(new Message {
+                MessageText = "",
+                Image = photo.photo,
+                IsOutgoing = true,
+            });
+            conversations[index] = conv;
+        }
+
+        phoneMessageAppController.SetMessageGroups(conversations);
+    }
+
     void OnMessagesAppButtonClicked()
     {
         Debug.Log("Messages app button clicked");
         
-        phoneMessageAppController.SetMessageGroups(new List<MessageGroup>(){
-            new MessageGroup() { 
-                ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
-                Texts = new List<Message>()
-                {
-                    new Message() { MessageText = "Hey, are you coming to the party?", IsOutgoing = true },
-                    new Message() { MessageText = "No. Staying in", IsOutgoing = false },
-                    new Message() { MessageText = "Ok", IsOutgoing = true },
-                    new Message() { MessageText = "fuck you", IsOutgoing = false },
-                    new Message() { MessageText = "long message test long message test long message test long message test long message test long message testlong message test long message test long message test ", IsOutgoing = false },
-                }
-            },
-            new MessageGroup() { ContactName = "Jane Smith", LastMessage = "Don't forget to bring the snacks!" },
-            new MessageGroup() { ContactName = "Bob Johnson", LastMessage = "Can you pick me up at 7?" },
-            new MessageGroup() { ContactName = "Alice Brown", LastMessage = "Let's meet at the park." },
-            new MessageGroup() { ContactName = "Charlie Davis", LastMessage = "I have a surprise for you!" },
-            new MessageGroup() { ContactName = "Eve Wilson", LastMessage = "Are you free this weekend?" },
-            new MessageGroup() { ContactName = "Frank Miller", LastMessage = "I need your help with something." },
-            new MessageGroup() { ContactName = "Grace Lee", LastMessage = "Did you finish the project?" },
-            new MessageGroup() { ContactName = "Hank Taylor", LastMessage = "Let's grab lunch tomorrow." },
-            new MessageGroup() { ContactName = "Ivy Anderson", LastMessage = "Can you send me the report?" },
-            new MessageGroup() { ContactName = "Jack Thomas", LastMessage = "I found your keys!" },
-            new MessageGroup() { ContactName = "Kathy Martinez", LastMessage = "Are you coming to the game?" },
-            new MessageGroup() { ContactName = "Leo Garcia", LastMessage = "I have a new phone number." },
-            new MessageGroup() { ContactName = "Mia Rodriguez", LastMessage = "Let's go shopping!" },
-        });
+        phoneMessageAppController.SetMessageGroups(conversations);
 
         messagesAppGroup.SetActive(true);
         homescreenAppGroup.SetActive(false);

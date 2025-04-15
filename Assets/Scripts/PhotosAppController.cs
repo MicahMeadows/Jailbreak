@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PhotosAppController : MonoBehaviour
 {
+    [SerializeField] private PhonePlayer phonePlayer;
     [SerializeField] private PhoneCameraController phoneCameraController;
     [SerializeField] private RawImage imagePreview;
     [SerializeField] private RawImage landscapeImagePreview;
@@ -13,10 +14,23 @@ public class PhotosAppController : MonoBehaviour
     [SerializeField] private GameObject galleryGroup;
     [SerializeField] private GameObject previewGroup;
     [SerializeField] private Button backButton;
+    [SerializeField] private GameObject sendButton;
+    [SerializeField] private GameObject photosAppGroup;
     private List<PhotoTaken> photos;
+    private string contactToText = null;
+    private PhotoTaken? activePreview = null;
 
     void Start()
     {
+        sendButton.GetComponent<Button>().onClick.AddListener(() => {
+            OnTextButtonClicked();
+            galleryGroup.SetActive(true);
+            previewGroup.SetActive(false);
+            photosAppGroup.SetActive(false);
+        });
+
+        sendButton.SetActive(false);
+
         backButton.onClick.AddListener(() =>
         {
             galleryGroup.SetActive(true);
@@ -24,13 +38,25 @@ public class PhotosAppController : MonoBehaviour
         });
     }
 
-    public void SetEnabled(bool value)
+    private void OnTextButtonClicked()
+    {
+        if (activePreview != null)
+        {
+            phonePlayer.TextImageFromGallary(activePreview.Value, contactToText);
+        }
+    }
+
+    public void SetEnabled(bool value, string contactToText = null)
     {
         SetPhotos(phoneCameraController.GetPhotos());
+        this.contactToText = contactToText;
     }
 
     public void PreviewPhoto(PhotoTaken photoToPreview)
     {
+        activePreview = photoToPreview;
+        sendButton.SetActive(contactToText != null);
+
         if (photoToPreview.isLandscape)
         {
             landscapeImagePreview.texture = photoToPreview.photo;
