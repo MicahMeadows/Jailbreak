@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Android.Gradle.Manifest;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -86,6 +87,36 @@ public class TestLevelManager : NetworkBehaviour
         phonePlayerController.SendIncomingText("cool. a green cube. what are you fucking stupid", contact);
     }
 
+    public override void OnDestroy()
+    {
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        phonePlayerController.OffTextReceived(OnTextReceived);
+    }
+
+    void OnTextReceived(NetworkTextMessage message)
+    {
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        if (message.Contact == "John Doe")
+        {
+            if (message.ImageObjects != null)
+            {
+                foreach (var imageObject in message.ImageObjects)
+                {
+                    Debug.Log("img obj: " + imageObject);
+                    if (imageObject == "GreenCube")
+                    {
+                        Debug.Log("YO A FUCKIN GREEN CUBE LETS GO");
+                        StartCoroutine(SendFrickerTextSoon(message.Contact));
+                    }
+                }
+            }
+        }
+        else
+        {
+            phonePlayerController.SendIncomingText("?", message.Contact);
+        }
+    }
+
     public override void OnNetworkSpawn()
     {
         computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer").GetComponent<NetworkObject>();
@@ -108,27 +139,7 @@ public class TestLevelManager : NetworkBehaviour
         if (IsServer)
         {
             var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-            phonePlayerController.OnTextReceived((message) => {
-                if (message.Contact == "John Doe")
-                {
-                    if (message.ImageObjects != null)
-                    {
-                        foreach (var imageObject in message.ImageObjects)
-                        {
-                            Debug.Log("img obj: " + imageObject);
-                            if (imageObject == "GreenCube")
-                            {
-                                Debug.Log("YO A FUCKIN GREEN CUBE LETS GO");
-                                StartCoroutine(SendFrickerTextSoon(message.Contact));
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    phonePlayerController.SendIncomingText("?", message.Contact);
-                }
-            });
+            phonePlayerController.OnTextReceived(OnTextReceived);
         }
     }
 }

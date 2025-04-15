@@ -78,9 +78,14 @@ public class PhonePlayer : NetworkBehaviour
         }
     }
 
-    public void OnTextReceived(Action<NetworkTextMessage> onText)
+    public void OnTextReceived(Action<NetworkTextMessage> handler)
     {
-        phoneMessageAppController.OnTextReceived(onText);
+        phoneMessageAppController.OnTextReceived(handler);
+    }
+
+    public void OffTextReceived(Action<NetworkTextMessage> handler)
+    {
+        phoneMessageAppController.OffTextReceived(handler);
     }
 
     public void CreateIncomingCall(string name, Action onPickup)
