@@ -94,7 +94,7 @@ public class PhonePlayer : NetworkBehaviour
         rpcCallbacks[sequenceId] = onPickup;
 
         phoneCallController.ShowCallPopup_ClientRPC(name, sequenceId);
-        phoneAudioManager.PlayAudio("IncomingRing", true);
+        phoneAudioManager.PlayAudio("incoming-ring", true);
     }
 
     public void HangupCall()
@@ -105,7 +105,7 @@ public class PhonePlayer : NetworkBehaviour
 
     public void PickupIncomingCall(string sequenceId)
     {
-        phoneAudioManager.StopAudio("IncomingRing");
+        phoneAudioManager.StopAudio("incoming-ring");
 
         if (rpcCallbacks.TryGetValue(sequenceId, out var callback))
         {

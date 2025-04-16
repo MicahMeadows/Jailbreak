@@ -3,17 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class NamedAudioClip
-{
-    public string name;
-    public AudioClip clip;
-}
+
 
 public class PhoneAudioManager : MonoBehaviour
 {
     private AudioSource audioSource;
-    public List<NamedAudioClip> audioClips;
+    // public List<NamedAudioClip> audioClips;
+    [SerializeField] private PhoneAudioLibrary audioLibrary;
 
 
     void Start()
@@ -25,7 +21,7 @@ public class PhoneAudioManager : MonoBehaviour
     {
         audioSource.loop = loop;
         Debug.Log($"Playing audio: {name}");
-        foreach (var audioClip in audioClips)
+        foreach (var audioClip in audioLibrary.audioClips)
         {
             if (audioClip.name.ToLower().Equals(name.ToLower()))
             {
@@ -50,7 +46,7 @@ public class PhoneAudioManager : MonoBehaviour
 
     public void StopAudio(string name)
     {
-        foreach (var audioClip in audioClips)
+        foreach (var audioClip in audioLibrary.audioClips)
         {
             if (audioClip.name.ToLower().Equals(name.ToLower()))
             {

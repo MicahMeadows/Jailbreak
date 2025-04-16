@@ -84,7 +84,38 @@ public class TestLevelManager : NetworkBehaviour
     {
         yield return new WaitForSeconds(2f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        phonePlayerController.SendIncomingText("cool. a green cube. what are you fucking stupid", contact);
+        phonePlayerController.SendIncomingText("omg. calling rn", contact);
+
+        yield return new WaitForSeconds(2f);
+
+        phonePlayerController.CreateIncomingCall(contact, () => {
+            StartCoroutine(PlaySexyCubeSoon());
+        });
+    }
+
+    private IEnumerator PlaySexyCubeSoon()
+    {
+        yield return new WaitForSeconds(1f);
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+
+        phonePlayerController.phoneAudioManager.PlayAudio("sexy-cube", onComplete: () => {
+            StartCoroutine(HangupSoon());
+        });
+    }
+
+    private IEnumerator HangupSoon()
+    {
+        yield return new WaitForSeconds(1f);
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        phonePlayerController.HangupCall();
+        StartCoroutine(HeroSoon());
+    }
+
+    private IEnumerator HeroSoon()
+    {
+        yield return new WaitForSeconds(1f);
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        phonePlayerController.SendIncomingText("my hero <3", "Cube Lover");
     }
 
     public override void OnDestroy()
@@ -96,7 +127,7 @@ public class TestLevelManager : NetworkBehaviour
     void OnTextReceived(NetworkTextMessage message)
     {
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        if (message.Contact == "John Doe")
+        if (message.Contact == "Cube Lover")
         {
             if (message.ImageObjects != null)
             {

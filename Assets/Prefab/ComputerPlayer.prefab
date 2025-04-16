@@ -229,13 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9aa141a1f0f9b4d7980c898d16eceea8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioClips:
-  - name: IncomingRing
-    clip: {fileID: 8300000, guid: 00fd86980234948c4ac94df75415084c, type: 3}
-  - name: Hello
-    clip: {fileID: 8300000, guid: 3885cfb07801e49f9bbf195c57bcad97, type: 3}
-  - name: funny-words
-    clip: {fileID: 8300000, guid: 7a4718839c9bb4227a977e0dec6c403a, type: 3}
+  audioLibrary: {fileID: 11400000, guid: a70cbabc199124e948b0579cd28486fa, type: 2}
 --- !u!1 &590049856128492463
 GameObject:
   m_ObjectHideFlags: 0
