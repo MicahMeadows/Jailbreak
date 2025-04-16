@@ -6,19 +6,22 @@ using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEditor.Timeline.Actions;
 using UnityEngine;
+using UnityEngine.Networking.PlayerConnection;
 using UnityEngine.UI;
 
 public struct NetworkTextMessage : INetworkSerializable
 {
-    public string[] ImageObjects;
-    public string Keyword;
+    public string Message;
     public string Contact;
+    public string ImageId;
+    public string[] ImageObjects;
 
-    public NetworkTextMessage(string contact, string[] imageObjects = null, string keyword = "")
+    public NetworkTextMessage(string contact, string message = "", string imageId = "", string[] imageObjects = null)
     {
         Contact = contact;
         ImageObjects = imageObjects ?? new string[0];
-        Keyword = keyword;
+        Message = message;
+        ImageId = imageId;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -34,9 +37,11 @@ public struct NetworkTextMessage : INetworkSerializable
 
         for (var n = 0; n < length; ++n)
             serializer.SerializeValue(ref ImageObjects[n]);
+        
 
-        serializer.SerializeValue(ref Keyword);
+        serializer.SerializeValue(ref Message);
         serializer.SerializeValue(ref Contact);
+        serializer.SerializeValue(ref ImageId);
     }
 }
 
@@ -92,36 +97,36 @@ public class PhoneMessagesAppController : NetworkBehaviour
         TextReceived -= handler;
     }
 
-    void SetupInitialConversations()
-    {
-        var lastImage = phoneCameraController.GetPhotos().LastOrDefault();
-        conversations = new List<MessageGroup>(){
-            new MessageGroup() { 
-                ContactName = "Cube Lover",
-                Texts = new List<Message>()
-                {
-                    new Message() { MessageText = "Send cube pics", IsOutgoing = false },
-                }
-            },
-            new MessageGroup() { ContactName = "Jane Smith" },
-            // new MessageGroup() { 
-            //     ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
-            //     Texts = new List<Message>()
-            //     {
-            //         new Message() { MessageText = "Hey, are you coming to the party?", IsOutgoing = true },
-            //         new Message() { MessageText = "No. Staying in", IsOutgoing = false },
-            //         new Message() { MessageText = "Ok", IsOutgoing = true },
-            //         new Message() { MessageText = "fuck you", IsOutgoing = false },
-            //         new Message() { MessageText = "long message test long message test long message test long message test long message test long message testlong message test long message test long message test ", IsOutgoing = false },
-            //         new Message() { MessageText = "image", IsOutgoing = true, Image=lastImage.photo},
-            //     }
-            // },
-        };
-    }
+    // void SetupInitialConversations()
+    // {
+    //     var lastImage = phoneCameraController.GetPhotos().LastOrDefault();
+    //     conversations = new List<MessageGroup>(){
+    //         new MessageGroup() { 
+    //             ContactName = "Cube Lover",
+    //             Texts = new List<Message>()
+    //             {
+    //                 new Message() { MessageText = "Send cube pics", IsOutgoing = false },
+    //             }
+    //         },
+    //         new MessageGroup() { ContactName = "Jane Smith" },
+    //         // new MessageGroup() { 
+    //         //     ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
+    //         //     Texts = new List<Message>()
+    //         //     {
+    //         //         new Message() { MessageText = "Hey, are you coming to the party?", IsOutgoing = true },
+    //         //         new Message() { MessageText = "No. Staying in", IsOutgoing = false },
+    //         //         new Message() { MessageText = "Ok", IsOutgoing = true },
+    //         //         new Message() { MessageText = "fuck you", IsOutgoing = false },
+    //         //         new Message() { MessageText = "long message test long message test long message test long message test long message test long message testlong message test long message test long message test ", IsOutgoing = false },
+    //         //         new Message() { MessageText = "image", IsOutgoing = true, Image=lastImage.photo},
+    //         //     }
+    //         // },
+    //     };
+    // }
 
     void Start()
     {
-        SetupInitialConversations();
+        // SetupInitialConversations();
         backToMessagesListButton.onClick.AddListener(OnBackToMessagesListClicked);
         uploadImageButton.onClick.AddListener(OnUploadImageClicked);
     }
@@ -142,7 +147,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
             conversations[index] = conv;
         }
 
-        SetupMessageGroups();
+        // SetMessageGroups();
+        SetMessageGroups(conversations);
     }
 
     public void SendTextImage(PhotoTaken photo, string contactName)
@@ -161,16 +167,35 @@ public class PhoneMessagesAppController : NetworkBehaviour
             conversations[index] = conv;
         }
 
-        SetupMessageGroups();
 
+        SetMessageGroups(conversations);
 
-        SendTextDataBackend_ServerRPC(new NetworkTextMessage(contact: contactName, imageObjects: photo.photoTargets.ToArray()));
+        string[] photoTargets = new string[]{};
+        if (photo.photoTargets != null)
+        {
+            photoTargets = new string[photo.photoTargets.Count];
+            for (int i = 0; i < photo.photoTargets.Count; i++)
+            {
+                photoTargets[i] = photo.photoTargets[i].ToString();
+            }
+        }
+        SendTextDataBackend_ServerRPC(new NetworkTextMessage(contact: contactName, imageId: photo.imageId, imageObjects: photoTargets));
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void SendTextDataBackend_ServerRPC(NetworkTextMessage message)
     {
+
         TextReceived?.Invoke(message);
+        var newMessage = new MessageTextJSON()
+        {
+            MessageText = message.Message,
+            IsOutgoing = true,
+            ImageId = message.ImageId,
+        };
+
+        phonePlayer.SaveNewText(newMessage, message.Contact);
+        
     }
 
     private void OnUploadImageClicked()
@@ -212,8 +237,9 @@ public class PhoneMessagesAppController : NetworkBehaviour
         }
     }
 
-    public void SetupMessageGroups()
+    public void SetMessageGroups(List<MessageGroup> messageGroups)
     {
+        this.conversations = messageGroups;
         Debug.Log("message groups being update...");
 
         foreach (Transform child in messageGroupParent.transform)

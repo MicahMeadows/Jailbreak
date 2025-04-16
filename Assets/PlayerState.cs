@@ -6,20 +6,30 @@ using UnityEngine;
 public class PlayerStateJSON
 {
     public List<MessageGroupJSON> MessageGroups;
+    public List<PhotoJSON> Photos;
+}
+
+[Serializable]
+public class PhotoJSON
+{
+    public string ImageId;
+    public string ImagePath;
+    public List<string> PhotoTargets;
+    public bool IsLandscape;
 }
 
 [Serializable]
 public class MessageGroupJSON
 {
     public string ContactName;
-    public List<MessageTextJSON> Messages;
+    public List<MessageTextJSON> Texts;
 }
 
 [Serializable]
 public class MessageTextJSON
 {
-    bool isOutgoing;
-    string messageText;
-    public string imagePath;
+    public bool IsOutgoing;
+    public string MessageText;
+    public string ImageId;
 
 }

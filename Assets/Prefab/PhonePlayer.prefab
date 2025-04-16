@@ -10957,6 +10957,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  phonePlayer: {fileID: 1485383602315869272}
   messageGroupPrefab: {fileID: 5332026650446947033, guid: a0710baf9c09f4230af3b8b644452e04, type: 3}
   messageGroupParent: {fileID: 5506006070412555211}
   textBubblePrefab: {fileID: 8901206886079278426, guid: d273b4c3855054449bdfae4bc1dbf3eb, type: 3}
@@ -12818,6 +12819,7 @@ MonoBehaviour:
   uiRenderImage: {fileID: 306952805987565043}
   photoPreview: {fileID: 7271556235069743097}
   phoneCamera: {fileID: 6055776263930120077}
+  phonePlayer: {fileID: 1485383602315869272}
   rotationSpeed: 0.2
   gyroSmoothSpeed: 25
 --- !u!1 &8642030216825741112

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -70,10 +71,105 @@ public class PhonePlayer : NetworkBehaviour
         lvl1Btn.onClick.AddListener(OnPressLevel1Btn);
     }
 
+    // Send new image data to server to add to player state for now
+    // This may or may not be saved later. This does not include the actual render texture just the path
+    [ServerRpc(RequireOwnership=false, Delivery = RpcDelivery.Reliable)]
+    public void AddImageData_ServerRPC(string json)
+    {
+
+        Debug.Log("got new photo data: " + json);
+        var photo = JsonUtility.FromJson<PhotoJSON>(json);
+        var player = computerPlayer.GetComponent<Player>();
+        var photos = player.currentPlayerState.Photos;
+        if (photos == null)
+        {
+            photos = new List<PhotoJSON>();
+            player.currentPlayerState.Photos = photos;
+        }
+        player.currentPlayerState.Photos.Add(photo);
+    }
+
+    public void SaveNewText(MessageTextJSON message, string contact)
+    {
+        if (computerPlayer != null)
+        {
+            var player = computerPlayer.GetComponent<Player>();
+            var messageGroup = player.currentPlayerState.MessageGroups.FirstOrDefault(g => g.ContactName == contact);
+
+            if (messageGroup == null)
+            {
+                messageGroup = new MessageGroupJSON()
+
+                {
+                    ContactName = contact,
+                    Texts = new List<MessageTextJSON>() { }
+
+                };
+                player.currentPlayerState.MessageGroups.Add(messageGroup);
+            }
+
+            messageGroup.Texts ??= new List<MessageTextJSON>();
+            messageGroup.Texts.Add(message);
+        }
+    }
+
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    public void RestorePlayerState_ClientRPC(string json) // TODO: this will break because of RPC max size later
+    {
+        Debug.Log("restoring player state: " + json);
+        PlayerStateJSON playerState = JsonUtility.FromJson<PlayerStateJSON>(json);
+        var restoredPhotos = new List<PhotoTaken>() { };
+        foreach (var photo in playerState.Photos)
+        {
+            var tex2d = PhoneCameraController.LoadTextureFromFile(photo.ImagePath);
+            var newPhoto = new PhotoTaken()
+            {
+                imagePath = photo.ImagePath,
+                isLandscape = photo.IsLandscape,
+                photoTargets = photo.PhotoTargets,
+                imageId = photo.ImageId,
+                photo = tex2d,
+            };
+            restoredPhotos.Add(newPhoto);
+        }
+        phoneCameraController.SetPhotosTaken(restoredPhotos);
+
+
+        var restoredMessageGroups = new List<MessageGroup>() {};
+        foreach (var messageGroup in playerState.MessageGroups)
+        {
+            var newMessageGroup = new MessageGroup()
+            {
+                ContactName = messageGroup.ContactName,
+                Texts = new List<Message>()
+            };
+            
+            foreach (var message in messageGroup.Texts)
+            {
+                var thisPhoto = restoredPhotos.FirstOrDefault(p => p.imageId == message.ImageId);
+                Debug.Log("restoring message: " + message.MessageText + " with imageId: " + thisPhoto.imageId + " and image: " + thisPhoto.photo + " path: " + thisPhoto.imagePath);
+                var newMessage = new Message()
+                {
+                    MessageText = message.MessageText == "" ? "Image" : message.MessageText,
+                    Image = thisPhoto.photo,
+                    IsOutgoing = message.IsOutgoing,
+                };
+                newMessageGroup.Texts.Add(newMessage);
+                
+            }
+
+            restoredMessageGroups.Add(newMessageGroup);
+        }
+
+        phoneMessageAppController.SetMessageGroups(restoredMessageGroups);
+    }
+
     public void SendIncomingText(string message, string fromContact)
     {
         if (IsServer)
         {
+            
             phoneMessageAppController.SendIncomingText_ClientRPC(message, fromContact);
         }
     }
@@ -145,7 +241,7 @@ public class PhonePlayer : NetworkBehaviour
     {
         Debug.Log("Messages app button clicked");
         
-        phoneMessageAppController.SetupMessageGroups();
+        // phoneMessageAppController.SetMessageGroups();
 
         messagesAppGroup.SetActive(true);
         homescreenAppGroup.SetActive(false);
@@ -321,6 +417,7 @@ public class PhonePlayer : NetworkBehaviour
         } else {
             // phonePlayerCam.SetActive(true);
             phoneCameraController.SetEnabled(false);
+            computerPlayer.GetComponent<Player>().RequestClientStateRestore_ServerRPC();
         }
     }
 

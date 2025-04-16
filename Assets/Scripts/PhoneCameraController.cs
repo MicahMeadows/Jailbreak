@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 
 public struct PhotoTaken {
+    public string imageId;
+    public string imagePath;
     public Texture2D photo;
     public List<string> photoTargets;
     public bool isLandscape;
@@ -17,6 +20,7 @@ public class PhoneCameraController : MonoBehaviour
     [SerializeField] private RawImage uiRenderImage;
     [SerializeField] private RawImage photoPreview;
     [SerializeField] private GameObject phoneCamera;
+    [SerializeField] private PhonePlayer phonePlayer;
     private List<PhotoTaken> photosTaken = new List<PhotoTaken>();
     public float rotationSpeed = 0.2f;
     public float gyroSmoothSpeed = 50f;
@@ -38,6 +42,8 @@ public class PhoneCameraController : MonoBehaviour
     private bool gyroResetTriggered = false;
     private const float gyroHoldDuration = 1f;
 
+
+
     void Start()
     {
         Debug.Log("new message");
@@ -50,6 +56,25 @@ public class PhoneCameraController : MonoBehaviour
         }
     }
 
+    private string SaveTextureToFile(Texture2D texture, string uid)
+    {
+        byte[] bytes = texture.EncodeToPNG(); // you could use EncodeToJPG for smaller size
+        string fileName = $"photo_{uid}.png";
+        string filePath = System.IO.Path.Combine(Application.persistentDataPath, fileName);
+        System.IO.File.WriteAllBytes(filePath, bytes);
+        Debug.Log($"📸 Saved photo to: {filePath}");
+        return filePath;
+    }
+
+    public static Texture2D LoadTextureFromFile(string path)
+    {
+        byte[] fileData = System.IO.File.ReadAllBytes(path);
+        Texture2D tex = new Texture2D(2, 2);
+        tex.LoadImage(fileData);
+        return tex;
+    }
+
+
     private bool IsDeviceSideways()
     {
         Vector3 gravity = Input.gyro.gravity;
@@ -59,6 +84,11 @@ public class PhoneCameraController : MonoBehaviour
     public List<PhotoTaken> GetPhotos()
     {
         return photosTaken;
+    }
+
+    public void SetPhotosTaken(List<PhotoTaken> photos)
+    {
+        photosTaken = photos;
     }
 
     List<PhotoTarget> DetectVisibleObjects(Camera cam)
@@ -127,10 +157,6 @@ public class PhoneCameraController : MonoBehaviour
         bool isLandscape = IsDeviceSideways();
 
         var camObjects = DetectVisibleObjects(phoneCamera.GetComponent<Camera>());
-        foreach (var cam in camObjects)
-        {
-            Debug.Log($"Found {cam.gameObject.name} in camera view");
-        }
 
         RenderTexture currentRT = RenderTexture.active;
         RenderTexture.active = renderTexture;
@@ -146,17 +172,34 @@ public class PhoneCameraController : MonoBehaviour
 
         if (isLandscape)
         {
-            photo = RotateTexture90CounterClockwise(photo); // rotate it to actually be landscape
+            photo = RotateTexture90CounterClockwise(photo);
         }
+
+        var newUid = Guid.NewGuid().ToString();
+        string savedPath = SaveTextureToFile(photo, newUid);
 
         var newPhotoTaken = new PhotoTaken
         {
+            imageId = newUid,
             photo = photo,
+            imagePath = savedPath,
             isLandscape = isLandscape,
             photoTargets = camObjects.Select(x => x.GetName()).ToList(),
         };
+
         photosTaken.Add(newPhotoTaken);
+
+        var newPhotoJson = new PhotoJSON()
+        {
+            ImageId = newUid,
+            ImagePath = savedPath,
+            IsLandscape = isLandscape,
+            PhotoTargets = camObjects.Select(x => x.GetName()).ToList(),
+        };
+
+        phonePlayer.AddImageData_ServerRPC(JsonConvert.SerializeObject(newPhotoJson));
     }
+
 
 
     public void SetEnabled(bool value)

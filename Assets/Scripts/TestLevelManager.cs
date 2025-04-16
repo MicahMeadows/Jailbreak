@@ -127,7 +127,7 @@ public class TestLevelManager : NetworkBehaviour
     void OnTextReceived(NetworkTextMessage message)
     {
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        if (message.Contact == "Cube Lover")
+        if (message.Contact == "John Doe")
         {
             if (message.ImageObjects != null)
             {

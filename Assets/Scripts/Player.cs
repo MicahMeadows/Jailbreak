@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Newtonsoft.Json;
 using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -12,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class Player : NetworkBehaviour
 {
     IDataService dataService = new JsonDataService();
-    PlayerStateJSON currentPlayerState = new PlayerStateJSON();
+    public PlayerStateJSON currentPlayerState = new PlayerStateJSON();
 
     public PhoneAudioManager phoneAudioManager;
     public GameObject phonePlayerParent;
@@ -35,7 +36,6 @@ public class Player : NetworkBehaviour
 
     private bool isActive = false;
 
-
     public void SaveState()
     {
         if (IsServer)
@@ -50,6 +50,21 @@ public class Player : NetworkBehaviour
             {
                 Debug.Log("Failed to save data.");
             }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestClientStateRestore_ServerRPC()
+    {
+        RestorePlayerState();
+    }
+
+    public void RestorePlayerState()
+    {
+        var phonePlayer = phonePlayerParent.GetComponentInChildren<PhonePlayer>();
+        if (phonePlayer)
+        {
+            phonePlayer.RestorePlayerState_ClientRPC(JsonConvert.SerializeObject(currentPlayerState));
         }
     }
 
@@ -70,6 +85,9 @@ public class Player : NetworkBehaviour
                 {
                     currentPlayerState = playerData;
                 }
+
+                RestorePlayerState();
+
             }
             catch (Exception e)
             {
@@ -181,9 +199,9 @@ public class Player : NetworkBehaviour
         // NetworkManager.Singleton.SceneManager.OnLoadCompleted += OnLoadCompleted;
         if (IsServer && NetworkManager.Singleton.LocalClientId == OwnerClientId)
         {
+            LoadState();
             NetworkManager.Singleton.SceneManager.OnLoadComplete += OnLoadCompleted;
             flashlightOn.Value = false;
-            
         }
 
         if (!IsServer)
