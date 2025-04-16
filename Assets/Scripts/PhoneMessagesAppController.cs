@@ -52,7 +52,6 @@ public struct Message
 public struct MessageGroup
 {
     public string ContactName;
-    public string LastMessage;
 
     private List<Message> _texts;
     public List<Message> Texts
@@ -99,13 +98,13 @@ public class PhoneMessagesAppController : NetworkBehaviour
         var lastImage = phoneCameraController.GetPhotos().LastOrDefault();
         conversations = new List<MessageGroup>(){
             new MessageGroup() { 
-                ContactName = "Cube Lover", LastMessage = "Hey, are you coming to the party?",
+                ContactName = "Cube Lover",
                 Texts = new List<Message>()
                 {
                     new Message() { MessageText = "Send cube pics", IsOutgoing = false },
                 }
             },
-            new MessageGroup() { ContactName = "Jane Smith", LastMessage = "Don't forget to bring the snacks!" },
+            new MessageGroup() { ContactName = "Jane Smith" },
             // new MessageGroup() { 
             //     ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
             //     Texts = new List<Message>()
@@ -236,7 +235,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
         foreach (var messageGroup in conversations)
         {
             var newMessageGroup = Instantiate(messageGroupPrefab, messageGroupParent.transform);
-            newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, messageGroup.LastMessage);
+            var lastText = messageGroup.Texts.LastOrDefault();
+            newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Image == null ? lastText.MessageText : "Photo");
             newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OnMessageGroupClicked(messageGroup));
         }
 
