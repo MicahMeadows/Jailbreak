@@ -46,7 +46,6 @@ public struct Message
     public bool IsOutgoing;
     public string MessageText;
     public Texture2D Image;
-    public string data;
 }
 
 public struct MessageGroup
@@ -138,7 +137,6 @@ public class PhoneMessagesAppController : NetworkBehaviour
             var newMessage = new Message {
                 MessageText = message,
                 IsOutgoing = false,
-                data = "",
             };
             conv.Texts.Add(newMessage);
             conversations[index] = conv;
@@ -157,13 +155,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
                 MessageText = "",
                 Image = photo.photo,
                 IsOutgoing = true,
-                data = "",
             };
-            if (photo.photoTargets.Count() > 0)
-            {
-                // all target names comma sep
-                newMessage.data = string.Join(", ", photo.photoTargets.Select(t => t));
-            }
+            
             conv.Texts.Add(newMessage);
             conversations[index] = conv;
         }
@@ -214,10 +207,6 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
         foreach (var message in messages)
         {
-            if (message.data != "")
-            {
-                Debug.Log("message data: " + message.data);
-            }
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
             newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image);
         }

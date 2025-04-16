@@ -1,13 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Components;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class Player : NetworkBehaviour
 {
+    IDataService dataService = new JsonDataService();
+    PlayerStateJSON currentPlayerState = new PlayerStateJSON();
+
     public PhoneAudioManager phoneAudioManager;
     public GameObject phonePlayerParent;
     public float speed = 5f;
@@ -28,6 +34,49 @@ public class Player : NetworkBehaviour
     [SerializeField] private List<GameObject> secCamCheckSpheres;
 
     private bool isActive = false;
+
+
+    public void SaveState()
+    {
+        if (IsServer)
+        {
+            Debug.Log("try save state");
+            var startTime = DateTime.Now.Ticks;
+            if (dataService.SaveData("/save.json", currentPlayerState))
+            {
+                Debug.Log("Data saved successfully in " + (DateTime.Now.Ticks - startTime) / TimeSpan.TicksPerMillisecond + "ms");
+            }
+            else
+            {
+                Debug.Log("Failed to save data.");
+            }
+        }
+    }
+
+    public void LoadState()
+    {
+        if (IsServer)
+        {
+            Debug.Log("try load state");
+
+            try
+            {
+                var startTime = DateTime.Now.Ticks;
+                var playerData = dataService.LoadData<PlayerStateJSON>("/save.json");
+
+                Debug.Log("player data loaded in " + (DateTime.Now.Ticks - startTime) / TimeSpan.TicksPerMillisecond + "ms");
+
+                if (playerData != null)
+                {
+                    currentPlayerState = playerData;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error loading data: " + e.Message);
+            }
+        }
+    }
 
     public void SetLossScreen(string message)
     {
@@ -169,6 +218,19 @@ public class Player : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
+
         if (isActive)
         {
             HandleLook();
@@ -216,27 +278,6 @@ public class Player : NetworkBehaviour
         transform.Rotate(Vector3.up * totalYRotation);
     }
 
-
-    // void HandleLook()
-    // {
-    //     float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-    //     float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-    //     // Calculate new X rotation (clamping the pitch)
-    //     xRotation -= mouseY;
-    //     xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-    //     // Apply the X rotation to the FPS holder (camera)
-    //     fpsHolder.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
-    //     // Rotate the player (y-axis)
-    //     // Instead of directly rotating, we will accumulate rotation in a variable
-    //     float targetRotationY = transform.eulerAngles.y + mouseX; // add rotation based on input
-    //     targetRotationY = NormalizeAngle(targetRotationY); // Ensure rotation stays within 0-360 degrees range
-
-    //     // Apply the calculated Y rotation to the player's body (ignoring pitch for body)
-    //     transform.rotation = Quaternion.Euler(0f, targetRotationY, 0f);
-    // }
 
     // Normalize angle to the range 0-360 to avoid unexpected rotation behavior
     float NormalizeAngle(float angle)

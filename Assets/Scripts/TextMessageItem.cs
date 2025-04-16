@@ -13,8 +13,5 @@ public class TextMessageItem : MonoBehaviour
     public void SetText(string message, bool playerMessage)
     {
         messageText.text = message;
-        // textBubble.GetComponent<RectTransform>().right = playerMessage ? 20 : 200;
-        // textBubble.GetComponent<RectTransform>().left = playerMessage ? 200 : 200;
-
     }
 }
