@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ public class HomeBaseLevelManager : NetworkBehaviour
 
     private void InitializeLevel()
     {
-        var currentState = computerPlayer.GetPlayerState();
+        var currentState = computerPlayer.currentPlayerState;
 
         if (currentState.LevelState.Intro == false)
         {
@@ -37,8 +38,9 @@ public class HomeBaseLevelManager : NetworkBehaviour
 
     private IEnumerator TextIntroSoon()
     {
-        yield return new WaitForSeconds(.1f);
+        yield return new WaitForSeconds(2f);
         Debug.Log("Sending text message to phone player.");
         phonePlayer.SendIncomingText("Yo dude!", "Friend");
+        computerPlayer.currentPlayerState.LevelState.Intro = true;
     }
 }

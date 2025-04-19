@@ -70,11 +70,6 @@ public class Player : NetworkBehaviour
         }
     }
 
-    public PlayerStateJSON GetPlayerState()
-    {
-        return currentPlayerState;
-    }
-
     public void SaveState()
     {
         if (IsServer)

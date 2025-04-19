@@ -102,9 +102,9 @@ public class PhonePlayer : NetworkBehaviour
                 messageGroup = new MessageGroupJSON()
 
                 {
+                    Notification = true,
                     ContactName = contact,
                     Texts = new List<MessageTextJSON>() { }
-
                 };
                 player.currentPlayerState.MessageGroups.Add(messageGroup);
             }
@@ -142,6 +142,7 @@ public class PhonePlayer : NetworkBehaviour
         {
             var newMessageGroup = new MessageGroup()
             {
+                Notification = messageGroup.Notification,
                 ContactName = messageGroup.ContactName,
                 Texts = new List<Message>()
             };
@@ -261,6 +262,8 @@ public class PhonePlayer : NetworkBehaviour
 
         messagesAppGroup.SetActive(true);
         homescreenAppGroup.SetActive(false);
+
+        phoneMessageAppController.HideOrShowNotifIcons();
     }
 
     void OnCloseMessagesAppButtonClicked()

@@ -28,6 +28,7 @@ public class PhotoJSON
 public class MessageGroupJSON
 {
     public string ContactName;
+    public bool Notification;
     public List<MessageTextJSON> Texts;
 }
 

@@ -61,6 +61,7 @@ public struct Message
 public struct MessageGroup
 {
     public string ContactName;
+    public bool Notification;
 
     private List<Message> _texts;
     public List<Message> Texts
@@ -95,6 +96,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
     [SerializeField] private RawImage incomingTexterContactImage;
     [SerializeField] private Button incomingTextCloseButton;
     [SerializeField] private Button incomingTextOpenButton;
+    [SerializeField] private RawImage messageAppNotifIcon;
     private string incomingTexterId = "";
 
     public event Action<NetworkTextMessage> TextReceived;
@@ -173,12 +175,14 @@ public class PhoneMessagesAppController : NetworkBehaviour
         if (index != -1)
         {
             var conv = conversations[index];
+            conv.Notification = true;
             conv.Texts.Add(newMessage);
             conversations[index] = conv;
         }
         else
         {
             var newConv = new MessageGroup {
+                Notification = true,
                 ContactName = contactName,
                 Texts = new List<Message> { newMessage },
             };
@@ -187,6 +191,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
         SetMessageGroups(conversations);
 
+        HideOrShowNotifIcons();
+
         if (!IsServer)
         {
             textPopupGroup.SetActive(true);
@@ -194,6 +200,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
             incomingTextMessageText.text = message;
             incomingTexterId = contactName;
         }
+
     }
 
     public void SendTextImage(PhotoTaken photo, string contactName)
@@ -265,17 +272,29 @@ public class PhoneMessagesAppController : NetworkBehaviour
     {
         var messageGroup = conversations.FirstOrDefault(x => x.ContactName == callerId);
         Debug.Log("Open messages for: " + callerId + " found: " + messageGroup.ContactName);
-        OnMessageGroupClicked(messageGroup);
+        OpenMessageGroup(messageGroup);
     }
 
-    private void OnMessageGroupClicked(MessageGroup messageGroup)
+    private void OpenMessageGroup(MessageGroup messageGroup)
     {
         activeMessageContact = messageGroup.ContactName;
         Debug.Log("Clicked message group: " + messageGroup.ContactName);
         textsViewGroup.SetActive(true);
         messagesListViewGroup.SetActive(false);
+
+        var index = conversations.FindIndex(x => x.ContactName == messageGroup.ContactName);
+        if (index != -1)
+        {
+            var thisConversation = conversations[index];
+            thisConversation.Notification = false;
+            conversations[index] = thisConversation;
+        }
+
+        HideOrShowNotifIcons();
+
         SetTextMessages(messageGroup.Texts);
     }
+
 
     public void SetTextMessages(List<Message> messages)
     {
@@ -289,6 +308,22 @@ public class PhoneMessagesAppController : NetworkBehaviour
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
             newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image, message.IsLandscapeImage);
         }
+    }
+
+    public void HideOrShowNotifIcons()
+    {
+        var anyNotif = conversations.Any(x => x.Notification);
+        messageAppNotifIcon.enabled = anyNotif;
+
+        foreach (var conv in conversations)
+        {
+            var messageGroupItem = messageGroupParent.GetComponentsInChildren<MessageGroupItem>().FirstOrDefault(x => x.GetContactName() == conv.ContactName);
+            if (messageGroupItem != null)
+            {
+                messageGroupItem.SetNotifEnabled(conv.Notification);
+            }    
+        }
+
     }
 
     public void SetMessageGroups(List<MessageGroup> messageGroups)
@@ -306,7 +341,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
             var newMessageGroup = Instantiate(messageGroupPrefab, messageGroupParent.transform);
             var lastText = messageGroup.Texts.LastOrDefault();
             newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Image == null ? lastText.MessageText : "Photo");
-            newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OnMessageGroupClicked(messageGroup));
+            newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OpenMessageGroup(messageGroup));
         }
 
         if (activeMessageContact != null)
@@ -314,6 +349,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
             var activeMessageGroup = conversations.FirstOrDefault(x => x.ContactName == activeMessageContact);
             SetTextMessages(activeMessageGroup.Texts);
         }
+
+        HideOrShowNotifIcons();
     }
     
 }
