@@ -40,6 +40,6 @@ public class HomeBaseLevelManager : NetworkBehaviour
     {
         computerPlayer.currentPlayerState.LevelState.Intro = true;
         yield return new WaitForSeconds(5f);
-        phonePlayer.SendIncomingText("Yo dude!", "Friend");
+        phonePlayer.SendIncomingText("intro-hello", "Friend");
     }
 }

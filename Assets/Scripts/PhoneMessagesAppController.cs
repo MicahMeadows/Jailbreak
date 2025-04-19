@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEditor.Timeline.Actions;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Networking.PlayerConnection;
 using UnityEngine.UI;
 
@@ -75,7 +76,10 @@ public struct MessageGroup
 
 public class PhoneMessagesAppController : NetworkBehaviour
 {
+    [SerializeField] private TextMessageLibrary messageLibrary;
     [SerializeField] private PhonePlayer phonePlayer;
+    [SerializeField] private Transform messageReplyParent;
+    [SerializeField] private GameObject messageReplyPrefab;
     [SerializeField] private GameObject messageGroupPrefab;
     [SerializeField] private Transform messageGroupParent; 
     [SerializeField] private GameObject textBubblePrefab;
@@ -97,6 +101,11 @@ public class PhoneMessagesAppController : NetworkBehaviour
     [SerializeField] private Button incomingTextCloseButton;
     [SerializeField] private Button incomingTextOpenButton;
     [SerializeField] private RawImage messageAppNotifIcon;
+    [SerializeField] private Button textReplyButton;
+    [SerializeField] private RectTransform messageRectTrans;
+    private float currentBottom = 0f;
+    public float openRepliesSpeed = 10f;
+    private bool textReplyOpen = false;
     private string incomingTexterId = "";
 
     public event Action<NetworkTextMessage> TextReceived;
@@ -145,6 +154,9 @@ public class PhoneMessagesAppController : NetworkBehaviour
         uploadImageButton.onClick.AddListener(OnUploadImageClicked);
         incomingTextCloseButton.onClick.AddListener(CloseTextPopup);
         incomingTextOpenButton.onClick.AddListener(OnIncomingTextOpen);
+        textReplyButton.onClick.AddListener(() => {
+            textReplyOpen = !textReplyOpen;
+        });
     }
 
     public void HideTextPopup()
@@ -198,14 +210,36 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
         HideOrShowNotifIcons();
 
+        var allMessages = GetAllMessages();
+        var actualMessage = allMessages.TryGetValue(message, out var val) ? val : null;
+
         if (!IsServer)
         {
             textPopupGroup.SetActive(true);
             incomingTexterIdText.text = contactName;
-            incomingTextMessageText.text = message;
+            incomingTextMessageText.text = actualMessage;
             incomingTexterId = contactName;
         }
 
+    }
+
+    public void SendTextMessage(string message, string contactName)
+    {
+        int index = conversations.FindIndex((conv) => conv.ContactName == contactName);
+        if (index != -1)
+        {
+            var conv = conversations[index];
+            var newMessage = new Message {
+                MessageText = message,
+                IsOutgoing = true,
+            };
+            
+            conv.Texts.Add(newMessage);
+            conversations[index] = conv;
+        }
+
+        SetMessageGroups(conversations);
+        SendTextDataBackend_ServerRPC(new NetworkTextMessage(contact: contactName, message: message));
     }
 
     public void SendTextImage(PhotoTaken photo, string contactName)
@@ -282,6 +316,9 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     private void OpenMessageGroup(MessageGroup messageGroup)
     {
+        textReplyOpen = false;
+        SetBottomOffset(0);
+
         activeMessageContact = messageGroup.ContactName;
         Debug.Log("Clicked message group: " + messageGroup.ContactName);
         textsViewGroup.SetActive(true);
@@ -300,6 +337,23 @@ public class PhoneMessagesAppController : NetworkBehaviour
         SetTextMessages(messageGroup.Texts);
     }
 
+    Dictionary<string, string> GetAllMessages()
+    {
+        Dictionary<string, string> allMessages = new Dictionary<string, string>();
+
+        foreach (var message in messageLibrary.IncomingMessages)
+        {
+            allMessages.Add(message.message.messageName, message.message.messageText);
+            Debug.Log("Adding message: " + message.message.messageName + " : " + message.message.messageText);
+            foreach (var response in message.messageResponses)
+            {
+                allMessages.Add(response.messageName, response.messageText);
+                Debug.Log("Adding message: " + response.messageName + " : " + response.messageText);
+            }
+        }
+
+        return allMessages;
+    }
 
     public void SetTextMessages(List<Message> messages)
     {
@@ -308,10 +362,47 @@ public class PhoneMessagesAppController : NetworkBehaviour
             Destroy(child.gameObject);
         }
 
+        var allMessages = GetAllMessages();
+
         foreach (var message in messages)
         {
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
-            newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image, message.IsLandscapeImage);
+
+            var actualMessage = allMessages.TryGetValue(message.MessageText, out var val) ? val : null;
+
+            newTextBubble.GetComponent<MessageBubble>().SetMessage(actualMessage, message.IsOutgoing, message.Image, message.IsLandscapeImage);
+        }
+
+        ConfigureReplies();
+    }
+
+    void OnReplyClicked(string replyName, string contactName)
+    {
+        Debug.Log("Reply clicked: " + replyName);
+        textReplyOpen = false;
+        SendTextMessage(replyName, contactName);
+    }
+
+    void ConfigureReplies()
+    {
+        foreach (Transform child in messageReplyParent.transform)
+        {
+            child.gameObject.GetComponent<Button>().onClick.RemoveAllListeners();
+            Destroy(child.gameObject);
+        }
+
+        var lastTextMessage = conversations.FirstOrDefault(x => x.ContactName == activeMessageContact).Texts.LastOrDefault();
+        var replies = messageLibrary.IncomingMessages.FirstOrDefault(x => x.message.messageName == lastTextMessage.MessageText).messageResponses;
+        if (replies == null) return;
+
+        Debug.Log("Configuring replies: " + replies.Count);
+
+        foreach (var reply in replies)
+        {
+            var newReply = Instantiate(messageReplyPrefab, messageReplyParent.transform);
+
+            newReply.GetComponent<MessageReply>().SetTextMessage(reply);
+            newReply.GetComponent<Button>().onClick.AddListener(() => OnReplyClicked(reply.messageName, contactName: activeMessageContact));
         }
     }
 
@@ -331,6 +422,21 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     }
 
+    void SetBottomOffset(float offset)
+    {
+        Vector2 offsetMin = messageRectTrans.offsetMin;
+        offsetMin.y = offset;
+        messageRectTrans.offsetMin = offsetMin;
+    }
+
+    void Update()
+    {
+        var target = textReplyOpen ? 800 : 0f;
+        currentBottom = Mathf.Lerp(currentBottom, target, Time.deltaTime * openRepliesSpeed);
+
+        SetBottomOffset(currentBottom);
+    }
+
     public void SetMessageGroups(List<MessageGroup> messageGroups)
     {
         this.conversations = messageGroups;
@@ -341,11 +447,14 @@ public class PhoneMessagesAppController : NetworkBehaviour
             Destroy(child.gameObject);
         }
 
+        var allMessages = GetAllMessages();
+
         foreach (var messageGroup in conversations)
         {
             var newMessageGroup = Instantiate(messageGroupPrefab, messageGroupParent.transform);
             var lastText = messageGroup.Texts.LastOrDefault();
-            newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Image == null ? lastText.MessageText : "Photo");
+            var actualMessage = allMessages.TryGetValue(lastText.MessageText, out var val) ? val : null;
+            newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Image == null ? actualMessage : "Photo");
             newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OpenMessageGroup(messageGroup));
         }
 
