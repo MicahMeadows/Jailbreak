@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
+public class LevelState
+{
+    public bool Intro = false;
+}
+
+[Serializable]
 public class PlayerStateJSON
 {
     public List<MessageGroupJSON> MessageGroups;
     public List<PhotoJSON> Photos;
+    public LevelState LevelState;
 }
 
 [Serializable]

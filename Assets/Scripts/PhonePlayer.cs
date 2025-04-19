@@ -171,6 +171,12 @@ public class PhonePlayer : NetworkBehaviour
     {
         if (IsServer)
         {
+            SaveNewText(new MessageTextJSON(){
+                ImageId = null,
+                IsLandscapeImage = false,
+                MessageText = message,
+                IsOutgoing = false,
+            }, fromContact);
             phoneMessageAppController.SendIncomingText_ClientRPC(message, fromContact);
         }
     }

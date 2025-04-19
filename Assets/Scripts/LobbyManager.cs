@@ -5,7 +5,7 @@ using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class HelloWorldManager : MonoBehaviour
+public class LobbyManager : MonoBehaviour
 {
     private NetworkManager networkManager;
 

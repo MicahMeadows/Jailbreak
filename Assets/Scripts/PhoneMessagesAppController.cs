@@ -164,18 +164,27 @@ public class PhoneMessagesAppController : NetworkBehaviour
     public void SendIncomingText_ClientRPC(string message, string contactName)
     {
         int index = conversations.FindIndex((conv) => conv.ContactName == contactName);
+
+        var newMessage = new Message {
+            MessageText = message,
+            IsOutgoing = false,
+        };
+
         if (index != -1)
         {
             var conv = conversations[index];
-            var newMessage = new Message {
-                MessageText = message,
-                IsOutgoing = false,
-            };
             conv.Texts.Add(newMessage);
             conversations[index] = conv;
         }
+        else
+        {
+            var newConv = new MessageGroup {
+                ContactName = contactName,
+                Texts = new List<Message> { newMessage },
+            };
+            conversations.Add(newConv);
+        }
 
-        // SetMessageGroups();
         SetMessageGroups(conversations);
 
         if (!IsServer)

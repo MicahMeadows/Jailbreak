@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class Player : NetworkBehaviour
 {
     IDataService dataService = new JsonDataService();
-    public PlayerStateJSON currentPlayerState = new PlayerStateJSON();
+    public PlayerStateJSON currentPlayerState = null;
 
     public PhoneAudioManager phoneAudioManager;
     public GameObject phonePlayerParent;
@@ -47,6 +47,11 @@ public class Player : NetworkBehaviour
         int mask = (1 << LayerMask.NameToLayer("SecurityCamCheck") | (1 << LayerMask.NameToLayer("PlayerHidden")));
         int finalMask = ~mask;
         isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, 1.1f, finalMask);
+    }
+
+    public PlayerStateJSON GetPlayerState()
+    {
+        return currentPlayerState;
     }
 
     public void SaveState()

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
@@ -16,20 +17,34 @@ public class PlayerSpawner : NetworkBehaviour
     private NetworkObject computerPlayer;
     private NetworkObject phonePlayer;
     private NetworkObject drone;
+    private bool stateLoaded = false;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
         if (IsServer)
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
             computerPlayer = InstantiatePlayer(computerPlayerPrefab, OwnerClientId, playerSpawnPoint.position, playerSpawnPoint.rotation);
+            computerPlayer.GetComponent<Player>().LoadState();
+            stateLoaded = true;
 
             phonePlayer = InstantiatePlayer(phonePlayerPrefab, 999999);
-
             // drone = NetworkManager.Singleton.SpawnManager.InstantiateAndSpawn(dronePrefab, 999999, false, false, false, droneSpawnPoint.position);
+        }
+    }
 
+    private IEnumerator TryLoadInitialScene()
+    {
+        if (IsServer)
+        {
+            while (!stateLoaded)
+            {
+                yield return new WaitForSeconds(1f);
+            }
+        
             NetworkManager.Singleton.SceneManager.PostSynchronizationSceneUnloading = true;
             NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Single);
             NetworkManager.Singleton.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
@@ -56,6 +71,8 @@ public class PlayerSpawner : NetworkBehaviour
                 {
                     drone.ChangeOwnership(clientId);
                 }
+
+                StartCoroutine(TryLoadInitialScene());
             }
         }
     }
