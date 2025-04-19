@@ -33,8 +33,21 @@ public class Player : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI lossText;
     [SerializeField] private float keyRotationSpeed = 90f; // degrees per second
     [SerializeField] private List<GameObject> secCamCheckSpheres;
+    [SerializeField] private float JumpForce = 3f;
+    [SerializeField] private float GroundCheckDistance = 1.2f;
+    [SerializeField] private float jumpCooldown = 0.25f;
+    private float lastJumpTime = -999f;
+
+    private bool isGrounded;
 
     private bool isActive = false;
+
+    public void CheckGrounded()
+    {
+        int mask = (1 << LayerMask.NameToLayer("SecurityCamCheck") | (1 << LayerMask.NameToLayer("PlayerHidden")));
+        int finalMask = ~mask;
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, 1.1f, finalMask);
+    }
 
     public void SaveState()
     {
@@ -261,14 +274,30 @@ public class Player : NetworkBehaviour
 
         if (isActive)
         {
+            CheckGrounded();
             HandleMovement();
+            HandleJump();
         }
     }
 
+    void HandleJump()
+    {
+        if (Input.GetKey(KeyCode.Space) && isGrounded && Time.time - lastJumpTime >= jumpCooldown)
+        {
+            Vector3 vel = rb.linearVelocity;
+            vel.y = 0f;
+            rb.linearVelocity = vel;
+
+            rb.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
+            lastJumpTime = Time.time;
+        }
+    }
+
+
     void HandleMovement()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveZ = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection = (transform.right * moveX + transform.forward * moveZ).normalized;
         rb.linearVelocity = new Vector3(moveDirection.x * speed, rb.linearVelocity.y, moveDirection.z * speed);
@@ -276,8 +305,8 @@ public class Player : NetworkBehaviour
 
     void HandleLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         // Optional: Replace mouseX with 0 if you want to disable mouse look
         float keyInput = 0f;

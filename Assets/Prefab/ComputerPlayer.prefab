@@ -841,6 +841,9 @@ MonoBehaviour:
   - {fileID: 5695025502273598874}
   - {fileID: 8900640329933342686}
   - {fileID: 7544820261696196283}
+  JumpForce: 5
+  GroundCheckDistance: 1.2
+  jumpCooldown: 0.25
   flashlightOn:
     m_InternalValue: 1
 --- !u!54 &9178670953516074416
