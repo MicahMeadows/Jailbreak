@@ -33,10 +33,15 @@ public class TestLevelManager : NetworkBehaviour
         }
     }
 
-    void WinLevel()
+    void GoBackToHomeBase()
     {
         NetworkManager.Singleton.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
+    }
+
+    void WinLevel()
+    {
         computerPlayer.GetComponent<Player>().SaveState();
+        GoBackToHomeBase();
     }
 
     void OnExitDoor()
