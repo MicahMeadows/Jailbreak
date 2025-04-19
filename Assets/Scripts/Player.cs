@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Newtonsoft.Json;
 using TMPro;
 using Unity.Netcode;
@@ -52,6 +53,23 @@ public class Player : NetworkBehaviour
 
     }
 
+    
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestClientStateRestore_ServerRPC()
+    {
+        RestorePlayerState();
+    }
+
+    public void RestorePlayerState()
+    {
+        var phonePlayer = phonePlayerParent.GetComponentInChildren<PhonePlayer>();
+        if (phonePlayer)
+        {
+            phonePlayer.RestorePlayerState_ClientRPC(JsonConvert.SerializeObject(currentPlayerState));
+        }
+    }
+
     public PlayerStateJSON GetPlayerState()
     {
         return currentPlayerState;
@@ -74,21 +92,6 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestClientStateRestore_ServerRPC()
-    {
-        RestorePlayerState();
-    }
-
-    public void RestorePlayerState()
-    {
-        var phonePlayer = phonePlayerParent.GetComponentInChildren<PhonePlayer>();
-        if (phonePlayer)
-        {
-            phonePlayer.RestorePlayerState_ClientRPC(JsonConvert.SerializeObject(currentPlayerState));
-        }
-    }
-
     public void LoadState()
     {
         if (IsServer)
@@ -108,6 +111,7 @@ public class Player : NetworkBehaviour
                 }
 
                 RestorePlayerState();
+                CleanupUnreferencedPhotos(currentPlayerState.Photos);
 
             }
             catch (Exception e)
@@ -116,6 +120,29 @@ public class Player : NetworkBehaviour
             }
         }
     }
+
+    private void CleanupUnreferencedPhotos(List<PhotoJSON> validPhotos)
+    {
+        string[] photoFiles = System.IO.Directory.GetFiles(Application.persistentDataPath, "photo_*.png");
+        HashSet<string> validPaths = new HashSet<string>(validPhotos.Select(p => p.ImagePath));
+
+        foreach (var file in photoFiles)
+        {
+            if (!validPaths.Contains(file))
+            {
+                try
+                {
+                    System.IO.File.Delete(file);
+                    Debug.Log($"🧹 Deleted unused photo file: {file}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Failed to delete {file}: {ex.Message}");
+                }
+            }
+        }
+    }
+
 
     public void SetLossScreen(string message)
     {
