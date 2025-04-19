@@ -259,12 +259,11 @@ public class PhonePlayer : NetworkBehaviour
     {
         Debug.Log("Messages app button clicked");
         
-        // phoneMessageAppController.SetMessageGroups();
+        phoneMessageAppController.HideOrShowNotifIcons();
+        phoneMessageAppController.HideTextPopup();
 
         messagesAppGroup.SetActive(true);
         homescreenAppGroup.SetActive(false);
-
-        phoneMessageAppController.HideOrShowNotifIcons();
     }
 
     void OnCloseMessagesAppButtonClicked()

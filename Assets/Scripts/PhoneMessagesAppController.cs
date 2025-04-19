@@ -147,18 +147,23 @@ public class PhoneMessagesAppController : NetworkBehaviour
         incomingTextOpenButton.onClick.AddListener(OnIncomingTextOpen);
     }
 
+    public void HideTextPopup()
+    {
+        Debug.Log("hide text popup...");
+        incomingTexterId = "";
+        textPopupGroup.SetActive(false);
+    }
+
     void CloseTextPopup()
     {
-        textPopupGroup.SetActive(false);
-        incomingTexterId = "";
+        HideTextPopup();
     }
 
     void OnIncomingTextOpen()
     {
         Debug.Log("Incoming text open clicked: " + incomingTexterId);
-        textPopupGroup.SetActive(false);
         phonePlayer.OpenMessagesAppFromPopup(incomingTexterId);
-        incomingTexterId = "";
+        HideTextPopup();
     }
 
 
