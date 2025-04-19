@@ -31,5 +31,6 @@ public class MessageTextJSON
     public bool IsOutgoing;
     public string MessageText;
     public string ImageId;
+    public bool IsLandscapeImage;
 
 }

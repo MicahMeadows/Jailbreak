@@ -16,13 +16,15 @@ public struct NetworkTextMessage : INetworkSerializable
     public string Contact;
     public string ImageId;
     public string[] ImageObjects;
+    public bool IsLandscapeImage;
 
-    public NetworkTextMessage(string contact, string message = "", string imageId = "", string[] imageObjects = null)
+    public NetworkTextMessage(string contact, string message = "", string imageId = "", string[] imageObjects = null, bool isLandscape = false)
     {
         Contact = contact;
         ImageObjects = imageObjects ?? new string[0];
         Message = message;
         ImageId = imageId;
+        IsLandscapeImage = isLandscape;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -43,6 +45,7 @@ public struct NetworkTextMessage : INetworkSerializable
         serializer.SerializeValue(ref Message);
         serializer.SerializeValue(ref Contact);
         serializer.SerializeValue(ref ImageId);
+        serializer.SerializeValue(ref IsLandscapeImage);
     }
 }
 
@@ -52,6 +55,7 @@ public struct Message
     public bool IsOutgoing;
     public string MessageText;
     public Texture2D Image;
+    public bool IsLandscapeImage;
 }
 
 public struct MessageGroup
@@ -193,6 +197,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
                 MessageText = "",
                 Image = photo.photo,
                 IsOutgoing = true,
+                IsLandscapeImage = photo.isLandscape,
             };
             
             conv.Texts.Add(newMessage);
@@ -224,6 +229,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
             MessageText = message.Message,
             IsOutgoing = true,
             ImageId = message.ImageId,
+            IsLandscapeImage = message.IsLandscapeImage,
         };
 
         phonePlayer.SaveNewText(newMessage, message.Contact);
@@ -272,7 +278,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         foreach (var message in messages)
         {
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
-            newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image);
+            newTextBubble.GetComponent<MessageBubble>().SetMessage(message.MessageText, message.IsOutgoing, message.Image, message.IsLandscapeImage);
         }
     }
 

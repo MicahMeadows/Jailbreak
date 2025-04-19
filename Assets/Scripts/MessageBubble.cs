@@ -20,18 +20,21 @@ public class MessageBubble : MonoBehaviour
     [SerializeField] private LayoutElement messageLayoutElement;
     [SerializeField] private GameObject messageImageObject;
     [SerializeField] private GameObject messageTextObject;
+    [SerializeField] private GameObject messageLandscapeImageObject;
     private Texture2D image;
+    private bool isLandscape;
 
     Color OUTGOING_COLOR = new Color(0, 131f/255f, 255f/255f);
     Color INCOMING_COLOR = new Color(140f/255f, 140f/255f, 140f/255f);
 
     static int MAX_WIDTH = 800;
 
-    public void SetMessage(string message, bool outgoing, Texture2D image)
+    public void SetMessage(string message, bool outgoing, Texture2D image, bool isLandscape)
     {
         isOutgoing = outgoing;
         this.message = message;
         this.image = image;
+        this.isLandscape = isLandscape;
 
         UpdateMessageBubble();
     }
@@ -50,8 +53,16 @@ public class MessageBubble : MonoBehaviour
         else
         {
             messageTextObject.SetActive(false);
-            messageImageObject.SetActive(true);
-            messageImageObject.GetComponent<RawImage>().texture = image;
+            if (!isLandscape)
+            {
+                messageImageObject.SetActive(true);
+                messageImageObject.GetComponent<RawImage>().texture = image;
+            }
+            else
+            {
+                messageLandscapeImageObject.SetActive(true);
+                messageLandscapeImageObject.GetComponent<RawImage>().texture = image;
+            }
             StartCoroutine(CheckAndApplyLayout());
         }
 
@@ -85,7 +96,8 @@ public class MessageBubble : MonoBehaviour
 
     private void UpdateMargins()
     {
-        float currentWidth = image == null ? messageRect.rect.width : messageImageObject.GetComponent<RectTransform>().rect.width;
+        var rect = isLandscape ? messageLandscapeImageObject.GetComponent<RectTransform>() : messageImageObject.GetComponent<RectTransform>();
+        float currentWidth = image == null ? messageRect.rect.width : rect.rect.width;
 
         float screenWidth = Screen.width;
         int margin = Mathf.RoundToInt(screenWidth - currentWidth) - PADDING;

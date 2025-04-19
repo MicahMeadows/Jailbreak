@@ -155,6 +155,7 @@ public class PhonePlayer : NetworkBehaviour
                     MessageText = message.MessageText == "" ? "Image" : message.MessageText,
                     Image = thisPhoto.photo,
                     IsOutgoing = message.IsOutgoing,
+                    IsLandscapeImage = message.IsLandscapeImage,
                 };
                 newMessageGroup.Texts.Add(newMessage);
                 
