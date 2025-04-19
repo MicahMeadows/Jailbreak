@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.UI;
 
 public struct PhotoTaken {
@@ -41,8 +43,13 @@ public class PhoneCameraController : MonoBehaviour
     private float touchStartTime = -1f;
     private bool gyroResetTriggered = false;
     private const float gyroHoldDuration = 1f;
-
-
+    [SerializeField] private float defaultFOV = 80f;
+    [SerializeField] private float minFOV = 30f;
+    [SerializeField] private float maxFOV = 130f;
+    [SerializeField] private float zoomSpeed = 0.1f;
+    private float lastTouchDistance = 0f;
+    [SerializeField] private Button resetZoomBtn;
+    [SerializeField] private TextMeshProUGUI zoomText;
 
     void Start()
     {
@@ -54,7 +61,43 @@ public class PhoneCameraController : MonoBehaviour
             Input.gyro.enabled = true;
             useGyro = true;
         }
+        resetZoomBtn.onClick.AddListener(() =>
+        {
+            SetZoom(defaultFOV);
+        });
     }
+
+    private float FOVToZoom(float fov)
+    {
+        if (fov > defaultFOV) // Between 130 and 80 — zoomed out
+        {
+            float t = Mathf.InverseLerp(maxFOV, defaultFOV, fov); // 130 → 80
+            return Mathf.Lerp(0.5f, 1f, t);
+        }
+        else // Between 80 and 30 — zoomed in
+        {
+            float t = Mathf.InverseLerp(defaultFOV, minFOV, fov); // 80 → 30
+            return Mathf.Lerp(1f, 2f, t);
+        }
+    }
+
+    private float ZoomToFOV(float zoom)
+    {
+        if (zoom < 1f) // Between 0.5x and 1x — zooming out
+        {
+            float t = Mathf.InverseLerp(0.5f, 1f, zoom); // 0.5 → 1
+            return Mathf.Lerp(maxFOV, defaultFOV, t);    // 130 → 80
+        }
+        else // Between 1x and 2x — zooming in
+        {
+            float t = Mathf.InverseLerp(1f, 2f, zoom); // 1 → 2
+            return Mathf.Lerp(defaultFOV, minFOV, t);  // 80 → 30
+        }
+    }
+
+
+
+
 
     private string SaveTextureToFile(Texture2D texture, string uid)
     {
@@ -72,6 +115,17 @@ public class PhoneCameraController : MonoBehaviour
         Texture2D tex = new Texture2D(2, 2);
         tex.LoadImage(fileData);
         return tex;
+    }
+
+
+
+    public void SetZoom(float zoomLevel)
+    {
+        Camera cam = phoneCamera.GetComponent<Camera>();
+        var newFov = Mathf.Clamp(zoomLevel, minFOV, maxFOV);
+        cam.fieldOfView = newFov;
+        var zoom = FOVToZoom(cam.fieldOfView);
+        zoomText.text = $"{zoom:0.0}x";
     }
 
 
@@ -218,6 +272,8 @@ public class PhoneCameraController : MonoBehaviour
         {
             Camera cam = phoneCamera.GetComponent<Camera>();
 
+            SetZoom(defaultFOV);
+
             renderTexture = new RenderTexture(1000, 1600, 16);
             renderTexture.Create();
 
@@ -228,11 +284,12 @@ public class PhoneCameraController : MonoBehaviour
 
             Quaternion deviceRotation = Input.gyro.attitude;
             deviceRotation = Quaternion.Euler(90f, 0f, 0f) *
-                             new Quaternion(-deviceRotation.x, -deviceRotation.y, deviceRotation.z, deviceRotation.w);
+                            new Quaternion(-deviceRotation.x, -deviceRotation.y, deviceRotation.z, deviceRotation.w);
 
             Quaternion targetRotation = gyroOffset * deviceRotation;
             phoneCamera.transform.localRotation = targetRotation;
         }
+
         else 
         {
             xRotation = 0f;
@@ -290,7 +347,26 @@ public class PhoneCameraController : MonoBehaviour
             {
                 touchStartTime = -1f;
                 gyroResetTriggered = false;
+            } 
+
+            if (Input.touchCount == 2)
+            {
+                Touch touch0 = Input.GetTouch(0);
+                Touch touch1 = Input.GetTouch(1);
+
+                Vector2 touch0PrevPos = touch0.position - touch0.deltaPosition;
+                Vector2 touch1PrevPos = touch1.position - touch1.deltaPosition;
+
+                float prevTouchDeltaMag = (touch0PrevPos - touch1PrevPos).magnitude;
+                float touchDeltaMag = (touch0.position - touch1.position).magnitude;
+
+                float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+
+                Camera cam = phoneCamera.GetComponent<Camera>();
+                float newFOV = cam.fieldOfView + deltaMagnitudeDiff * zoomSpeed;
+                SetZoom(newFOV);
             }
+
 
             Quaternion deviceRotation = Input.gyro.attitude;
             deviceRotation = Quaternion.Euler(90f, 0f, 0f) *
