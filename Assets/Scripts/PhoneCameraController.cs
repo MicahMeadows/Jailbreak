@@ -320,6 +320,15 @@ public class PhoneCameraController : MonoBehaviour
 
         if (useGyro)
         {
+
+            bool isLandscape = IsDeviceSideways();
+
+            if (resetZoomBtn != null)
+            {
+                var rect = resetZoomBtn.GetComponent<RectTransform>();
+                rect.localRotation = Quaternion.Euler(0, 0, isLandscape ? -90f : 0);
+            }
+
             if (Input.touchCount == 1)
             {
                 Touch touch = Input.GetTouch(0);
