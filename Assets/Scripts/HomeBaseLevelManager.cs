@@ -9,6 +9,7 @@ public class HomeBaseLevelManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+
         if (IsServer)
         {
             computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer").GetComponent<Player>();

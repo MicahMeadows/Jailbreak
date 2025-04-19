@@ -384,7 +384,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5093702934521701574
 RectTransform:
   m_ObjectHideFlags: 0
@@ -517,7 +517,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2727201174798246905
 RectTransform:
   m_ObjectHideFlags: 0
@@ -824,6 +824,8 @@ MonoBehaviour:
   currentPlayerState:
     MessageGroups: []
     Photos: []
+    LevelState:
+      Intro: 0
   phoneAudioManager: {fileID: 3701191660970790392}
   phonePlayerParent: {fileID: 8559255853196741609}
   speed: 5
