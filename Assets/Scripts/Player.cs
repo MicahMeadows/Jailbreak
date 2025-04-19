@@ -46,7 +46,10 @@ public class Player : NetworkBehaviour
     {
         int mask = (1 << LayerMask.NameToLayer("SecurityCamCheck") | (1 << LayerMask.NameToLayer("PlayerHidden")));
         int finalMask = ~mask;
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, 1.1f, finalMask);
+        float sphereRadius = 0.3f;
+        Vector3 origin = transform.position + Vector3.up * 0.1f;
+        isGrounded = Physics.SphereCast(origin, sphereRadius, Vector3.down, out RaycastHit hitInfo, GroundCheckDistance, finalMask);
+
     }
 
     public PlayerStateJSON GetPlayerState()
