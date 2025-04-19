@@ -103,6 +103,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
     [SerializeField] private RawImage messageAppNotifIcon;
     [SerializeField] private Button textReplyButton;
     [SerializeField] private RectTransform messageRectTrans;
+    private bool repliesAvailable = false;
     private float currentBottom = 0f;
     public float openRepliesSpeed = 10f;
     private bool textReplyOpen = false;
@@ -155,7 +156,10 @@ public class PhoneMessagesAppController : NetworkBehaviour
         incomingTextCloseButton.onClick.AddListener(CloseTextPopup);
         incomingTextOpenButton.onClick.AddListener(OnIncomingTextOpen);
         textReplyButton.onClick.AddListener(() => {
-            textReplyOpen = !textReplyOpen;
+            if (repliesAvailable)
+            {
+                textReplyOpen = !textReplyOpen;
+            }
         });
     }
 
@@ -317,6 +321,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
     private void OpenMessageGroup(MessageGroup messageGroup)
     {
         textReplyOpen = false;
+        repliesAvailable = false;
         SetBottomOffset(0);
 
         activeMessageContact = messageGroup.ContactName;
@@ -380,6 +385,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
     {
         Debug.Log("Reply clicked: " + replyName);
         textReplyOpen = false;
+        repliesAvailable = false;
         SendTextMessage(replyName, contactName);
     }
 
@@ -395,7 +401,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         var replies = messageLibrary.IncomingMessages.FirstOrDefault(x => x.message.messageName == lastTextMessage.MessageText).messageResponses;
         if (replies == null) return;
 
-        Debug.Log("Configuring replies: " + replies.Count);
+        repliesAvailable = replies.Count == 0 ? false : true;
 
         foreach (var reply in replies)
         {
