@@ -1922,6 +1922,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 234138428}
+    - target: {fileID: 4578861577727917097, guid: eda615b48ab18754fb1e6cf1504946d1, type: 3}
+      propertyPath: openRot
+      value: 90
+      objectReference: {fileID: 0}
     - target: {fileID: 6260729115552274569, guid: eda615b48ab18754fb1e6cf1504946d1, type: 3}
       propertyPath: m_Mesh
       value: 

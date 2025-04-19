@@ -1,4 +1,7 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Door : MonoBehaviour, IInteractable
 {
@@ -24,20 +27,20 @@ public class Door : MonoBehaviour, IInteractable
 
     void Update()
     {
-        Vector3 curRot = door.transform.localEulerAngles;
-        if (isOpen)
+        float targetY = isOpen ? openRot : closedRot;
+        Quaternion targetRotation = Quaternion.Euler(0, targetY, 0);
+
+        float angleDiff = Quaternion.Angle(door.transform.localRotation, targetRotation);
+
+        if (angleDiff < 0.1f)
         {
-            if (curRot.y < openRot)
-            {
-                door.transform.localEulerAngles = Vector3.Lerp(curRot, new Vector3(curRot.x, openRot, curRot.z), speed * Time.deltaTime);
-            }
+            door.transform.localRotation = targetRotation;
         }
         else
         {
-            if (curRot.y > closedRot)
-            {
-                door.transform.localEulerAngles = Vector3.Lerp(curRot, new Vector3(curRot.x, closedRot, curRot.z), speed * Time.deltaTime);
-            }
+            door.transform.localRotation = Quaternion.Lerp(door.transform.localRotation, targetRotation, speed * Time.deltaTime);
         }
     }
+
+
 }
