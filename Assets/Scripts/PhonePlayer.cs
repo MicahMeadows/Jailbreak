@@ -179,6 +179,7 @@ public class PhonePlayer : NetworkBehaviour
                 IsOutgoing = false,
             }, fromContact);
             phoneMessageAppController.SendIncomingText_ClientRPC(message, fromContact);
+            phoneAudioManager.PlayAudio("incoming-text", false);
         }
     }
 

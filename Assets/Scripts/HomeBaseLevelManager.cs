@@ -22,25 +22,24 @@ public class HomeBaseLevelManager : NetworkBehaviour
 
     private void InitializeLevel()
     {
-        var currentState = computerPlayer.currentPlayerState;
+        // ...
+    }
 
-        if (currentState.LevelState.Intro == false)
+    public void ExitDoorTriggerEntered()
+    {
+        if (!IsServer) return;
+
+        if (computerPlayer.currentPlayerState.LevelState.Intro == false)
         {
-            HandleIntro();
+            StartCoroutine(TextIntroSoon());
             return;
         }
     }
 
-    private void HandleIntro()
-    {
-        StartCoroutine(TextIntroSoon());
-    }
-
     private IEnumerator TextIntroSoon()
     {
-        yield return new WaitForSeconds(2f);
-        Debug.Log("Sending text message to phone player.");
-        phonePlayer.SendIncomingText("Yo dude!", "Friend");
         computerPlayer.currentPlayerState.LevelState.Intro = true;
+        yield return new WaitForSeconds(2f);
+        phonePlayer.SendIncomingText("Yo dude!", "Friend");
     }
 }
