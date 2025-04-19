@@ -173,6 +173,14 @@ public class TestLevelManager : NetworkBehaviour
         {
             var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
             phonePlayerController.OnTextReceived(OnTextReceived);
+            StartCoroutine(TextPlayerSoon());
         }
+    }
+
+    IEnumerator TextPlayerSoon()
+    {
+        yield return new WaitForSeconds(2f);
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        phonePlayerController.SendIncomingText("Hey man!", "Cube Lover");
     }
 }

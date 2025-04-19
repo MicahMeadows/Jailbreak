@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Internal;
@@ -84,6 +85,13 @@ public class PhoneMessagesAppController : NetworkBehaviour
     // private MessageGroup? activeMessageGroup = null;
     private string activeMessageContact = null;
     List<MessageGroup> conversations = new List<MessageGroup>();
+    [SerializeField] private GameObject textPopupGroup;
+    [SerializeField] private TextMeshProUGUI incomingTexterIdText;
+    [SerializeField] private TextMeshProUGUI incomingTextMessageText;
+    [SerializeField] private RawImage incomingTexterContactImage;
+    [SerializeField] private Button incomingTextCloseButton;
+    [SerializeField] private Button incomingTextOpenButton;
+    private string incomingTexterId = "";
 
     public event Action<NetworkTextMessage> TextReceived;
 
@@ -129,6 +137,22 @@ public class PhoneMessagesAppController : NetworkBehaviour
         // SetupInitialConversations();
         backToMessagesListButton.onClick.AddListener(OnBackToMessagesListClicked);
         uploadImageButton.onClick.AddListener(OnUploadImageClicked);
+        incomingTextCloseButton.onClick.AddListener(CloseTextPopup);
+        incomingTextOpenButton.onClick.AddListener(OnIncomingTextOpen);
+    }
+
+    void CloseTextPopup()
+    {
+        textPopupGroup.SetActive(false);
+        incomingTexterId = "";
+    }
+
+    void OnIncomingTextOpen()
+    {
+        Debug.Log("Incoming text open clicked: " + incomingTexterId);
+        textPopupGroup.SetActive(false);
+        phonePlayer.OpenMessagesAppFromPopup(incomingTexterId);
+        incomingTexterId = "";
     }
 
 
@@ -149,6 +173,14 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
         // SetMessageGroups();
         SetMessageGroups(conversations);
+
+        if (!IsServer)
+        {
+            textPopupGroup.SetActive(true);
+            incomingTexterIdText.text = contactName;
+            incomingTextMessageText.text = message;
+            incomingTexterId = contactName;
+        }
     }
 
     public void SendTextImage(PhotoTaken photo, string contactName)
@@ -212,6 +244,13 @@ public class PhoneMessagesAppController : NetworkBehaviour
     {
         textsViewGroup.SetActive(false);
         messagesListViewGroup.SetActive(true);
+    }
+
+    public void OpenMessages(string callerId)
+    {
+        var messageGroup = conversations.FirstOrDefault(x => x.ContactName == callerId);
+        Debug.Log("Open messages for: " + callerId + " found: " + messageGroup.ContactName);
+        OnMessageGroupClicked(messageGroup);
     }
 
     private void OnMessageGroupClicked(MessageGroup messageGroup)

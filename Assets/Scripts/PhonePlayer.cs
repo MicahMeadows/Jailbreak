@@ -5,6 +5,7 @@ using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -169,7 +170,6 @@ public class PhonePlayer : NetworkBehaviour
     {
         if (IsServer)
         {
-            
             phoneMessageAppController.SendIncomingText_ClientRPC(message, fromContact);
         }
     }
@@ -237,6 +237,15 @@ public class PhonePlayer : NetworkBehaviour
         ChangeLevel_ServerRPC("GasStation");
     }
 
+
+    public void OpenMessagesAppFromPopup(string callerId)
+    {
+        messagesAppGroup.SetActive(true);
+        homescreenAppGroup.SetActive(false);
+
+        phoneMessageAppController.OpenMessages(callerId);
+    }
+
     void OnMessagesAppButtonClicked()
     {
         Debug.Log("Messages app button clicked");
@@ -245,7 +254,6 @@ public class PhonePlayer : NetworkBehaviour
 
         messagesAppGroup.SetActive(true);
         homescreenAppGroup.SetActive(false);
-
     }
 
     void OnCloseMessagesAppButtonClicked()

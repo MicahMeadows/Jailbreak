@@ -19,6 +19,8 @@ public class PhoneCallAppController : NetworkBehaviour
     [SerializeField] private Button incomingCallPickupButton;
     [SerializeField] private RawImage incomingCallContactImage;
 
+    
+
     private string incomingCallSequenceId = "";
     private string incomingCallCallerId = "";
 
@@ -28,7 +30,9 @@ public class PhoneCallAppController : NetworkBehaviour
     void Start()
     {
         incomingCallPickupButton.onClick.AddListener(OnIncomingCallPickup);
+        
     }
+
 
     void OnIncomingCallPickup()
     {
