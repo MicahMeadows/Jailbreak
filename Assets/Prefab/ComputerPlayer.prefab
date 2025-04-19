@@ -394,15 +394,15 @@ RectTransform:
   m_GameObject: {fileID: 807513587761875753}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.52273, y: 0.52273, z: 0.52273}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4682101239954388507}
   m_Father: {fileID: 7686012942057271526}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -250}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 138, y: -119.3999}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9112010884956913979
@@ -527,15 +527,15 @@ RectTransform:
   m_GameObject: {fileID: 1873668317857404090}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.52273, y: 0.52273, z: 0.52273}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5059243918289670003}
   m_Father: {fileID: 7686012942057271526}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -100}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 138, y: -41}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8693565308065110716
@@ -820,6 +820,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  currentPlayerState:
+    MessageGroups: []
+    Photos: []
   phoneAudioManager: {fileID: 3701191660970790392}
   phonePlayerParent: {fileID: 8559255853196741609}
   speed: 5

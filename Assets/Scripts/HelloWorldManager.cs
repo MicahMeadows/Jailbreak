@@ -21,9 +21,9 @@ public class HelloWorldManager : MonoBehaviour
         {
             networkManager.StartHost();
         }
-        if (CurrentPlayer.ReadOnlyTags().Contains("PhonePlayer"))
+        else
         {
-            networkManager.StartClient();
+            JoinAsClient();
         }
     }
 
@@ -54,12 +54,16 @@ public class HelloWorldManager : MonoBehaviour
         }
 
         if (GUILayout.Button("Client", buttonStyle)) {
-            // var ip = "192.168.1.135";
-            // var ip = "192.168.1.135";
-            // var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            // transport.ConnectionData.Address = ip;
-            networkManager.StartClient();
+            JoinAsClient();
         }
+    }
+    
+    private void JoinAsClient()
+    {
+        var ip = "192.168.56.1";
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        transport.ConnectionData.Address = ip;
+        networkManager.StartClient();
     }
 
     void StatusLabels()

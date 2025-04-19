@@ -17,7 +17,7 @@ public class TestLevelManager : NetworkBehaviour
     private List<FoodShelf> foodShelves = new List<FoodShelf>();
     private List<ExitDoor> exitDoors = new List<ExitDoor>();
 
-    void FailGame()
+    void FailLevel()
     {
         Debug.Log("You were seen stealing food. you lose!");
         if (IsServer)
@@ -28,21 +28,20 @@ public class TestLevelManager : NetworkBehaviour
                 player.SetLossScreen("You were seen stealing food by a camera...");
                 player.SetPlayerActive(false);
             }
+            computerPlayer.GetComponent<Player>().LoadState();
             Invoke("GoBackToHomeBase", 3f);
         }
     }
 
-    private void GoBackToHomeBase()
+    void WinLevel()
     {
         NetworkManager.Singleton.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
+        computerPlayer.GetComponent<Player>().SaveState();
     }
 
     void OnExitDoor()
     {
-        if (IsServer)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene("HomeBase", LoadSceneMode.Single);
-        }
+        WinLevel();
     }
 
     void OnItemStolen()
@@ -51,7 +50,7 @@ public class TestLevelManager : NetworkBehaviour
         {
             if (cam.IsPlayerDetected())
             {
-                FailGame();
+                FailLevel();
                 return;
             }
         }
@@ -71,9 +70,7 @@ public class TestLevelManager : NetworkBehaviour
         {
             phonePlayerController.CreateIncomingCall("Test Caller", () => {
                 phonePlayerController.phoneAudioManager.PlayAudio("hello", onComplete: () => {
-                    phonePlayerController.phoneAudioManager.PlayAudio("funny-words", onComplete: () => {
-                        phonePlayerController.HangupCall();
-                    });
+                    phonePlayerController.HangupCall();
                 });
             });
         }
@@ -127,7 +124,7 @@ public class TestLevelManager : NetworkBehaviour
     void OnTextReceived(NetworkTextMessage message)
     {
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        if (message.Contact == "John Doe")
+        if (message.Contact == "Cube Lover")
         {
             if (message.ImageObjects != null)
             {
