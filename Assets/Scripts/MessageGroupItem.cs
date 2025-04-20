@@ -24,7 +24,7 @@ public class MessageGroupItem : MonoBehaviour
 
     string StripRichTags(string input)
     {
-        return Regex.Replace(input, "<.*?>", string.Empty);
+        return Regex.Replace(input == null ? "" : input, "<.*?>", string.Empty);
     }
 
     public void SetNotifEnabled(bool enabled)

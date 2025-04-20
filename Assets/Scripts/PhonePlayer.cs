@@ -48,7 +48,6 @@ public class PhonePlayer : NetworkBehaviour
     [SerializeField] private RawImage securityCamViewImage;
     [SerializeField] private RawImage droneCamViewImage;
 
-    [SerializeField] private Button lvl1Btn;
     List<SecurityCamera> securityCameras = new List<SecurityCamera>();
     int selectedCam = 0;
 
@@ -68,8 +67,6 @@ public class PhonePlayer : NetworkBehaviour
         flashlightAppButton.onClick.AddListener(OnFlashlightAppButtonClicked);
         messagesAppButton.onClick.AddListener(OnMessagesAppButtonClicked);
         closeMessagesAppButton.onClick.AddListener(OnCloseMessagesAppButtonClicked);
-
-        lvl1Btn.onClick.AddListener(OnPressLevel1Btn);
     }
 
     // Send new image data to server to add to player state for now
@@ -189,6 +186,11 @@ public class PhonePlayer : NetworkBehaviour
         phoneMessageAppController.OnBubbleTapped(handler);
     }
 
+    public void OffBubbleTapped(Action<string> handler)
+    {
+        phoneMessageAppController.OffBubbleTapped(handler);
+    }
+
     public void OnTextReceived(Action<NetworkTextMessage> handler)
     {
         phoneMessageAppController.OnTextReceived(handler);
@@ -244,12 +246,6 @@ public class PhonePlayer : NetworkBehaviour
         photosAppGroup.SetActive(false);
         homescreenAppGroup.SetActive(true);
         photosAppController.SetEnabled(false);
-    }
-
-    void OnPressLevel1Btn()
-    {
-        Debug.Log("Level 1 button pressed");
-        ChangeLevel_ServerRPC("GasStation");
     }
 
 

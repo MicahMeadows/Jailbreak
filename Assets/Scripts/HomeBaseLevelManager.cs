@@ -20,6 +20,12 @@ public class HomeBaseLevelManager : NetworkBehaviour
         }
     }
 
+    public override void OnDestroy()
+    {
+        phonePlayer.OffTextReceived(OnTextReceived);
+        phonePlayer.OffBubbleTapped(OnBubbleTapped);
+    }
+
     private void InitializeLevel()
     {
         phonePlayer.OnTextReceived(OnTextReceived);
@@ -29,6 +35,11 @@ public class HomeBaseLevelManager : NetworkBehaviour
     void OnBubbleTapped(string messageId)
     {
         Debug.Log("Bubble tapped: " + messageId);
+        if (messageId == "intro-p2")
+        {
+            computerPlayer.SaveState();
+            phonePlayer.ChangeLevel_ServerRPC("GasStation");
+        }
     }
 
     void OnTextReceived(NetworkTextMessage message)
