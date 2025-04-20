@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
@@ -21,6 +22,7 @@ public class MessageBubble : MonoBehaviour
     [SerializeField] private GameObject messageImageObject;
     [SerializeField] private GameObject messageTextObject;
     [SerializeField] private GameObject messageLandscapeImageObject;
+    [SerializeField] private Button bubbleButton;
     private Texture2D image;
     private bool isLandscape;
 
@@ -29,12 +31,15 @@ public class MessageBubble : MonoBehaviour
 
     static int MAX_WIDTH = 800;
 
-    public void SetMessage(string message, bool outgoing, Texture2D image, bool isLandscape)
+    public void SetMessage(string message, bool outgoing, Texture2D image, bool isLandscape, Action onTap)
     {
         isOutgoing = outgoing;
         this.message = message;
         this.image = image;
         this.isLandscape = isLandscape;
+
+        bubbleButton.onClick.RemoveAllListeners();
+        bubbleButton.onClick.AddListener(() => onTap?.Invoke());
 
         UpdateMessageBubble();
     }

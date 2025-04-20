@@ -14,13 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IncomingMessages:
   - message:
-      messageName: intro-hello
+      messageName: intro-p1
       messageText: Yo Dude!
     messageResponses:
-    - messageName: intro-hello-r1
+    - messageName: intro-p1-r1
       messageText: not right now man...
-    - messageName: intro-hello-r2
+    - messageName: intro-p1-r2
       messageText: sup?
+  - message:
+      messageName: intro-p2
+      messageText: hey check this out!\n\n<color=#0000EE><u><link=\"custom_link\">www.link.com/something</link></u></color>
+    messageResponses: []
   - message:
       messageName: send-cube
       messageText: send cube pics...

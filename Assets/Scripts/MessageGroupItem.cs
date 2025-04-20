@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Unity.VisualStudio.Editor;
 using TMPro;
 using Unity.VisualScripting;
@@ -18,7 +19,12 @@ public class MessageGroupItem : MonoBehaviour
     public void Setup(string contactName, string lastMessage)
     {
         contactNameText.text = contactName;
-        lastMessageText.text = lastMessage;
+        lastMessageText.text = StripRichTags(lastMessage);
+    }
+
+    string StripRichTags(string input)
+    {
+        return Regex.Replace(input, "<.*?>", string.Empty);
     }
 
     public void SetNotifEnabled(bool enabled)

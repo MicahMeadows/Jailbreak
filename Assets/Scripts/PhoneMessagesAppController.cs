@@ -54,7 +54,7 @@ public struct NetworkTextMessage : INetworkSerializable
 public struct Message
 {
     public bool IsOutgoing;
-    public string MessageText;
+    public string MessageId;
     public Texture2D Image;
     public bool IsLandscapeImage;
 }
@@ -106,10 +106,22 @@ public class PhoneMessagesAppController : NetworkBehaviour
     private bool repliesAvailable = false;
     private float currentBottom = 0f;
     public float openRepliesSpeed = 10f;
-    private bool textReplyOpen = false;
+    // private bool textReplyOpen = false;
+    private bool textReplyOpen = true;
     private string incomingTexterId = "";
 
     public event Action<NetworkTextMessage> TextReceived;
+    public event Action<string> BubbleTapped;
+
+    public void OnBubbleTapped(Action<string> handler)
+    {
+        BubbleTapped += handler;
+    }
+
+    public void OffBubbleTapped(Action<string> handler)
+    {
+        BubbleTapped -= handler;
+    }
 
     public void OnTextReceived(Action<NetworkTextMessage> handler)
     {
@@ -158,7 +170,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         textReplyButton.onClick.AddListener(() => {
             if (repliesAvailable)
             {
-                textReplyOpen = !textReplyOpen;
+                // textReplyOpen = !textReplyOpen;
             }
         });
     }
@@ -189,7 +201,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         int index = conversations.FindIndex((conv) => conv.ContactName == contactName);
 
         var newMessage = new Message {
-            MessageText = message,
+            MessageId = message,
             IsOutgoing = false,
         };
 
@@ -219,10 +231,13 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
         if (!IsServer)
         {
-            textPopupGroup.SetActive(true);
-            incomingTexterIdText.text = contactName;
-            incomingTextMessageText.text = actualMessage;
-            incomingTexterId = contactName;
+            if (activeMessageContact != contactName)
+            {
+                textPopupGroup.SetActive(true);
+                incomingTexterIdText.text = contactName;
+                incomingTextMessageText.text = actualMessage;
+                incomingTexterId = contactName;
+            }
         }
 
     }
@@ -234,11 +249,12 @@ public class PhoneMessagesAppController : NetworkBehaviour
         {
             var conv = conversations[index];
             var newMessage = new Message {
-                MessageText = message,
+                MessageId = message,
                 IsOutgoing = true,
             };
             
             conv.Texts.Add(newMessage);
+            conv.Notification = false;
             conversations[index] = conv;
         }
 
@@ -253,7 +269,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         {
             var conv = conversations[index];
             var newMessage = new Message {
-                MessageText = "",
+                MessageId = "",
                 Image = photo.photo,
                 IsOutgoing = true,
                 IsLandscapeImage = photo.isLandscape,
@@ -307,6 +323,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     private void OnBackToMessagesListClicked()
     {
+        HideOrShowNotifIcons();
         textsViewGroup.SetActive(false);
         messagesListViewGroup.SetActive(true);
     }
@@ -320,7 +337,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     private void OpenMessageGroup(MessageGroup messageGroup)
     {
-        textReplyOpen = false;
+        // textReplyOpen = false;
         repliesAvailable = false;
         SetBottomOffset(0);
 
@@ -360,6 +377,12 @@ public class PhoneMessagesAppController : NetworkBehaviour
         return allMessages;
     }
 
+    [ServerRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
+    private void OnBubbleTapped_ServerRPC(string messageId)
+    {
+        BubbleTapped?.Invoke(messageId);
+    }
+
     public void SetTextMessages(List<Message> messages)
     {
         foreach (Transform child in textBubbleParent.transform)
@@ -373,18 +396,21 @@ public class PhoneMessagesAppController : NetworkBehaviour
         {
             var newTextBubble = Instantiate(textBubblePrefab, textBubbleParent.transform);
 
-            var actualMessage = allMessages.TryGetValue(message.MessageText, out var val) ? val : null;
+            var actualMessage = allMessages.TryGetValue(message.MessageId, out var val) ? val : null;
 
-            newTextBubble.GetComponent<MessageBubble>().SetMessage(actualMessage, message.IsOutgoing, message.Image, message.IsLandscapeImage);
+            newTextBubble.GetComponent<MessageBubble>().SetMessage(actualMessage, message.IsOutgoing, message.Image, message.IsLandscapeImage, () => {
+                OnBubbleTapped_ServerRPC(message.MessageId);
+            });
         }
 
         ConfigureReplies();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(messageReplyParent.GetComponent<RectTransform>());
     }
 
     void OnReplyClicked(string replyName, string contactName)
     {
         Debug.Log("Reply clicked: " + replyName);
-        textReplyOpen = false;
+        // textReplyOpen = false;
         repliesAvailable = false;
         SendTextMessage(replyName, contactName);
     }
@@ -398,17 +424,23 @@ public class PhoneMessagesAppController : NetworkBehaviour
         }
 
         var lastTextMessage = conversations.FirstOrDefault(x => x.ContactName == activeMessageContact).Texts.LastOrDefault();
-        var replies = messageLibrary.IncomingMessages.FirstOrDefault(x => x.message.messageName == lastTextMessage.MessageText).messageResponses;
-        if (replies == null) return;
-
-        repliesAvailable = replies.Count == 0 ? false : true;
-
-        foreach (var reply in replies)
+        if (!lastTextMessage.IsOutgoing)
         {
-            var newReply = Instantiate(messageReplyPrefab, messageReplyParent.transform);
+            var replies = messageLibrary.IncomingMessages.FirstOrDefault(x => x.message.messageName == lastTextMessage.MessageId).messageResponses;
+            if (replies == null) return;
 
-            newReply.GetComponent<MessageReply>().SetTextMessage(reply);
-            newReply.GetComponent<Button>().onClick.AddListener(() => OnReplyClicked(reply.messageName, contactName: activeMessageContact));
+            repliesAvailable = replies.Count == 0 ? false : true;
+
+            for (int i = 0; i < replies.Count; i++) 
+            {
+                var reply = replies[i];
+            
+                var newReply = Instantiate(messageReplyPrefab, messageReplyParent.transform);
+                var isLast = i == replies.Count - 1;
+
+                newReply.GetComponent<MessageReply>().SetTextMessage(reply, isLast);
+                newReply.GetComponent<Button>().onClick.AddListener(() => OnReplyClicked(reply.messageName, contactName: activeMessageContact));
+            }
         }
     }
 
@@ -437,7 +469,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     void Update()
     {
-        var target = textReplyOpen ? 800 : 0f;
+        // var target = textReplyOpen ? 800 : 0f;
+        var target = messageReplyParent.GetComponent<RectTransform>().rect.height;
         currentBottom = Mathf.Lerp(currentBottom, target, Time.deltaTime * openRepliesSpeed);
 
         SetBottomOffset(currentBottom);
@@ -459,7 +492,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         {
             var newMessageGroup = Instantiate(messageGroupPrefab, messageGroupParent.transform);
             var lastText = messageGroup.Texts.LastOrDefault();
-            var actualMessage = allMessages.TryGetValue(lastText.MessageText, out var val) ? val : null;
+            var actualMessage = allMessages.TryGetValue(lastText.MessageId, out var val) ? val : null;
             newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Image == null ? actualMessage : "Photo");
             newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OpenMessageGroup(messageGroup));
         }

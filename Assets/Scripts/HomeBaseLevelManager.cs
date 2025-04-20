@@ -22,7 +22,33 @@ public class HomeBaseLevelManager : NetworkBehaviour
 
     private void InitializeLevel()
     {
-        // ...
+        phonePlayer.OnTextReceived(OnTextReceived);
+        phonePlayer.OnBubbleTapped(OnBubbleTapped);
+    }
+
+    void OnBubbleTapped(string messageId)
+    {
+        Debug.Log("Bubble tapped: " + messageId);
+    }
+
+    void OnTextReceived(NetworkTextMessage message)
+    {
+        if (message.Contact == "Friend")
+        {
+            switch (message.Message)
+            {
+                case "intro-p1-r1":
+                case "intro-p1-r2":
+                    StartCoroutine(IntroPart2Soon());
+                    break;
+            }
+        }
+    }
+
+    private IEnumerator IntroPart2Soon()
+    {
+        yield return new WaitForSeconds(4f);
+        phonePlayer.SendIncomingText("intro-p2", "Friend");
     }
 
     public void ExitDoorTriggerEntered()
@@ -40,6 +66,6 @@ public class HomeBaseLevelManager : NetworkBehaviour
     {
         computerPlayer.currentPlayerState.LevelState.Intro = true;
         yield return new WaitForSeconds(5f);
-        phonePlayer.SendIncomingText("intro-hello", "Friend");
+        phonePlayer.SendIncomingText("intro-p1", "Friend");
     }
 }

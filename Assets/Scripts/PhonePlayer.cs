@@ -102,13 +102,14 @@ public class PhonePlayer : NetworkBehaviour
                 messageGroup = new MessageGroupJSON()
 
                 {
-                    Notification = true,
+                    Notification = !message.IsOutgoing,
                     ContactName = contact,
                     Texts = new List<MessageTextJSON>() { }
                 };
                 player.currentPlayerState.MessageGroups.Add(messageGroup);
             }
 
+            messageGroup.Notification = !message.IsOutgoing;
             messageGroup.Texts ??= new List<MessageTextJSON>();
             messageGroup.Texts.Add(message);
         }
@@ -124,7 +125,7 @@ public class PhonePlayer : NetworkBehaviour
         foreach (var photo in playerState.Photos)
         {
             var tex2d = PhoneCameraController.LoadTextureFromFile(photo.ImagePath);
-            var newPhoto = new PhotoTaken()
+            var newPhoto = new PhotoTaken(/*  */)
             {
                 imagePath = photo.ImagePath,
                 isLandscape = photo.IsLandscape,
@@ -153,7 +154,7 @@ public class PhonePlayer : NetworkBehaviour
                 Debug.Log("restoring message: " + message.MessageText + " with imageId: " + thisPhoto.imageId + " and image: " + thisPhoto.photo + " path: " + thisPhoto.imagePath);
                 var newMessage = new Message()
                 {
-                    MessageText = message.MessageText == "" ? "Image" : message.MessageText,
+                    MessageId = message.MessageText == "" ? "Image" : message.MessageText,
                     Image = thisPhoto.photo,
                     IsOutgoing = message.IsOutgoing,
                     IsLandscapeImage = message.IsLandscapeImage,
@@ -181,6 +182,11 @@ public class PhonePlayer : NetworkBehaviour
             phoneMessageAppController.SendIncomingText_ClientRPC(message, fromContact);
             phoneAudioManager.PlayAudio("incoming-text", false);
         }
+    }
+
+    public void OnBubbleTapped(Action<string> handler)
+    {
+        phoneMessageAppController.OnBubbleTapped(handler);
     }
 
     public void OnTextReceived(Action<NetworkTextMessage> handler)
