@@ -27,6 +27,7 @@ public class PhotoJSON
 [Serializable]
 public class MessageGroupJSON
 {
+    public long LastMessageTimestamp;
     public string ContactName;
     public bool Notification;
     public List<MessageTextJSON> Texts;

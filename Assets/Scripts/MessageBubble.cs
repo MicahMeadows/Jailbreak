@@ -38,6 +38,8 @@ public class MessageBubble : MonoBehaviour
         this.image = image;
         this.isLandscape = isLandscape;
 
+        Debug.Log("SetMessage: " + message + " outgoing: " + outgoing + " image: " + image + " isLandscape: " + isLandscape);
+
         bubbleButton.onClick.RemoveAllListeners();
         bubbleButton.onClick.AddListener(() => onTap?.Invoke());
 

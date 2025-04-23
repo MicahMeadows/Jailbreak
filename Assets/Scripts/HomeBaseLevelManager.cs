@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class HomeBaseLevelManager : NetworkBehaviour
@@ -24,6 +25,7 @@ public class HomeBaseLevelManager : NetworkBehaviour
     {
         phonePlayer.OffTextReceived(OnTextReceived);
         phonePlayer.OffBubbleTapped(OnBubbleTapped);
+        base.OnDestroy();
     }
 
     private void InitializeLevel()

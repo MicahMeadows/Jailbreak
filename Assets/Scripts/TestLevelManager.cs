@@ -138,7 +138,6 @@ public class TestLevelManager : NetworkBehaviour
                     Debug.Log("img obj: " + imageObject);
                     if (imageObject == "GreenCube")
                     {
-                        Debug.Log("YO A FUCKIN GREEN CUBE LETS GO");
                         StartCoroutine(SendFrickerTextSoon(message.Contact));
                     }
                 }
@@ -181,6 +180,6 @@ public class TestLevelManager : NetworkBehaviour
     {
         yield return new WaitForSeconds(2f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        phonePlayerController.SendIncomingText("Hey man!", "Cube Lover");
+        phonePlayerController.SendIncomingText("send-cube", "Cube Lover");
     }
 }

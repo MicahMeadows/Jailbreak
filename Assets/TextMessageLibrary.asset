@@ -27,5 +27,12 @@ MonoBehaviour:
     messageResponses: []
   - message:
       messageName: send-cube
-      messageText: send cube pics...
+      messageText: yo if you happen to see a fat frickin green cube lmk and send
+        me a photo of it... thanks...
     messageResponses: []
+  - message:
+      messageName: test-in
+      messageText: test in
+    messageResponses:
+    - messageName: test-out
+      messageText: test out

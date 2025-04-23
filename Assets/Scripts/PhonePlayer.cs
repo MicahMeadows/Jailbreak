@@ -97,15 +97,14 @@ public class PhonePlayer : NetworkBehaviour
             if (messageGroup == null)
             {
                 messageGroup = new MessageGroupJSON()
-
                 {
-                    Notification = !message.IsOutgoing,
                     ContactName = contact,
                     Texts = new List<MessageTextJSON>() { }
                 };
                 player.currentPlayerState.MessageGroups.Add(messageGroup);
             }
 
+            messageGroup.LastMessageTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             messageGroup.Notification = !message.IsOutgoing;
             messageGroup.Texts ??= new List<MessageTextJSON>();
             messageGroup.Texts.Add(message);
@@ -140,6 +139,7 @@ public class PhonePlayer : NetworkBehaviour
         {
             var newMessageGroup = new MessageGroup()
             {
+                LastMessageTime = messageGroup.LastMessageTimestamp,
                 Notification = messageGroup.Notification,
                 ContactName = messageGroup.ContactName,
                 Texts = new List<Message>()

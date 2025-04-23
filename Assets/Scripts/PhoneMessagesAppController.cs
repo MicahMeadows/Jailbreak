@@ -63,6 +63,7 @@ public struct MessageGroup
 {
     public string ContactName;
     public bool Notification;
+    public long LastMessageTime;
 
     private List<Message> _texts;
     public List<Message> Texts
@@ -199,23 +200,30 @@ public class PhoneMessagesAppController : NetworkBehaviour
     public void SendIncomingText_ClientRPC(string message, string contactName)
     {
         int index = conversations.FindIndex((conv) => conv.ContactName == contactName);
+        Debug.Log($"text contact idx: {index}");
 
         var newMessage = new Message {
             MessageId = message,
             IsOutgoing = false,
         };
 
+        bool contactIsOpen = activeMessageContact != contactName;
+
+        var RightNowUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         if (index != -1)
         {
             var conv = conversations[index];
-            conv.Notification = true;
+            conv.LastMessageTime = RightNowUtc;
+            conv.Notification = !contactIsOpen;
             conv.Texts.Add(newMessage);
             conversations[index] = conv;
         }
         else
         {
             var newConv = new MessageGroup {
-                Notification = true,
+                LastMessageTime = RightNowUtc,
+                Notification = !contactIsOpen,
                 ContactName = contactName,
                 Texts = new List<Message> { newMessage },
             };
@@ -227,7 +235,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
         HideOrShowNotifIcons();
 
         var allMessages = GetAllMessages();
-        var actualMessage = allMessages.TryGetValue(message, out var val) ? val : null;
+        var actualMessage = allMessages.TryGetValue(message, out var val) ? val : "Message not found in message library";
 
         if (!IsServer)
         {
@@ -323,6 +331,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     private void OnBackToMessagesListClicked()
     {
+        activeMessageContact = null;
         HideOrShowNotifIcons();
         textsViewGroup.SetActive(false);
         messagesListViewGroup.SetActive(true);
@@ -429,7 +438,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
             var replies = messageLibrary.IncomingMessages.FirstOrDefault(x => x.message.messageName == lastTextMessage.MessageId).messageResponses;
             if (replies == null) return;
 
-            repliesAvailable = replies.Count == 0 ? false : true;
+            repliesAvailable = replies.Count == 0;
 
             for (int i = 0; i < replies.Count; i++) 
             {
@@ -488,13 +497,23 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
         var allMessages = GetAllMessages();
 
+        conversations.Sort((a,b) => a.LastMessageTime.CompareTo(b.LastMessageTime));
         foreach (var messageGroup in conversations)
         {
+            Debug.Log("Contact: " + messageGroup.ContactName + " last message time: " + messageGroup.LastMessageTime);
             var newMessageGroup = Instantiate(messageGroupPrefab, messageGroupParent.transform);
-            var lastText = messageGroup.Texts.LastOrDefault();
-            var actualMessage = allMessages.TryGetValue(lastText.MessageId, out var val) ? val : null;
-            newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Image == null ? actualMessage : "Photo");
+            newMessageGroup.transform.SetSiblingIndex(0);
+            Message? lastText = messageGroup.Texts.LastOrDefault();
+            string actualMessage = "";
+
+            if (lastText != null && lastText.Value.MessageId != null)
+            {
+                allMessages.TryGetValue(lastText.Value.MessageId, out actualMessage);
+            }
+
+            newMessageGroup.GetComponent<MessageGroupItem>().Setup(messageGroup.ContactName, lastText.Value.Image == null ? actualMessage : "Photo");
             newMessageGroup.GetComponent<Button>().onClick.AddListener(() => OpenMessageGroup(messageGroup));
+            
         }
 
         if (activeMessageContact != null)
