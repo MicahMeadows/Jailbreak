@@ -86,7 +86,7 @@ public class TestLevelManager : NetworkBehaviour
     {
         yield return new WaitForSeconds(2f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        phonePlayerController.SendIncomingText("omg. calling rn", contact);
+        phonePlayerController.SendIncomingText("send-cube-2", contact);
 
         yield return new WaitForSeconds(2f);
 
@@ -117,7 +117,7 @@ public class TestLevelManager : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-        phonePlayerController.SendIncomingText("my hero <3", "Cube Lover");
+        phonePlayerController.SendIncomingText("send-cube-3", "Cube Lover");
     }
 
     public override void OnDestroy()

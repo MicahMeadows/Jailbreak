@@ -112,16 +112,67 @@ public class PhonePlayer : NetworkBehaviour
     }
 
 
-    [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    public void RestorePlayerState_ClientRPC(string json) // TODO: this will break because of RPC max size later
+    // [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    // public void RestorePlayerState_ClientRPC(string json) // TODO: this will break because of RPC max size later
+    // {
+    //     Debug.Log("restoring player state: " + json);
+    //     PlayerStateJSON playerState = JsonUtility.FromJson<PlayerStateJSON>(json);
+    //     var restoredPhotos = new List<PhotoTaken>() { };
+    //     foreach (var photo in playerState.Photos)
+    //     {
+    //         var tex2d = PhoneCameraController.LoadTextureFromFile(photo.ImagePath);
+    //         var newPhoto = new PhotoTaken(/*  */)
+    //         {
+    //             imagePath = photo.ImagePath,
+    //             isLandscape = photo.IsLandscape,
+    //             photoTargets = photo.PhotoTargets,
+    //             imageId = photo.ImageId,
+    //             photo = tex2d,
+    //         };
+    //         restoredPhotos.Add(newPhoto);
+    //     }
+    //     phoneCameraController.SetPhotosTaken(restoredPhotos);
+
+
+    //     var restoredMessageGroups = new List<MessageGroup>() {};
+    //     foreach (var messageGroup in playerState.MessageGroups)
+    //     {
+    //         var newMessageGroup = new MessageGroup()
+    //         {
+    //             LastMessageTime = messageGroup.LastMessageTimestamp,
+    //             Notification = messageGroup.Notification,
+    //             ContactName = messageGroup.ContactName,
+    //             Texts = new List<Message>()
+    //         };
+            
+    //         foreach (var message in messageGroup.Texts)
+    //         {
+    //             var thisPhoto = restoredPhotos.FirstOrDefault(p => p.imageId == message.ImageId);
+    //             Debug.Log("restoring message: " + message.MessageText + " with imageId: " + thisPhoto.imageId + " and image: " + thisPhoto.photo + " path: " + thisPhoto.imagePath);
+    //             var newMessage = new Message()
+    //             {
+    //                 MessageId = message.MessageText == "" ? "Image" : message.MessageText,
+    //                 Image = thisPhoto.photo,
+    //                 IsOutgoing = message.IsOutgoing,
+    //                 IsLandscapeImage = message.IsLandscapeImage,
+    //             };
+    //             newMessageGroup.Texts.Add(newMessage);
+                
+    //         }
+
+    //         restoredMessageGroups.Add(newMessageGroup);
+    //     }
+
+    //     phoneMessageAppController.SetMessageGroups(restoredMessageGroups);
+    // }
+
+    private void RestoreState(PlayerStateJSON playerState)
     {
-        Debug.Log("restoring player state: " + json);
-        PlayerStateJSON playerState = JsonUtility.FromJson<PlayerStateJSON>(json);
-        var restoredPhotos = new List<PhotoTaken>() { };
+        var restoredPhotos = new List<PhotoTaken>();
         foreach (var photo in playerState.Photos)
         {
             var tex2d = PhoneCameraController.LoadTextureFromFile(photo.ImagePath);
-            var newPhoto = new PhotoTaken(/*  */)
+            var newPhoto = new PhotoTaken
             {
                 imagePath = photo.ImagePath,
                 isLandscape = photo.IsLandscape,
@@ -133,31 +184,28 @@ public class PhonePlayer : NetworkBehaviour
         }
         phoneCameraController.SetPhotosTaken(restoredPhotos);
 
-
-        var restoredMessageGroups = new List<MessageGroup>() {};
+        var restoredMessageGroups = new List<MessageGroup>();
         foreach (var messageGroup in playerState.MessageGroups)
         {
-            var newMessageGroup = new MessageGroup()
+            var newMessageGroup = new MessageGroup
             {
                 LastMessageTime = messageGroup.LastMessageTimestamp,
                 Notification = messageGroup.Notification,
                 ContactName = messageGroup.ContactName,
                 Texts = new List<Message>()
             };
-            
+
             foreach (var message in messageGroup.Texts)
             {
-                var thisPhoto = restoredPhotos.FirstOrDefault(p => p.imageId == message.ImageId);
-                Debug.Log("restoring message: " + message.MessageText + " with imageId: " + thisPhoto.imageId + " and image: " + thisPhoto.photo + " path: " + thisPhoto.imagePath);
-                var newMessage = new Message()
+                PhotoTaken? thisPhoto = restoredPhotos.FirstOrDefault(p => p.imageId == message.ImageId);
+                var newMessage = new Message
                 {
-                    MessageId = message.MessageText == "" ? "Image" : message.MessageText,
-                    Image = thisPhoto.photo,
+                    MessageId = string.IsNullOrEmpty(message.MessageText) ? "Image" : message.MessageText,
+                    Image = thisPhoto?.photo,
                     IsOutgoing = message.IsOutgoing,
                     IsLandscapeImage = message.IsLandscapeImage,
                 };
                 newMessageGroup.Texts.Add(newMessage);
-                
             }
 
             restoredMessageGroups.Add(newMessageGroup);
@@ -165,6 +213,36 @@ public class PhonePlayer : NetworkBehaviour
 
         phoneMessageAppController.SetMessageGroups(restoredMessageGroups);
     }
+
+
+    private string restoreBuffer = "";
+
+    public void AddRestoreChunk(string chunk, bool isFinal) {
+        restoreBuffer += chunk;
+        if (isFinal) {
+            var state = JsonUtility.FromJson<PlayerStateJSON>(restoreBuffer);
+            RestoreState(state);
+            restoreBuffer = ""; // Clear buffer
+        }
+    }
+
+    const int MAX_CHUNK_SIZE = 1000;
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    public void RestorePlayerStateChunk_ClientRPC(string chunk, bool isFinal) {
+        AddRestoreChunk(chunk, isFinal);
+    }
+
+    public void SendLargePlayerState(string fullJson) {
+        for (int i = 0; i < fullJson.Length; i += MAX_CHUNK_SIZE) {
+            int remaining = Mathf.Min(MAX_CHUNK_SIZE, fullJson.Length - i);
+            string chunk = fullJson.Substring(i, remaining);
+            bool isFinal = (i + remaining) >= fullJson.Length;
+            Debug.Log("sending chunk: " + chunk + " isFinal: " + isFinal);
+            RestorePlayerStateChunk_ClientRPC(chunk, isFinal);
+        }
+    }
+
 
     public void SendIncomingText(string message, string fromContact)
     {

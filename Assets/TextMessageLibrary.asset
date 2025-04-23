@@ -31,6 +31,14 @@ MonoBehaviour:
         me a photo of it... thanks...
     messageResponses: []
   - message:
+      messageName: send-cube-2
+      messageText: Omg. calling rn
+    messageResponses: []
+  - message:
+      messageName: send-cube-3
+      messageText: my hero <3
+    messageResponses: []
+  - message:
       messageName: test-in
       messageText: test in
     messageResponses:

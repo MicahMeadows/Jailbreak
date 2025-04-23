@@ -66,7 +66,9 @@ public class Player : NetworkBehaviour
         var phonePlayer = phonePlayerParent.GetComponentInChildren<PhonePlayer>();
         if (phonePlayer)
         {
-            phonePlayer.RestorePlayerState_ClientRPC(JsonConvert.SerializeObject(currentPlayerState));
+            // phonePlayer.RestorePlayerState_ClientRPC(JsonConvert.SerializeObject(currentPlayerState));
+            var fullPlayerState = JsonConvert.SerializeObject(currentPlayerState);
+            phonePlayer.SendLargePlayerState(fullPlayerState);
         }
     }
 

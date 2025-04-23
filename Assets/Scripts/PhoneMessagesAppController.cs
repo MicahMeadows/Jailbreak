@@ -331,8 +331,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
 
     private void OnBackToMessagesListClicked()
     {
-        activeMessageContact = null;
         HideOrShowNotifIcons();
+        activeMessageContact = null;
         textsViewGroup.SetActive(false);
         messagesListViewGroup.SetActive(true);
     }
