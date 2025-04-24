@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Android.Gradle.Manifest;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -82,40 +83,44 @@ public class TestLevelManager : NetworkBehaviour
         
     }
 
-    private IEnumerator SendFrickerTextSoon(string contact)
+    async Awaitable SendFrickerText(string contact)
     {
-        yield return new WaitForSeconds(2f);
+        await Awaitable.WaitForSecondsAsync(2f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
         phonePlayerController.SendIncomingText("send-cube-2", contact);
 
-        yield return new WaitForSeconds(2f);
+        await Awaitable.WaitForSecondsAsync(2f);
 
         phonePlayerController.CreateIncomingCall(contact, () => {
-            StartCoroutine(PlaySexyCubeSoon());
+            _ = PlaySexyCube();
         });
     }
 
-    private IEnumerator PlaySexyCubeSoon()
+    private async Awaitable PlaySexyCube()
     {
-        yield return new WaitForSeconds(1f);
+        await Awaitable.WaitForSecondsAsync(1f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
 
         phonePlayerController.phoneAudioManager.PlayAudio("sexy-cube", onComplete: () => {
-            StartCoroutine(HangupSoon());
+            _ = Hangup();
         });
     }
 
-    private IEnumerator HangupSoon()
+    // private IEnumerator HangupSoon()
+    private async Awaitable Hangup()
     {
-        yield return new WaitForSeconds(1f);
+        // yield return new WaitForSeconds(1f);
+        await Awaitable.WaitForSecondsAsync(1f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
         phonePlayerController.HangupCall();
-        StartCoroutine(HeroSoon());
+        _ = TextHero();
     }
 
-    private IEnumerator HeroSoon()
+    // private IEnumerator HeroSoon()
+    private async Awaitable TextHero()
     {
-        yield return new WaitForSeconds(1f);
+        // yield return new WaitForSeconds(1f);
+        await Awaitable.WaitForSecondsAsync(1f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
         phonePlayerController.SendIncomingText("send-cube-3", "Cube Lover");
     }
@@ -138,7 +143,7 @@ public class TestLevelManager : NetworkBehaviour
                     Debug.Log("img obj: " + imageObject);
                     if (imageObject == "GreenCube")
                     {
-                        StartCoroutine(SendFrickerTextSoon(message.Contact));
+                        _ = SendFrickerText(message.Contact);
                     }
                 }
             }
@@ -170,15 +175,20 @@ public class TestLevelManager : NetworkBehaviour
 
         if (IsServer)
         {
-            var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
-            phonePlayerController.OnTextReceived(OnTextReceived);
-            StartCoroutine(TextPlayerSoon());
+            _ = StartLevel();
         }
     }
 
-    IEnumerator TextPlayerSoon()
+    private async Awaitable StartLevel()
     {
-        yield return new WaitForSeconds(2f);
+        var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
+        phonePlayerController.OnTextReceived(OnTextReceived);
+        await TextPlayerSoon();
+    }
+
+    async Awaitable TextPlayerSoon()
+    {
+        await Awaitable.WaitForSecondsAsync(2f);
         var phonePlayerController = phonePlayer.GetComponent<PhonePlayer>();
         phonePlayerController.SendIncomingText("send-cube", "Cube Lover");
     }

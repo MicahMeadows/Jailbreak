@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -52,33 +54,40 @@ public class HomeBaseLevelManager : NetworkBehaviour
             {
                 case "intro-p1-r1":
                 case "intro-p1-r2":
-                    StartCoroutine(IntroPart2Soon());
+                    var awaitable = IntroPart2();
                     break;
             }
         }
     }
 
-    private IEnumerator IntroPart2Soon()
+    private async Awaitable IntroPart2()
     {
-        yield return new WaitForSeconds(4f);
+        await Awaitable.WaitForSecondsAsync(4f);
         phonePlayer.SendIncomingText("intro-p2", "Friend");
     }
 
-    public void ExitDoorTriggerEntered()
+    public async Awaitable ExitDoorTriggerEntered()
     {
         if (!IsServer) return;
 
         if (computerPlayer.currentPlayerState.LevelState.Intro == false)
         {
-            StartCoroutine(TextIntroSoon());
+            await TextIntro();
             return;
         }
     }
 
-    private IEnumerator TextIntroSoon()
+    private async Awaitable TextIntro()
     {
         computerPlayer.currentPlayerState.LevelState.Intro = true;
-        yield return new WaitForSeconds(5f);
+        await Awaitable.WaitForSecondsAsync(5f);
         phonePlayer.SendIncomingText("intro-p1", "Friend");
     }
+
+    // private IEnumerator TextIntroSoon()
+    // {
+    //     computerPlayer.currentPlayerState.LevelState.Intro = true;
+    //     yield return new WaitForSeconds(5f);
+    //     phonePlayer.SendIncomingText("intro-p1", "Friend");
+    // }
 }

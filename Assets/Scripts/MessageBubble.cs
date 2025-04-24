@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -55,7 +56,6 @@ public class MessageBubble : MonoBehaviour
             messageText.text = message;
             bubble.color = isOutgoing ? OUTGOING_COLOR : INCOMING_COLOR;
             LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.GetComponent<RectTransform>());
-            StartCoroutine(CheckAndApplyLayout());
         }
         else
         {
@@ -70,15 +70,15 @@ public class MessageBubble : MonoBehaviour
                 messageLandscapeImageObject.SetActive(true);
                 messageLandscapeImageObject.GetComponent<RawImage>().texture = image;
             }
-            StartCoroutine(CheckAndApplyLayout());
         }
-
+        var task = CheckAndApplyLayout();
         
     }
 
-    private IEnumerator CheckAndApplyLayout()
+    private async Awaitable CheckAndApplyLayout()
     {
-        yield return null; // wait one frame for layout to update
+        // yield return null; // wait one frame for layout to update
+        await Awaitable.NextFrameAsync(); // wait one frame for layout to update
 
         var messagesScrollContent = transform.parent.GetComponent<RectTransform>();
         float currentWidth = messageRect.rect.width;
@@ -89,19 +89,18 @@ public class MessageBubble : MonoBehaviour
         }
         LayoutRebuilder.ForceRebuildLayoutImmediate(messagesScrollContent);
 
-        StartCoroutine(LateUpdateMrgins());
-
+        await LateUpdateMargins();
     }
-    
-    private IEnumerator LateUpdateMrgins()
+
+    private async Awaitable LateUpdateMargins()
     {
-        yield return null;
-        UpdateMargins();
-        yield return null;
+        await Awaitable.NextFrameAsync();
+        await UpdateMargins();
+        await Awaitable.NextFrameAsync();
         LayoutRebuilder.ForceRebuildLayoutImmediate(bubble.GetComponent<RectTransform>());
     }
-
-    private void UpdateMargins()
+    
+    private async Task UpdateMargins()
     {
         var rect = isLandscape ? messageLandscapeImageObject.GetComponent<RectTransform>() : messageImageObject.GetComponent<RectTransform>();
         float currentWidth = image == null ? messageRect.rect.width : rect.rect.width;
@@ -118,25 +117,18 @@ public class MessageBubble : MonoBehaviour
         var messageScrollContent = transform.parent.GetComponent<RectTransform>();
         LayoutRebuilder.ForceRebuildLayoutImmediate(messageScrollContent);
 
-        StartCoroutine(LatRenderBubble());
+        await LateRenderBubble();
     }
 
-    private IEnumerator LatRenderBubble()
+    private async Awaitable LateRenderBubble()
     {
-        yield return null;
-
+        await Awaitable.NextFrameAsync();
         bubble.enabled = false;
-        yield return null;
+        await Awaitable.NextFrameAsync();
 
         if (this.image == null) // only re-enable the bubble if there is no image basically only for text
         {
             bubble.enabled = true;
         }
-    }
-
-
-    void Start()
-    {
-        // UpdateMessageBubble();
     }
 }

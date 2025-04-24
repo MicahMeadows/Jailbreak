@@ -30,16 +30,16 @@ public class PhoneAudioManager : MonoBehaviour
 
                 if (!loop && onComplete != null)
                 {
-                    StartCoroutine(WaitForAudioToEnd(audioSource.clip.length, onComplete));
+                    _ = WaitForAudioToEnd(audioSource.clip.length, onComplete);
                 }
                 return;
             }
         }
     }
 
-    private IEnumerator WaitForAudioToEnd(float duration, Action onComplete)
+    private async Awaitable WaitForAudioToEnd(float duration, Action onComplete)
     {
-        yield return new WaitForSeconds(duration);
+        await Awaitable.WaitForSecondsAsync(duration);
         onComplete?.Invoke();
     }
 

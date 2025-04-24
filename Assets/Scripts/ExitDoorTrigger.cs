@@ -10,11 +10,11 @@ public class ExitDoorTrigger : MonoBehaviour
         levelManager = FindFirstObjectByType<HomeBaseLevelManager>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    private async void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("ComputerPlayer"))
         {
-            levelManager.ExitDoorTriggerEntered();
+            await levelManager.ExitDoorTriggerEntered();
         }
     }
 }

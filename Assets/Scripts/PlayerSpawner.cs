@@ -36,15 +36,15 @@ public class PlayerSpawner : NetworkBehaviour
         }
     }
 
-    private IEnumerator TryLoadInitialScene()
+    private async Awaitable LoadInitialScene()
     {
         if (IsServer)
         {
             while (!stateLoaded)
             {
-                yield return new WaitForSeconds(1f);
+                await Awaitable.WaitForSecondsAsync(1f);
             }
-        
+
             NetworkManager.Singleton.SceneManager.PostSynchronizationSceneUnloading = true;
             NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Single);
             NetworkManager.Singleton.SceneManager.LoadScene(initialScene, LoadSceneMode.Single);
@@ -72,7 +72,7 @@ public class PlayerSpawner : NetworkBehaviour
                     drone.ChangeOwnership(clientId);
                 }
 
-                StartCoroutine(TryLoadInitialScene());
+                _ = LoadInitialScene();
             }
         }
     }
