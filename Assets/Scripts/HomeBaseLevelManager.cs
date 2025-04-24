@@ -63,7 +63,9 @@ public class HomeBaseLevelManager : NetworkBehaviour
     private async Awaitable IntroPart2()
     {
         await Awaitable.WaitForSecondsAsync(4f);
-        phonePlayer.SendIncomingText("intro-p2", "Friend");
+        phonePlayer.SendIncomingText("intro-p2", "Friend", (msg) => {
+            Debug.Log("Reply handler called: " + msg);
+        });
     }
 
     public async Awaitable ExitDoorTriggerEntered()
@@ -81,7 +83,11 @@ public class HomeBaseLevelManager : NetworkBehaviour
     {
         computerPlayer.currentPlayerState.LevelState.Intro = true;
         await Awaitable.WaitForSecondsAsync(5f);
-        phonePlayer.SendIncomingText("intro-p1", "Friend");
+        phonePlayer.SendIncomingText("intro-p1", "Friend", async (msg) => {
+            Debug.Log("Reply handler called: " + msg);
+            await Awaitable.WaitForSecondsAsync(2f);
+            Debug.Log("Test delay called...");
+        });
     }
 
     // private IEnumerator TextIntroSoon()

@@ -114,6 +114,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
     public event Action<NetworkTextMessage> TextReceived;
     public event Action<string> BubbleTapped;
 
+    private Dictionary<string, Action<string>> textReplyActions = new Dictionary<string, Action<string>>();
+
     public void OnBubbleTapped(Action<string> handler)
     {
         BubbleTapped += handler;
@@ -122,6 +124,12 @@ public class PhoneMessagesAppController : NetworkBehaviour
     public void OffBubbleTapped(Action<string> handler)
     {
         BubbleTapped -= handler;
+    }
+
+    // Listen for a reply to a message and call event
+    public void OnMessageReply(string message, Action<string> handler)
+    {
+        textReplyActions.Add(message, handler);
     }
 
     public void OnTextReceived(Action<NetworkTextMessage> handler)
@@ -133,33 +141,6 @@ public class PhoneMessagesAppController : NetworkBehaviour
     {
         TextReceived -= handler;
     }
-
-    // void SetupInitialConversations()
-    // {
-    //     var lastImage = phoneCameraController.GetPhotos().LastOrDefault();
-    //     conversations = new List<MessageGroup>(){
-    //         new MessageGroup() { 
-    //             ContactName = "Cube Lover",
-    //             Texts = new List<Message>()
-    //             {
-    //                 new Message() { MessageText = "Send cube pics", IsOutgoing = false },
-    //             }
-    //         },
-    //         new MessageGroup() { ContactName = "Jane Smith" },
-    //         // new MessageGroup() { 
-    //         //     ContactName = "John Doe", LastMessage = "Hey, are you coming to the party?",
-    //         //     Texts = new List<Message>()
-    //         //     {
-    //         //         new Message() { MessageText = "Hey, are you coming to the party?", IsOutgoing = true },
-    //         //         new Message() { MessageText = "No. Staying in", IsOutgoing = false },
-    //         //         new Message() { MessageText = "Ok", IsOutgoing = true },
-    //         //         new Message() { MessageText = "fuck you", IsOutgoing = false },
-    //         //         new Message() { MessageText = "long message test long message test long message test long message test long message test long message testlong message test long message test long message test ", IsOutgoing = false },
-    //         //         new Message() { MessageText = "image", IsOutgoing = true, Image=lastImage.photo},
-    //         //     }
-    //         // },
-    //     };
-    // }
 
     void Start()
     {
@@ -305,8 +286,28 @@ public class PhoneMessagesAppController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendTextDataBackend_ServerRPC(NetworkTextMessage message)
     {
+        foreach (var incomingMessage in messageLibrary.IncomingMessages)
+        {
+            foreach (var reply in incomingMessage.messageResponses)
+            {
+                if (reply.messageName == message.Message)
+                {
+                    if (textReplyActions.TryGetValue(incomingMessage.message.messageName, out var action))
+                    {
+                        action?.Invoke(reply.messageName);
+                        textReplyActions.Remove(incomingMessage.message.messageName);
+                        return;
+                    }
+                    else
+                    {
+                        Debug.Log("Reply action not found: " + incomingMessage.message.messageName);
+                    }
+                }
+            }
+        }
 
         TextReceived?.Invoke(message);
+    
         var newMessage = new MessageTextJSON()
         {
             MessageText = message.Message,
@@ -316,8 +317,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
         };
 
         phonePlayer.SaveNewText(newMessage, message.Contact);
-        
     }
+
 
     private void OnUploadImageClicked()
     {

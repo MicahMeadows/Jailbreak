@@ -52,6 +52,7 @@ public class PhonePlayer : NetworkBehaviour
     int selectedCam = 0;
 
     private Dictionary<string, Action> rpcCallbacks = new Dictionary<string, Action>();
+    private Dictionary<string, Action<NetworkTextMessage>> textReceivedCallbacks = new Dictionary<string, Action<NetworkTextMessage>>();
 
     public void Start()
     {
@@ -111,60 +112,6 @@ public class PhonePlayer : NetworkBehaviour
         }
     }
 
-
-    // [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    // public void RestorePlayerState_ClientRPC(string json) // TODO: this will break because of RPC max size later
-    // {
-    //     Debug.Log("restoring player state: " + json);
-    //     PlayerStateJSON playerState = JsonUtility.FromJson<PlayerStateJSON>(json);
-    //     var restoredPhotos = new List<PhotoTaken>() { };
-    //     foreach (var photo in playerState.Photos)
-    //     {
-    //         var tex2d = PhoneCameraController.LoadTextureFromFile(photo.ImagePath);
-    //         var newPhoto = new PhotoTaken(/*  */)
-    //         {
-    //             imagePath = photo.ImagePath,
-    //             isLandscape = photo.IsLandscape,
-    //             photoTargets = photo.PhotoTargets,
-    //             imageId = photo.ImageId,
-    //             photo = tex2d,
-    //         };
-    //         restoredPhotos.Add(newPhoto);
-    //     }
-    //     phoneCameraController.SetPhotosTaken(restoredPhotos);
-
-
-    //     var restoredMessageGroups = new List<MessageGroup>() {};
-    //     foreach (var messageGroup in playerState.MessageGroups)
-    //     {
-    //         var newMessageGroup = new MessageGroup()
-    //         {
-    //             LastMessageTime = messageGroup.LastMessageTimestamp,
-    //             Notification = messageGroup.Notification,
-    //             ContactName = messageGroup.ContactName,
-    //             Texts = new List<Message>()
-    //         };
-            
-    //         foreach (var message in messageGroup.Texts)
-    //         {
-    //             var thisPhoto = restoredPhotos.FirstOrDefault(p => p.imageId == message.ImageId);
-    //             Debug.Log("restoring message: " + message.MessageText + " with imageId: " + thisPhoto.imageId + " and image: " + thisPhoto.photo + " path: " + thisPhoto.imagePath);
-    //             var newMessage = new Message()
-    //             {
-    //                 MessageId = message.MessageText == "" ? "Image" : message.MessageText,
-    //                 Image = thisPhoto.photo,
-    //                 IsOutgoing = message.IsOutgoing,
-    //                 IsLandscapeImage = message.IsLandscapeImage,
-    //             };
-    //             newMessageGroup.Texts.Add(newMessage);
-                
-    //         }
-
-    //         restoredMessageGroups.Add(newMessageGroup);
-    //     }
-
-    //     phoneMessageAppController.SetMessageGroups(restoredMessageGroups);
-    // }
 
     private void RestoreState(PlayerStateJSON playerState)
     {
@@ -244,10 +191,16 @@ public class PhonePlayer : NetworkBehaviour
     }
 
 
-    public void SendIncomingText(string message, string fromContact)
+    public void SendIncomingText(string message, string fromContact, Action<string> onReply = null)
     {
         if (IsServer)
         {
+
+            if (onReply != null)
+            {
+                phoneMessageAppController.OnMessageReply(message, onReply);
+            }
+
             SaveNewText(new MessageTextJSON(){
                 ImageId = null,
                 IsLandscapeImage = false,
