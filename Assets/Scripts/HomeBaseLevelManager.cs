@@ -18,54 +18,7 @@ public class HomeBaseLevelManager : NetworkBehaviour
         {
             computerPlayer = GameObject.FindGameObjectWithTag("ComputerPlayer").GetComponent<Player>();
             phonePlayer = GameObject.FindGameObjectWithTag("PhonePlayer").GetComponent<PhonePlayer>();
-
-            InitializeLevel();
         }
-    }
-
-    public override void OnDestroy()
-    {
-        phonePlayer.OffTextReceived(OnTextReceived);
-        phonePlayer.OffBubbleTapped(OnBubbleTapped);
-        base.OnDestroy();
-    }
-
-    private void InitializeLevel()
-    {
-        phonePlayer.OnTextReceived(OnTextReceived);
-        phonePlayer.OnBubbleTapped(OnBubbleTapped);
-    }
-
-    void OnBubbleTapped(string messageId)
-    {
-        Debug.Log("Bubble tapped: " + messageId);
-        if (messageId == "intro-p2")
-        {
-            computerPlayer.SaveState();
-            phonePlayer.ChangeLevel_ServerRPC("GasStation");
-        }
-    }
-
-    void OnTextReceived(NetworkTextMessage message)
-    {
-        if (message.Contact == "Friend")
-        {
-            switch (message.Message)
-            {
-                case "intro-p1-r1":
-                case "intro-p1-r2":
-                    var awaitable = IntroPart2();
-                    break;
-            }
-        }
-    }
-
-    private async Awaitable IntroPart2()
-    {
-        await Awaitable.WaitForSecondsAsync(4f);
-        phonePlayer.SendIncomingText("intro-p2", "Friend", (msg) => {
-            Debug.Log("Reply handler called: " + msg);
-        });
     }
 
     public async Awaitable ExitDoorTriggerEntered()
@@ -83,17 +36,14 @@ public class HomeBaseLevelManager : NetworkBehaviour
     {
         computerPlayer.currentPlayerState.LevelState.Intro = true;
         await Awaitable.WaitForSecondsAsync(5f);
-        phonePlayer.SendIncomingText("intro-p1", "Friend", async (msg) => {
-            Debug.Log("Reply handler called: " + msg);
-            await Awaitable.WaitForSecondsAsync(2f);
-            Debug.Log("Test delay called...");
+        phonePlayer.SendIncomingText("intro-p1", "Friend", onReply: async (msg) => {
+            await Awaitable.WaitForSecondsAsync(4f);
+            phonePlayer.SendIncomingText("intro-p2", "Friend", onTap: () => {
+                computerPlayer.SaveState();
+                phonePlayer.ChangeLevel_ServerRPC("GasStation");
+            });
+            Debug.Log("done!");
         });
     }
-
-    // private IEnumerator TextIntroSoon()
-    // {
-    //     computerPlayer.currentPlayerState.LevelState.Intro = true;
-    //     yield return new WaitForSeconds(5f);
-    //     phonePlayer.SendIncomingText("intro-p1", "Friend");
-    // }
+    
 }

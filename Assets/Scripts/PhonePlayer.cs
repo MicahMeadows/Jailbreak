@@ -191,7 +191,7 @@ public class PhonePlayer : NetworkBehaviour
     }
 
 
-    public void SendIncomingText(string message, string fromContact, Action<string> onReply = null)
+    public void SendIncomingText(string message, string fromContact, Action<NetworkTextMessage> onReply = null, Action onTap = null)
     {
         if (IsServer)
         {
@@ -199,6 +199,10 @@ public class PhonePlayer : NetworkBehaviour
             if (onReply != null)
             {
                 phoneMessageAppController.OnMessageReply(message, onReply);
+            }
+            if (onTap != null)
+            {
+                phoneMessageAppController.OnBubbleTapped(message, onTap);
             }
 
             SaveNewText(new MessageTextJSON(){

@@ -114,7 +114,8 @@ public class PhoneMessagesAppController : NetworkBehaviour
     public event Action<NetworkTextMessage> TextReceived;
     public event Action<string> BubbleTapped;
 
-    private Dictionary<string, Action<string>> textReplyActions = new Dictionary<string, Action<string>>();
+    private Dictionary<string, Action<NetworkTextMessage>> textReplyActions = new Dictionary<string, Action<NetworkTextMessage>>();
+    private Dictionary<string, Action> bubbleTapActions = new Dictionary<string, Action>();
 
     public void OnBubbleTapped(Action<string> handler)
     {
@@ -127,9 +128,14 @@ public class PhoneMessagesAppController : NetworkBehaviour
     }
 
     // Listen for a reply to a message and call event
-    public void OnMessageReply(string message, Action<string> handler)
+    public void OnMessageReply(string message, Action<NetworkTextMessage> handler)
     {
         textReplyActions.Add(message, handler);
+    }
+
+    public void OnBubbleTapped(string message, Action handler)
+    {
+        bubbleTapActions.Add(message, handler);
     }
 
     public void OnTextReceived(Action<NetworkTextMessage> handler)
@@ -294,7 +300,7 @@ public class PhoneMessagesAppController : NetworkBehaviour
                 {
                     if (textReplyActions.TryGetValue(incomingMessage.message.messageName, out var action))
                     {
-                        action?.Invoke(reply.messageName);
+                        action?.Invoke(message);
                         textReplyActions.Remove(incomingMessage.message.messageName);
                         return;
                     }
@@ -390,6 +396,11 @@ public class PhoneMessagesAppController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
     private void OnBubbleTapped_ServerRPC(string messageId)
     {
+        var bubbleTapAction = bubbleTapActions.FirstOrDefault(x => x.Key == messageId).Value;
+        if (bubbleTapAction != null)
+        {
+            bubbleTapAction?.Invoke();
+        }
         BubbleTapped?.Invoke(messageId);
     }
 
